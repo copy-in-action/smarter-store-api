@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Spring Boot 기본 설정을 불러와서 사용합니다 -->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- 로그 파일이 저장될 경로 -->
+    <property name="LOG_PATH" value="logs"/>
+
+    <!-- 날짜 + 용량 기반으로 로그 파일을 관리하는 Appender 설정 -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <!-- 로그 패턴은 Spring Boot 기본 패턴을 따릅니다 -->
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--
+              파일 이름 패턴:
+              'logs/smarter-store-2025-12-03.0.log' 처럼 날짜와 순번이 함께 기록됩니다.
+            -->
+            <fileNamePattern>${LOG_PATH}/smarter-store-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 30일 분량의 로그 파일만 보관 -->
+            <maxHistory>30</maxHistory>
+            <!-- 한 파일의 최대 용량 -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 모든 로그 파일의 총 용량 제한 (선택 사항, 예: 10GB) -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 루트 로거 설정 -->
+    <root level="INFO">
+        <!-- 기본 콘솔 로거는 그대로 사용 -->
+        <appender-ref ref="CONSOLE"/>
+        <!-- 파일 로거는 우리가 방금 정의한 ROLLING_FILE Appender를 사용 -->
+        <appender-ref ref="ROLLING_FILE"/>
+    </root>
+
+    <!-- 우리 프로젝트의 로그 레벨은 DEBUG로 설정 -->
+    <logger name="com.github.copyinaction" level="DEBUG"/>
+
+</configuration>

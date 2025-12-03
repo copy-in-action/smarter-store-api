@@ -1,0 +1,301 @@
+# Smarter Store API: 초기 설정 가이드
+
+본 문서는 `Smarter Store API` 백엔드 프로젝트의 초기 설정 과정을 안내합니다.
+
+## 1. 프로젝트 개요
+
+- **목적**: TDD/DDD 방법론에 기반한 REST API 서버 구축
+- **주요 기술 스택**:
+  - **언어**: Kotlin
+  - **프레임워크**: Spring Boot 3.3.0
+  - **빌드 시스템**: Gradle (Kotlin DSL)
+  - **데이터베이스**: PostgreSQL 18
+  - **JDK**: Java 21
+
+## 2. 사전 준비 (Prerequisites)
+
+프로젝트를 시작하기 전에 다음 소프트웨어가 설치되어 있어야 합니다.
+
+- **JDK 21**: [Oracle JDK](https://www.oracle.com/java/technologies/downloads/#jdk21-windows) 또는 [OpenJDK](https://jdk.java.net/21/)
+- **PostgreSQL 18**: [공식 홈페이지](https://www.postgresql.org/download/)
+- **IDE**: IntelliJ IDEA 또는 VS Code (Kotlin/Spring Boot 플러그인 설치 권장)
+
+## 3. 프로젝트 초기 설정
+
+### 3.1. Spring Initializr 사용
+
+[start.spring.io](https://start.spring.io/)를 사용하여 프로젝트의 기본 골격을 생성합니다.
+
+- **Project**: Gradle - Kotlin
+- **Language**: Kotlin
+- **Spring Boot**: 3.3.0
+- **Project Metadata**:
+  - **Group**: `com.example` (예시)
+  - **Artifact**: `smarter-store-api`
+  - **Name**: `smarter-store-api`
+  - **Package name**: `com.example.smarterstoreapi` (예시)
+- **Packaging**: Jar
+- **Java**: 21
+- **Dependencies**:
+  - Spring Web
+  - Spring Data JPA
+  - PostgreSQL Driver
+  - Jackson
+
+설정 완료 후 `GENERATE` 버튼을 클릭하여 프로젝트 파일을 다운로드하고 원하는 위치에 압축을 해제합니다.
+
+### 3.2. build.gradle.kts 수정
+
+프로젝트의 `build.gradle.kts` 파일을 열고 아래와 같이 의존성을 확인 및 추가합니다. TDD를 위해 `spring-boot-starter-test`가 포함되어 있는지 확인하고, 필요에 따라 MockK 같은 테스트 라이브러리를 추가할 수 있습니다.
+
+```kotlin
+plugins {
+    id("org.springframework.boot") version "3.3.0"
+    id("io.spring.dependency-management") version "1.1.5"
+    kotlin("jvm") version "1.9.24"
+    kotlin("plugin.spring") version "1.9.24"
+    kotlin("plugin.jpa") version "1.9.24"
+}
+
+group = "com.github.copyinaction"
+version = "0.0.1-SNAPSHOT"
+description = "Smarter Store API "
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Starters
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Kotlin
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    // Database
+    runtimeOnly("org.postgresql:postgresql")
+
+    // Test
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+```
+
+### 3.3. 데이터베이스 설정
+
+`src/main/resources/application.properties` 또는 `application.yml` 파일에 PostgreSQL 데이터베이스 연결 정보를 추가합니다.
+
+#### `application.yml` 사용 시:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smarter_store_db # DB명은 원하는대로 변경
+    username: your_postgres_username
+    password: your_postgres_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create # 개발 초기: create 또는 update, 운영: none 또는 validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    defer-datasource-initialization: true
+```
+
+**주의**: `your_postgres_username`과 `your_postgres_password`는 실제 PostgreSQL 계정 정보로 변경해야 합니다. 또한, `smarter_store_db`라는 이름의 데이터베이스를 미리 생성해두어야 합니다.
+
+## 4. TDD/DDD 기본 구조 및 예시
+
+**참고**: 이 섹션은 프로젝트 초기 설정 시의 기본적인 TDD/DDD 구조와 예시를 제공합니다. 현재 구현된 최신 아키텍처 및 상세 내용은 [GEMINI.md](../GEMINI.md) 문서를 참조해 주세요.
+
+### 4.1. 도메인(Domain) 정의
+
+DDD의 핵심인 도메인 객체를 정의합니다. 예를 들어 `Product`라는 도메인이 있다면 아래와 같이 `Product.kt` 파일을 생성합니다.
+
+`src/main/kotlin/com/example/smarterstoreapi/domain/Product.kt`
+```kotlin
+package com.example.smarterstoreapi.domain
+
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+
+@Entity
+class Product(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0,
+    var name: String,
+    var price: Double
+)
+```
+
+### 4.2. 레포지토리(Repository) 정의
+
+Spring Data JPA를 사용하여 데이터베이스와 상호작용할 레포지토리를 정의합니다.
+
+`src/main/kotlin/com/example/smarterstoreapi/repository/ProductRepository.kt`
+```kotlin
+package com.example.smarterstoreapi.repository
+
+import com.example.smarterstoreapi.domain.Product
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface ProductRepository : JpaRepository<Product, Long>
+```
+
+### 4.3. 테스트 주도 개발(TDD) 예시
+
+기능을 개발하기 전, 테스트 케이스를 먼저 작성합니다. `Product`를 저장하고 조회하는 간단한 서비스 로직을 TDD로 개발해 보겠습니다.
+
+#### 테스트 코드 작성
+
+`src/test/kotlin/com/example/smarterstoreapi/service/ProductServiceTest.kt`
+```kotlin
+package com.example.smarterstoreapi.service
+
+import com.example.smarterstoreapi.domain.Product
+import com.example.smarterstoreapi.repository.ProductRepository
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import java.util.*
+
+class ProductServiceTest {
+
+    private val productRepository: ProductRepository = mockk()
+    private val productService = ProductService(productRepository)
+
+    @Test
+    fun `상품을 ID로 조회할 수 있어야 한다`() {
+        // Given
+        val expectedProduct = Product(id = 1L, name = "테스트 상품", price = 10000.0)
+        every { productRepository.findById(1L) } returns Optional.of(expectedProduct)
+
+        // When
+        val foundProduct = productService.findProductById(1L)
+
+        // Then
+        assertEquals(expectedProduct, foundProduct)
+        verify(exactly = 1) { productRepository.findById(1L) }
+    }
+}
+```
+*이 테스트는 `ProductService`가 아직 없기 때문에 처음에는 컴파일 에러가 발생합니다.*
+
+#### 실제 서비스 코드 작성
+
+테스트를 통과시키기 위한 `ProductService.kt`를 작성합니다.
+
+`src/main/kotlin/com/example/smarterstoreapi/service/ProductService.kt`
+```kotlin
+package com.example.smarterstoreapi.service
+
+import com.example.smarterstoreapi.domain.Product
+import com.example.smarterstoreapi.repository.ProductRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+@Transactional(readOnly = true)
+class ProductService(
+    private val productRepository: ProductRepository
+) {
+    fun findProductById(id: Long): Product? {
+        return productRepository.findById(id).orElse(null)
+    }
+}
+```
+
+이제 테스트를 실행하면 성공적으로 통과하는 것을 확인할 수 있습니다.
+
+## 5. REST 컨트롤러 및 애플리케이션 실행
+
+### 5.1. REST 컨트롤러 작성
+
+간단한 API 엔드포인트를 위해 `ProductController.kt`를 작성합니다.
+
+`src/main/kotlin/com/example/smarterstoreapi/controller/ProductController.kt`
+```kotlin
+package com.example.smarterstoreapi.controller
+
+import com.example.smarterstoreapi.domain.Product
+import com.example.smarterstoreapi.service.ProductService
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/api/products")
+class ProductController(
+    private val productService: ProductService
+) {
+    @GetMapping("/{id}")
+    fun getProductById(@PathVariable id: Long): ResponseEntity<Product> {
+        val product = productService.findProductById(id)
+        return if (product != null) {
+            ResponseEntity.ok(product)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+}
+```
+
+### 5.2. 애플리케이션 실행
+
+메인 애플리케이션 파일의 `main` 함수를 실행하여 Spring Boot 애플리케이션을 시작합니다.
+
+`src/main/kotlin/com/example/smarterstoreapi/SmarterStoreApiApplication.kt`
+```kotlin
+package com.example.smarterstoreapi
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class SmarterStoreApiApplication
+
+fun main(args: Array<String>) {
+    runApplication<SmarterStoreApiApplication>(*args)
+}
+```
+
+IDE에서 `main` 함수 옆의 실행 버튼을 누르거나, 터미널에서 아래 명령어를 실행합니다.
+
+```bash
+./gradlew bootRun
+```
+
+애플리케이션이 성공적으로 실행되면, `http://localhost:8080/api/products/{id}`와 같은 주소로 요청을 보내 API를 테스트할 수 있습니다.
+
+---
+이것으로 Smarter Store API 프로젝트의 기본 설정이 완료되었습니다. 이제 도메인을 확장하고 비즈니스 로직을 추가하며 프로젝트를 발전시켜 나가면 됩니다.

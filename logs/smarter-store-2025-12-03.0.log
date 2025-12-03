@@ -1,0 +1,657 @@
+2025-12-03T11:17:56.510+09:00  INFO 31956 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationTests    : Starting SmarterStoreApiApplicationTests using Java 21.0.8 with PID 31956 (started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T11:17:56.513+09:00 DEBUG 31956 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationTests    : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T11:17:56.514+09:00  INFO 31956 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationTests    : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T11:17:57.741+09:00  INFO 31956 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T11:17:57.826+09:00  INFO 31956 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 75 ms. Found 1 JPA repository interface.
+2025-12-03T11:17:58.371+09:00  WARN 31956 --- [smarter-store-api] [main] o.s.w.c.s.GenericWebApplicationContext   : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flyway' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flyway' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Failed to determine a suitable driver class
+2025-12-03T11:17:58.381+09:00  INFO 31956 --- [smarter-store-api] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-12-03T11:17:58.415+09:00 ERROR 31956 --- [smarter-store-api] [main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Failed to configure a DataSource: 'url' attribute is not specified and no embedded datasource could be configured.
+
+Reason: Failed to determine a suitable driver class
+
+
+Action:
+
+Consider the following:
+	If you want an embedded database (H2, HSQL or Derby), please put it on the classpath.
+	If you have database settings to be loaded from a particular profile you may need to activate it (no profiles are currently active).
+
+2025-12-03T11:17:58.422+09:00  WARN 31956 --- [smarter-store-api] [main] o.s.test.context.TestContextManager      : Caught exception while allowing TestExecutionListener [org.springframework.test.context.web.ServletTestExecutionListener] to prepare test instance [com.github.copyinaction.SmarterStoreApiApplicationTests@451156a]
+
+java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@7d78452e testClass = com.github.copyinaction.SmarterStoreApiApplicationTests, locations = [], classes = [com.github.copyinaction.SmarterStoreApiApplication], contextInitializerClasses = [], activeProfiles = [], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@3bb2f0d7, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@3f9f764d, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@5008b035, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@2438476e, org.springframework.boot.test.context.SpringBootTestAnnotation@130c348c], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:180)
+	at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+	at org.springframework.test.context.web.ServletTestExecutionListener.setUpRequestContextIfNecessary(ServletTestExecutionListener.java:191)
+	at org.springframework.test.context.web.ServletTestExecutionListener.prepareTestInstance(ServletTestExecutionListener.java:130)
+	at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:260)
+	at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:163)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$invokeTestInstancePostProcessors$10(ClassBasedTestDescriptor.java:378)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.executeAndMaskThrowable(ClassBasedTestDescriptor.java:383)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$invokeTestInstancePostProcessors$11(ClassBasedTestDescriptor.java:378)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:179)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.StreamSpliterators$WrappingSpliterator.forEachRemaining(StreamSpliterators.java:310)
+	at java.base/java.util.stream.Streams$ConcatSpliterator.forEachRemaining(Streams.java:735)
+	at java.base/java.util.stream.Streams$ConcatSpliterator.forEachRemaining(Streams.java:734)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:762)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.invokeTestInstancePostProcessors(ClassBasedTestDescriptor.java:377)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$instantiateAndPostProcessTestInstance$6(ClassBasedTestDescriptor.java:290)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.instantiateAndPostProcessTestInstance(ClassBasedTestDescriptor.java:289)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$testInstancesProvider$4(ClassBasedTestDescriptor.java:279)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$testInstancesProvider$5(ClassBasedTestDescriptor.java:278)
+	at org.junit.jupiter.engine.execution.TestInstancesProvider.getTestInstances(TestInstancesProvider.java:31)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$prepare$0(TestMethodTestDescriptor.java:106)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.prepare(TestMethodTestDescriptor.java:105)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.prepare(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$prepare$2(NodeTestTask.java:123)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.prepare(NodeTestTask.java:123)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:90)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.junit.platform.launcher.core.SessionPerRequestLauncher.execute(SessionPerRequestLauncher.java:63)
+	at com.intellij.junit5.JUnit5IdeaTestRunner.startRunnerWithArgs(JUnit5IdeaTestRunner.java:57)
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater$1.execute(IdeaTestRunner.java:38)
+	at com.intellij.rt.execution.junit.TestsRepeater.repeat(TestsRepeater.java:11)
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:35)
+	at com.intellij.rt.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:232)
+	at com.intellij.rt.junit.JUnitStarter.main(JUnitStarter.java:55)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flyway' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flyway' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Failed to determine a suitable driver class
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:326)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.test.context.SpringBootContextLoader.lambda$loadContext$3(SpringBootContextLoader.java:137)
+	at org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:58)
+	at org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:46)
+	at org.springframework.boot.SpringApplication.withHook(SpringApplication.java:1463)
+	at org.springframework.boot.test.context.SpringBootContextLoader$ContextLoaderHook.run(SpringBootContextLoader.java:553)
+	at org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:137)
+	at org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:108)
+	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:225)
+	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:152)
+	... 72 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flyway' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Failed to determine a suitable driver class
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:648)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:636)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1337)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1167)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313)
+	... 87 common frames omitted
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Failed to determine a suitable driver class
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:177)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:644)
+	... 97 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Failed to determine a suitable driver class
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:648)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:636)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1337)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1167)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory$DependencyObjectProvider.getIfUnique(DefaultListableBeanFactory.java:2153)
+	at org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration$FlywayConfiguration.flyway(FlywayAutoConfiguration.java:172)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:140)
+	... 98 common frames omitted
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Failed to determine a suitable driver class
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:177)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:644)
+	... 114 common frames omitted
+Caused by: org.springframework.boot.autoconfigure.jdbc.DataSourceProperties$DataSourceBeanCreationException: Failed to determine a suitable driver class
+	at org.springframework.boot.autoconfigure.jdbc.DataSourceProperties.determineDriverClassName(DataSourceProperties.java:186)
+	at org.springframework.boot.autoconfigure.jdbc.PropertiesJdbcConnectionDetails.getDriverClassName(PropertiesJdbcConnectionDetails.java:49)
+	at org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration.createDataSource(DataSourceConfiguration.java:55)
+	at org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Hikari.dataSource(DataSourceConfiguration.java:117)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:140)
+	... 115 common frames omitted
+
+2025-12-03T14:49:36.907+09:00  INFO 21576 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 21576 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T14:49:36.910+09:00 DEBUG 21576 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T14:49:36.911+09:00  INFO 21576 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T14:49:38.234+09:00  INFO 21576 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T14:49:38.298+09:00  INFO 21576 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 51 ms. Found 2 JPA repository interfaces.
+2025-12-03T14:49:38.962+09:00  INFO 21576 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T14:49:38.973+09:00  INFO 21576 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T14:49:38.974+09:00  INFO 21576 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T14:49:39.067+09:00  INFO 21576 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T14:49:39.068+09:00  INFO 21576 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2101 ms
+2025-12-03T14:49:39.360+09:00  INFO 21576 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:49:40.693+09:00  INFO 21576 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:49:41.761+09:00  INFO 21576 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:49:42.831+09:00  INFO 21576 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:49:43.894+09:00  WARN 21576 --- [smarter-store-api] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "smarter_store_db" does not exist
+--------------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store_db" does not exist
+
+2025-12-03T14:49:43.896+09:00  INFO 21576 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2025-12-03T14:49:43.905+09:00  INFO 21576 --- [smarter-store-api] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-12-03T14:49:43.924+09:00 ERROR 21576 --- [smarter-store-api] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "smarter_store_db" does not exist
+--------------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store_db" does not exist
+
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:326)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.github.copyinaction.SmarterStoreApiApplicationKt.main(SmarterStoreApiApplication.kt:15)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "smarter_store_db" does not exist
+--------------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store_db" does not exist
+
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1788)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313)
+	... 10 common frames omitted
+Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: Unable to obtain connection from database: FATAL: database "smarter_store_db" does not exist
+--------------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store_db" does not exist
+
+	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:60)
+	at org.flywaydb.core.internal.jdbc.JdbcConnectionFactory.<init>(JdbcConnectionFactory.java:72)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:134)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:147)
+	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1835)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1784)
+	... 17 common frames omitted
+Caused by: org.postgresql.util.PSQLException: FATAL: database "smarter_store_db" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2725)
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:2837)
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:175)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:317)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:54)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:273)
+	at org.postgresql.Driver.makeConnection(Driver.java:446)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:48)
+	... 23 common frames omitted
+
+2025-12-03T14:55:29.365+09:00  INFO 7848 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 7848 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T14:55:29.367+09:00 DEBUG 7848 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T14:55:29.368+09:00  INFO 7848 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T14:55:30.325+09:00  INFO 7848 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T14:55:30.384+09:00  INFO 7848 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 53 ms. Found 2 JPA repository interfaces.
+2025-12-03T14:55:30.987+09:00  INFO 7848 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T14:55:30.998+09:00  INFO 7848 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T14:55:30.998+09:00  INFO 7848 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T14:55:31.073+09:00  INFO 7848 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T14:55:31.073+09:00  INFO 7848 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1658 ms
+2025-12-03T14:55:31.301+09:00  INFO 7848 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:55:32.595+09:00  INFO 7848 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:55:33.671+09:00  INFO 7848 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:55:34.731+09:00  INFO 7848 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:55:35.786+09:00  WARN 7848 --- [smarter-store-api] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "smarter_store" does not exist
+-----------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store" does not exist
+
+2025-12-03T14:55:35.788+09:00  INFO 7848 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2025-12-03T14:55:35.797+09:00  INFO 7848 --- [smarter-store-api] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-12-03T14:55:35.815+09:00 ERROR 7848 --- [smarter-store-api] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Failed to initialize dependency 'flywayInitializer' of LoadTimeWeaverAware bean 'entityManagerFactory': Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "smarter_store" does not exist
+-----------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store" does not exist
+
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:326)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.github.copyinaction.SmarterStoreApiApplicationKt.main(SmarterStoreApiApplication.kt:15)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "smarter_store" does not exist
+-----------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store" does not exist
+
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1788)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313)
+	... 10 common frames omitted
+Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: Unable to obtain connection from database: FATAL: database "smarter_store" does not exist
+-----------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "smarter_store" does not exist
+
+	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:60)
+	at org.flywaydb.core.internal.jdbc.JdbcConnectionFactory.<init>(JdbcConnectionFactory.java:72)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:134)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:147)
+	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1835)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1784)
+	... 17 common frames omitted
+Caused by: org.postgresql.util.PSQLException: FATAL: database "smarter_store" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2725)
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:2837)
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:175)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:317)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:54)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:273)
+	at org.postgresql.Driver.makeConnection(Driver.java:446)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:48)
+	... 23 common frames omitted
+
+2025-12-03T14:56:58.217+09:00  INFO 32028 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 32028 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T14:56:58.218+09:00 DEBUG 32028 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T14:56:58.219+09:00  INFO 32028 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T14:56:59.083+09:00  INFO 32028 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T14:56:59.135+09:00  INFO 32028 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 45 ms. Found 2 JPA repository interfaces.
+2025-12-03T14:56:59.730+09:00  INFO 32028 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T14:56:59.741+09:00  INFO 32028 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T14:56:59.741+09:00  INFO 32028 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T14:56:59.808+09:00  INFO 32028 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T14:56:59.809+09:00  INFO 32028 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1541 ms
+2025-12-03T14:57:00.031+09:00  INFO 32028 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T14:57:00.224+09:00  INFO 32028 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@ae3c140
+2025-12-03T14:57:00.226+09:00  INFO 32028 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T14:57:00.265+09:00  INFO 32028 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T14:57:00.315+09:00  WARN 32028 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T14:57:00.362+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2025-12-03T14:57:00.371+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.038s)
+2025-12-03T14:57:00.444+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2025-12-03T14:57:00.577+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2025-12-03T14:57:00.604+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - Create product table"
+2025-12-03T14:57:00.745+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - Create user table"
+2025-12-03T14:57:00.879+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - Create refresh tokens table"
+2025-12-03T14:57:00.992+09:00  INFO 32028 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Successfully applied 3 migrations to schema "public", now at version v3 (execution time 00:00.152s)
+2025-12-03T14:57:01.097+09:00  INFO 32028 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T14:57:01.153+09:00  INFO 32028 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T14:57:01.188+09:00  INFO 32028 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T14:57:01.490+09:00  INFO 32028 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T14:57:02.340+09:00  INFO 32028 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T14:57:02.343+09:00  INFO 32028 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T14:57:02.956+09:00  WARN 32028 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T14:57:02.976+09:00  INFO 32028 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T14:57:03.223+09:00  INFO 32028 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@724a80d2, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5ce34685, org.springframework.security.web.context.SecurityContextHolderFilter@795ce9b5, org.springframework.security.web.header.HeaderWriterFilter@6019ce4b, org.springframework.web.filter.CorsFilter@54aacbc7, org.springframework.security.web.authentication.logout.LogoutFilter@5e2abb58, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@198d55de, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@108b2321, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@15844237, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3fe70a2d, org.springframework.security.web.session.SessionManagementFilter@207e3ffd, org.springframework.security.web.access.ExceptionTranslationFilter@6dd8ac29, org.springframework.security.web.access.intercept.AuthorizationFilter@643947d1]
+2025-12-03T14:57:03.558+09:00  INFO 32028 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T14:57:03.564+09:00  INFO 32028 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 5.877 seconds (process running for 6.412)
+2025-12-03T14:57:18.737+09:00  INFO 32028 --- [smarter-store-api] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T14:57:18.739+09:00  INFO 32028 --- [smarter-store-api] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-12-03T14:57:18.741+09:00  INFO 32028 --- [smarter-store-api] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-12-03T15:01:36.937+09:00  INFO 18808 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 18808 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:01:36.940+09:00 DEBUG 18808 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:01:36.941+09:00  INFO 18808 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:01:37.977+09:00  INFO 18808 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:01:38.040+09:00  INFO 18808 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 55 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:01:38.697+09:00  INFO 18808 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:01:38.708+09:00  INFO 18808 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:01:38.709+09:00  INFO 18808 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:01:38.792+09:00  INFO 18808 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:01:38.793+09:00  INFO 18808 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1795 ms
+2025-12-03T15:01:39.032+09:00  INFO 18808 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:01:41.072+09:00  INFO 18808 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6afeaf2d
+2025-12-03T15:01:41.074+09:00  INFO 18808 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:01:41.113+09:00  INFO 18808 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:01:41.168+09:00  WARN 18808 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:01:41.246+09:00  INFO 18808 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.058s)
+2025-12-03T15:01:41.329+09:00  INFO 18808 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:01:41.337+09:00  INFO 18808 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:01:41.459+09:00  INFO 18808 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:01:41.521+09:00  INFO 18808 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:01:41.556+09:00  INFO 18808 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:01:41.895+09:00  INFO 18808 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:01:42.903+09:00  INFO 18808 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:01:42.906+09:00  INFO 18808 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:01:43.727+09:00  WARN 18808 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:01:43.748+09:00  INFO 18808 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:01:44.005+09:00  INFO 18808 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1a56cb99, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1014c825, org.springframework.security.web.context.SecurityContextHolderFilter@7720334e, org.springframework.security.web.header.HeaderWriterFilter@2f341732, org.springframework.web.filter.CorsFilter@5acc6ca1, org.springframework.security.web.authentication.logout.LogoutFilter@628190ec, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@100235c7, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@aec9672, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@30f0b75, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3ca43e5d, org.springframework.security.web.session.SessionManagementFilter@1bc80978, org.springframework.security.web.access.ExceptionTranslationFilter@26e588b7, org.springframework.security.web.access.intercept.AuthorizationFilter@678db8be]
+2025-12-03T15:01:44.402+09:00  INFO 18808 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T15:01:44.506+09:00  INFO 18808 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 8.14 seconds (process running for 8.587)
+2025-12-03T15:04:04.429+09:00  INFO 29276 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 29276 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:04:04.431+09:00 DEBUG 29276 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:04:04.432+09:00  INFO 29276 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:04:05.494+09:00  INFO 29276 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:04:05.567+09:00  INFO 29276 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 66 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:04:06.327+09:00  INFO 29276 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:04:06.339+09:00  INFO 29276 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:04:06.340+09:00  INFO 29276 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:04:06.429+09:00  INFO 29276 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:04:06.429+09:00  INFO 29276 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1944 ms
+2025-12-03T15:04:06.715+09:00  INFO 29276 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:04:07.082+09:00  INFO 29276 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5e95b0ab
+2025-12-03T15:04:07.085+09:00  INFO 29276 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:04:07.125+09:00  INFO 29276 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:04:07.181+09:00  WARN 29276 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:04:07.279+09:00  INFO 29276 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.073s)
+2025-12-03T15:04:07.581+09:00  INFO 29276 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:04:07.591+09:00  INFO 29276 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:04:07.719+09:00  INFO 29276 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:04:07.792+09:00  INFO 29276 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:04:07.836+09:00  INFO 29276 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:04:08.211+09:00  INFO 29276 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:04:09.407+09:00  INFO 29276 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:04:09.411+09:00  INFO 29276 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:04:10.090+09:00  WARN 29276 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:04:10.111+09:00  INFO 29276 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:04:10.409+09:00  INFO 29276 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2620f935, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6a3cb81c, org.springframework.security.web.context.SecurityContextHolderFilter@7ba5d307, org.springframework.security.web.header.HeaderWriterFilter@38cd7531, org.springframework.web.filter.CorsFilter@42fe9099, org.springframework.security.web.authentication.logout.LogoutFilter@720cbb7d, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@4437af21, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4a28b6d0, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@75edfe9a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@657f1fc3, org.springframework.security.web.session.SessionManagementFilter@446dbf7b, org.springframework.security.web.access.ExceptionTranslationFilter@63c6579, org.springframework.security.web.access.intercept.AuthorizationFilter@12fbc568]
+2025-12-03T15:04:10.786+09:00  INFO 29276 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T15:04:10.793+09:00  INFO 29276 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 6.973 seconds (process running for 8.327)
+2025-12-03T15:04:15.335+09:00  INFO 29276 --- [smarter-store-api] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-03T15:04:15.336+09:00  INFO 29276 --- [smarter-store-api] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-12-03T15:04:15.337+09:00  INFO 29276 --- [smarter-store-api] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-12-03T15:09:45.599+09:00  INFO 29276 --- [smarter-store-api] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:09:45.601+09:00  INFO 29276 --- [smarter-store-api] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-12-03T15:09:45.603+09:00  INFO 29276 --- [smarter-store-api] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-12-03T15:09:53.262+09:00  INFO 38676 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 38676 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:09:53.264+09:00 DEBUG 38676 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:09:53.264+09:00  INFO 38676 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:09:54.240+09:00  INFO 38676 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:09:54.304+09:00  INFO 38676 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 54 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:09:54.980+09:00  INFO 38676 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:09:54.994+09:00  INFO 38676 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:09:54.994+09:00  INFO 38676 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:09:55.077+09:00  INFO 38676 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:09:55.077+09:00  INFO 38676 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1759 ms
+2025-12-03T15:09:55.335+09:00  INFO 38676 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:09:55.698+09:00  INFO 38676 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@48b2dbc4
+2025-12-03T15:09:55.701+09:00  INFO 38676 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:09:55.746+09:00  INFO 38676 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:09:55.805+09:00  WARN 38676 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:09:55.897+09:00  INFO 38676 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.065s)
+2025-12-03T15:09:55.983+09:00  INFO 38676 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:09:55.990+09:00  INFO 38676 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:09:56.123+09:00  INFO 38676 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:09:56.195+09:00  INFO 38676 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:09:56.236+09:00  INFO 38676 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:09:56.581+09:00  INFO 38676 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:09:57.568+09:00  INFO 38676 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:09:57.571+09:00  INFO 38676 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:09:58.233+09:00  WARN 38676 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:09:58.255+09:00  INFO 38676 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:09:58.539+09:00  INFO 38676 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@17da6e45, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6af10aa7, org.springframework.security.web.context.SecurityContextHolderFilter@5910c67e, org.springframework.security.web.header.HeaderWriterFilter@4d7a4317, org.springframework.web.filter.CorsFilter@15eaa2ce, org.springframework.security.web.authentication.logout.LogoutFilter@53d3ae89, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@1d0fae45, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7a6ade2c, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@436867c3, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@596343e7, org.springframework.security.web.session.SessionManagementFilter@48611ad4, org.springframework.security.web.access.ExceptionTranslationFilter@67e7fe73, org.springframework.security.web.access.intercept.AuthorizationFilter@46977829]
+2025-12-03T15:09:58.926+09:00  INFO 38676 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T15:09:58.932+09:00  INFO 38676 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 6.208 seconds (process running for 6.651)
+2025-12-03T15:11:29.396+09:00  INFO 27312 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 27312 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:11:29.397+09:00 DEBUG 27312 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:11:29.398+09:00  INFO 27312 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:11:30.346+09:00  INFO 27312 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:11:30.404+09:00  INFO 27312 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 51 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:11:31.080+09:00  INFO 27312 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:11:31.093+09:00  INFO 27312 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:11:31.093+09:00  INFO 27312 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:11:31.178+09:00  INFO 27312 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:11:31.179+09:00  INFO 27312 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1733 ms
+2025-12-03T15:11:31.470+09:00  INFO 27312 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:11:31.680+09:00  INFO 27312 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@8af1c49
+2025-12-03T15:11:31.682+09:00  INFO 27312 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:11:31.723+09:00  INFO 27312 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:11:31.773+09:00  WARN 27312 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:11:31.859+09:00  INFO 27312 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.063s)
+2025-12-03T15:11:31.938+09:00  INFO 27312 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:11:31.947+09:00  INFO 27312 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:11:32.070+09:00  INFO 27312 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:11:32.142+09:00  INFO 27312 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:11:32.185+09:00  INFO 27312 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:11:32.560+09:00  INFO 27312 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:11:33.561+09:00  INFO 27312 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:11:33.565+09:00  INFO 27312 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:11:34.276+09:00  WARN 27312 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:11:34.298+09:00  INFO 27312 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:11:34.577+09:00  INFO 27312 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@786e2c5e, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@75452b01, org.springframework.security.web.context.SecurityContextHolderFilter@73fa97a9, org.springframework.security.web.header.HeaderWriterFilter@4aa4bfa1, org.springframework.web.filter.CorsFilter@23b260ed, org.springframework.security.web.authentication.logout.LogoutFilter@30f0b75, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@6d5b160, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2512eaaa, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6ba8859b, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@fd07138, org.springframework.security.web.session.SessionManagementFilter@3459ccd9, org.springframework.security.web.access.ExceptionTranslationFilter@7671c02d, org.springframework.security.web.access.intercept.AuthorizationFilter@7d14efc]
+2025-12-03T15:11:34.921+09:00  INFO 27312 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T15:11:34.928+09:00  INFO 27312 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 6.069 seconds (process running for 6.483)
+2025-12-03T15:13:32.450+09:00  INFO 27312 --- [smarter-store-api] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-03T15:13:32.451+09:00  INFO 27312 --- [smarter-store-api] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-12-03T15:13:32.453+09:00  INFO 27312 --- [smarter-store-api] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-12-03T15:15:04.232+09:00  INFO 41760 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 41760 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:15:04.234+09:00 DEBUG 41760 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:15:04.234+09:00  INFO 41760 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:15:05.260+09:00  INFO 41760 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:15:05.335+09:00  INFO 41760 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 67 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:15:06.081+09:00  INFO 41760 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:15:06.093+09:00  INFO 41760 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:15:06.094+09:00  INFO 41760 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:15:06.187+09:00  INFO 41760 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:15:06.188+09:00  INFO 41760 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1903 ms
+2025-12-03T15:15:06.459+09:00  INFO 41760 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:15:06.849+09:00  INFO 41760 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3f122cdc
+2025-12-03T15:15:06.852+09:00  INFO 41760 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:15:06.891+09:00  INFO 41760 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:15:06.940+09:00  WARN 41760 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:15:07.038+09:00  INFO 41760 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.076s)
+2025-12-03T15:15:07.293+09:00  INFO 41760 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:15:07.302+09:00  INFO 41760 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:15:07.430+09:00  INFO 41760 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:15:07.495+09:00  INFO 41760 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:15:07.539+09:00  INFO 41760 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:15:07.877+09:00  INFO 41760 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:15:08.884+09:00  INFO 41760 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:15:08.888+09:00  INFO 41760 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:15:09.586+09:00  WARN 41760 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:15:09.609+09:00  INFO 41760 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:15:09.887+09:00  INFO 41760 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@12fbc568, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3dd2a70d, org.springframework.security.web.context.SecurityContextHolderFilter@446dbf7b, org.springframework.security.web.header.HeaderWriterFilter@67f8586f, org.springframework.web.filter.CorsFilter@7ecf001f, org.springframework.security.web.authentication.logout.LogoutFilter@4e1ffe54, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@2620f935, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@673218b2, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1ff584d7, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6a3cb81c, org.springframework.security.web.session.SessionManagementFilter@11893180, org.springframework.security.web.access.ExceptionTranslationFilter@37ddb835, org.springframework.security.web.access.intercept.AuthorizationFilter@2fb006dc]
+2025-12-03T15:15:10.256+09:00  INFO 41760 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T15:15:10.262+09:00  INFO 41760 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 6.64 seconds (process running for 7.389)
+2025-12-03T15:15:17.957+09:00  INFO 41760 --- [smarter-store-api] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-03T15:15:17.957+09:00  INFO 41760 --- [smarter-store-api] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-12-03T15:15:17.958+09:00  INFO 41760 --- [smarter-store-api] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-12-03T15:16:15.739+09:00  INFO 38552 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 38552 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:16:15.741+09:00 DEBUG 38552 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:16:15.742+09:00  INFO 38552 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:16:16.751+09:00  INFO 38552 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:16:16.817+09:00  INFO 38552 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 58 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:16:17.553+09:00  INFO 38552 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:16:17.566+09:00  INFO 38552 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:16:17.567+09:00  INFO 38552 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:16:17.661+09:00  INFO 38552 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:16:17.661+09:00  INFO 38552 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1870 ms
+2025-12-03T15:16:17.914+09:00  INFO 38552 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:16:18.122+09:00  INFO 38552 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@15f861ee
+2025-12-03T15:16:18.125+09:00  INFO 38552 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:16:18.165+09:00  INFO 38552 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:16:18.215+09:00  WARN 38552 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:16:18.291+09:00  INFO 38552 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.055s)
+2025-12-03T15:16:18.361+09:00  INFO 38552 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:16:18.368+09:00  INFO 38552 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:16:18.491+09:00  INFO 38552 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:16:18.556+09:00  INFO 38552 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:16:18.594+09:00  INFO 38552 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:16:18.910+09:00  INFO 38552 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:16:19.953+09:00  INFO 38552 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:16:19.957+09:00  INFO 38552 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:16:20.681+09:00  WARN 38552 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:16:20.703+09:00  INFO 38552 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:16:20.978+09:00  INFO 38552 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@77b7a4b2, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@56739ee9, org.springframework.security.web.context.SecurityContextHolderFilter@1c8746a0, org.springframework.security.web.header.HeaderWriterFilter@26e588b7, org.springframework.web.filter.CorsFilter@1a56cb99, org.springframework.security.web.authentication.logout.LogoutFilter@7a6ade2c, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@1014c825, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7720334e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6789b471, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5acc6ca1, org.springframework.security.web.session.SessionManagementFilter@718198db, org.springframework.security.web.access.ExceptionTranslationFilter@6ba8859b, org.springframework.security.web.access.intercept.AuthorizationFilter@54eea16c]
+2025-12-03T15:16:21.332+09:00  WARN 38552 --- [smarter-store-api] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2025-12-03T15:16:21.334+09:00  INFO 38552 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:16:21.335+09:00  INFO 38552 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-12-03T15:16:21.967+09:00  INFO 38552 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-12-03T15:16:21.980+09:00  INFO 38552 --- [smarter-store-api] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-12-03T15:16:22.000+09:00 ERROR 38552 --- [smarter-store-api] [main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2025-12-03T15:16:29.042+09:00  INFO 41760 --- [smarter-store-api] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:16:29.045+09:00  INFO 41760 --- [smarter-store-api] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-12-03T15:16:29.048+09:00  INFO 41760 --- [smarter-store-api] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-12-03T15:16:58.970+09:00  INFO 4112 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 4112 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:16:58.973+09:00 DEBUG 4112 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:16:58.973+09:00  INFO 4112 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:17:00.017+09:00  INFO 4112 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:17:00.083+09:00  INFO 4112 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 57 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:17:00.843+09:00  INFO 4112 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:17:00.856+09:00  INFO 4112 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:17:00.856+09:00  INFO 4112 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:17:00.952+09:00  INFO 4112 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:17:00.953+09:00  INFO 4112 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1926 ms
+2025-12-03T15:17:01.200+09:00  INFO 4112 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:17:01.415+09:00  INFO 4112 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@14292d71
+2025-12-03T15:17:01.417+09:00  INFO 4112 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:17:01.457+09:00  INFO 4112 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:17:01.509+09:00  WARN 4112 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:17:01.585+09:00  INFO 4112 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.058s)
+2025-12-03T15:17:01.675+09:00  INFO 4112 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:17:01.687+09:00  INFO 4112 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:17:01.810+09:00  INFO 4112 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:17:01.879+09:00  INFO 4112 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:17:01.918+09:00  INFO 4112 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:17:02.277+09:00  INFO 4112 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:17:03.288+09:00  INFO 4112 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:17:03.292+09:00  INFO 4112 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:17:03.953+09:00  WARN 4112 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:17:03.973+09:00  INFO 4112 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:17:04.230+09:00  INFO 4112 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1985f8e3, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7ba70b3b, org.springframework.security.web.context.SecurityContextHolderFilter@1e6a8d01, org.springframework.security.web.header.HeaderWriterFilter@7720334e, org.springframework.web.filter.CorsFilter@3a72b2c9, org.springframework.security.web.authentication.logout.LogoutFilter@1a56cb99, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@269a37bc, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@34b4c82a, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@786e2c5e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@106e816c, org.springframework.security.web.session.SessionManagementFilter@316987c4, org.springframework.security.web.access.ExceptionTranslationFilter@1c8746a0, org.springframework.security.web.access.intercept.AuthorizationFilter@51c660c8]
+2025-12-03T15:17:04.568+09:00  INFO 4112 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T15:17:04.576+09:00  INFO 4112 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 6.187 seconds (process running for 6.622)
+2025-12-03T15:22:37.839+09:00  INFO 10868 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Starting SmarterStoreApiApplicationKt using Java 21.0.8 with PID 10868 (C:\Users\User\IdeaProjects\smarter-store-api\build\classes\kotlin\main started by 2505-N0003 in C:\Users\User\IdeaProjects\smarter-store-api)
+2025-12-03T15:22:37.842+09:00 DEBUG 10868 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Running with Spring Boot v3.3.0, Spring v6.1.8
+2025-12-03T15:22:37.843+09:00  INFO 10868 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : No active profile set, falling back to 1 default profile: "default"
+2025-12-03T15:22:38.843+09:00  INFO 10868 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-03T15:22:38.905+09:00  INFO 10868 --- [smarter-store-api] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 55 ms. Found 2 JPA repository interfaces.
+2025-12-03T15:22:39.510+09:00  INFO 10868 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-03T15:22:39.520+09:00  INFO 10868 --- [smarter-store-api] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03T15:22:39.520+09:00  INFO 10868 --- [smarter-store-api] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.24]
+2025-12-03T15:22:39.598+09:00  INFO 10868 --- [smarter-store-api] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-03T15:22:39.598+09:00  INFO 10868 --- [smarter-store-api] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1701 ms
+2025-12-03T15:22:39.814+09:00  INFO 10868 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-03T15:22:40.157+09:00  INFO 10868 --- [smarter-store-api] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@640a8f93
+2025-12-03T15:22:40.159+09:00  INFO 10868 --- [smarter-store-api] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-03T15:22:40.203+09:00  INFO 10868 --- [smarter-store-api] [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store (PostgreSQL 18.1)
+2025-12-03T15:22:40.252+09:00  WARN 10868 --- [smarter-store-api] [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.1 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 16.
+2025-12-03T15:22:40.320+09:00  INFO 10868 --- [smarter-store-api] [main] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.052s)
+2025-12-03T15:22:40.626+09:00  INFO 10868 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 3
+2025-12-03T15:22:40.634+09:00  INFO 10868 --- [smarter-store-api] [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-12-03T15:22:40.737+09:00  INFO 10868 --- [smarter-store-api] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-03T15:22:40.795+09:00  INFO 10868 --- [smarter-store-api] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-12-03T15:22:40.827+09:00  INFO 10868 --- [smarter-store-api] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-03T15:22:41.155+09:00  INFO 10868 --- [smarter-store-api] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-03T15:22:42.067+09:00  INFO 10868 --- [smarter-store-api] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-03T15:22:42.071+09:00  INFO 10868 --- [smarter-store-api] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-03T15:22:42.726+09:00  WARN 10868 --- [smarter-store-api] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-03T15:22:42.757+09:00  INFO 10868 --- [smarter-store-api] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-12-03T15:22:43.032+09:00  INFO 10868 --- [smarter-store-api] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@6bafe3b0, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@c105912, org.springframework.security.web.context.SecurityContextHolderFilter@6d0d5147, org.springframework.security.web.header.HeaderWriterFilter@2202e978, org.springframework.web.filter.CorsFilter@591cda84, org.springframework.security.web.authentication.logout.LogoutFilter@5623fd90, com.github.copyinaction.config.jwt.JwtAuthenticationFilter@4c954b79, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@63f08f9f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1464a177, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@58338338, org.springframework.security.web.session.SessionManagementFilter@5ae5a507, org.springframework.security.web.access.ExceptionTranslationFilter@22a89db, org.springframework.security.web.access.intercept.AuthorizationFilter@6e212f38]
+2025-12-03T15:22:43.390+09:00  INFO 10868 --- [smarter-store-api] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-03T15:22:43.397+09:00  INFO 10868 --- [smarter-store-api] [main] c.g.c.SmarterStoreApiApplicationKt       : Started SmarterStoreApiApplicationKt in 6.114 seconds (process running for 6.689)

@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: smarter-store-api
+  datasource:
+    url: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store
+    username: postgres
+    password: sStore1@3
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none # Flyway를 사용하므로 none으로 설정
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true # 비어있지 않은 스키마에 대한 첫 마이그레이션 활성화
+
+# JWT 설정
+jwt:
+  # TODO: 이 시크릿 키는 절대 외부에 노출되면 안되며, 실제 운영 환경에서는 환경 변수 등을 통해 주입해야 합니다.
+  secret: "ReplaceThisWithYourOwnSecretKeyThatIsLongAndSecureEnough"
+  access-token-validity-in-seconds: 3600 # 1시간
