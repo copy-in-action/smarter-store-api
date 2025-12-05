@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smarter_store
+    username: postgres
+    password: sStore1@3
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  logging:
+    file:
+      path: /home/cic/logs/smarter-store/
+
+jwt:
+  secret: "ReplaceThisWithYourOwnSecretKeyThatIsLongAndSecureEnough" # Production secret, should be from env variable

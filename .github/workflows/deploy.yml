@@ -1,0 +1,57 @@
+name: Deploy Spring Boot Application
+
+on:
+  push:
+    branches:
+      - main # main 브랜치에 푸시될 때 워크플로우 실행
+
+env:
+  JAVA_VERSION: '21' # 사용할 Java 버전
+  SPRING_PROFILES_ACTIVE: prod # Spring Profile 설정 (예: application-prod.yml 사용)
+  GRADLE_BUILD_PATH: build/libs # 빌드된 JAR 파일 경로 (build.gradle.kts에 따라 다를 수 있음)
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # GitHub 호스팅 러너 사용 (Ubuntu 최신 버전)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # 저장소 코드 체크아웃
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew # gradlew 실행 권한 부여
+
+      - name: Build with Gradle
+        run: ./gradlew bootJar # Spring Boot 애플리케이션 빌드 (JAR 파일 생성)
+
+      - name: Create SSH key file
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H devhong.asuscomm.com >> ~/.ssh/known_hosts # 서버 호스트 키 등록 (정확한 IP 대신 도메인 사용)
+          # Alternatively, use the actual IP if the domain resolution is unreliable: ssh-keyscan -H 175.125.111.71 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        run: |
+          # 1. 빌드된 JAR 파일 서버로 전송
+          scp -i ~/.ssh/id_rsa -P 30022 ${{ env.GRADLE_BUILD_PATH }}/*.jar cic@devhong.asuscomm.com:/home/cic/smarter-store-api/app.jar
+
+          # 2. SSH를 통해 서버에 접속하여 애플리케이션 재시작
+          ssh -i ~/.ssh/id_rsa -p 30022 cic@devhong.asuscomm.com << 'EOF'
+            # 기존 애플리케이션 종료 (systemd 서비스인 경우)
+            sudo systemctl stop smarter-store-api.service
+
+            # 잠시 대기 (프로세스가 완전히 종료되도록)
+            sleep 5
+
+            # 새 JAR 파일로 서비스 재시작
+            sudo systemctl start smarter-store-api.service
+            sudo systemctl status smarter-store-api.service --no-pager
+          EOF

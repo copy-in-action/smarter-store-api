@@ -1,0 +1,32 @@
+# Changelog
+
+## 2025년 12월 4일 (목)
+
+*   **프로젝트 초기화 및 Git-flow 설정:**
+    *   `git-flow` 브랜치 모델 초기화 및 `develop` 브랜치 설정.
+    *   `.gitignore` 설정 개선 (로그 파일 무시 처리).
+    *   원격 GitHub 저장소 (`https://github.com/copy-in-action/smarter-store-api.git`) 연결 및 `main`, `develop` 브랜치 푸시 완료.
+*   **애플리케이션 구동 및 빌드 환경 안정화:**
+    *   `localhost:8080` 포트 사용 충돌 및 데이터베이스(`smarter_store` 등) 미존재 오류 진단 및 해결 가이드 제공.
+    *   애플리케이션 구동 및 Swagger UI (`http://localhost:8080/swagger-ui.html`) 접근성 확인.
+    *   Gradle 버전(9.2.1 -> 8.8) 다운그레이드 및 `bootJar` 빌드 호환성 문제 해결.
+*   **로깅 설정 외부화:**
+    *   `src/main/resources/application.yml`에 외부 로그 경로 (`/home/cic/logs/smarter-store/`) 설정 추가.
+*   **Spring Profiles를 이용한 환경별 설정 분리:**
+    *   `application.yml`을 공통 설정 및 기본 프로파일 활성화(`local`)용으로 리팩토링.
+    *   `application-prod.yml` 파일 생성 (운영 DB, 로깅 경로, JWT secret 설정 포함).
+    *   `application-local.yml` 파일 생성 (로컬 개발 DB, 로깅 경로, JWT secret 설정 포함).
+*   **GitHub Actions Docker 배포 가이드 문서 작성:**
+    *   `documents/GITHUB_ACTIONS_DOCKER_DEPLOYMENT_GUIDE.md` 파일 생성 및 Docker 기반 배포 관련 상세 가이드 작성.
+
+
+## 2025년 12월 3일 (수)
+
+*   **프로젝트 초기 생성 및 기본 구조 확립:**
+    *   Kotlin, Spring Boot, Gradle 기반의 `Smarter Store API` 프로젝트 초기 생성.
+    *   기본적인 REST API 구조(Controller, Service, Domain, Repository) 설계 및 구현.
+    *   PostgreSQL 데이터베이스 및 Flyway 마이그레이션 도구 설정.
+    *   Spring Security, JWT를 이용한 보안 기본 설정.
+    *   Springdoc OpenAPI(Swagger UI)를 통한 API 문서화 설정.
+    *   Logback을 사용한 로깅 정책 설정 및 적용.
+    *   테스트(JUnit 5, MockK) 환경 구성.

@@ -10,7 +10,8 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 
 ## 2. 프로젝트 초기 문서 (Initial Project Documents)
 
-*   **[INITIAL_SETUP.md](context/INITIAL_SETUP.md)**: 이 문서는 프로젝트의 최초 생성 시점의 요구사항, 초기 기술 스택, 기본적인 설정 가이드 등을 담고 있습니다. 프로젝트의 시작점과 초기 방향성을 이해하는 데 도움을 줍니다.
+*   **[INITIAL_SETUP.md](documents/INITIAL_SETUP.md)**: 이 문서는 프로젝트의 최초 생성 시점의 요구사항, 초기 기술 스택, 기본적인 설정 가이드 등을 담고 있습니다. 프로젝트의 시작점과 초기 방향성을 이해하는 데 도움을 줍니다.
+*   **[GitHub Actions Docker 배포 가이드](documents/GITHUB_ACTIONS_DOCKER_DEPLOYMENT_GUIDE.md)**: GitHub Actions를 활용한 Docker 기반 서버 배포에 대한 상세 가이드입니다.
 
 ## 3. 적용 기술 스택 (Applied Technology Stack)
 
@@ -62,15 +63,15 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 
 ### 5.2. 계층별 구조 (Product 및 User/Auth 도메인 예시)
 
-프로젝트는 DDD(도메인 주도 설계) 원칙에 따라 Controller, Service, DTO, Domain/Entity, Repository 계층으로 구성됩니다. 각 계층의 상세한 역할과 책임, 그리고 `Product` 및 사용자/인증 도메인의 예시는 [아키텍처 및 계층별 구조 가이드 문서](context/ARCHITECTURE_DDD_GUIDE.md)를 참조해 주세요.
+프로젝트는 DDD(도메인 주도 설계) 원칙에 따라 Controller, Service, DTO, Domain/Entity, Repository 계층으로 구성됩니다. 각 계층의 상세한 역할과 책임, 그리고 `Product` 및 사용자/인증 도메인의 예시는 [아키텍처 및 계층별 구조 가이드 문서](documents/ARCHITECTURE_DDD_GUIDE.md)를 참조해 주세요.
 
 ### 5.3. JPA Auditing (생성/수정일자 자동화)
 
-프로젝트는 Spring Data JPA의 Auditing 기능을 사용하여 엔티티의 생성(`createdAt`) 및 수정(`updatedAt`) 일자를 자동으로 관리합니다. 설정 방법 및 상세 내용은 [JPA Auditing 가이드 문서](context/JPA_AUDITING_GUIDE.md)를 참조해 주세요.
+프로젝트는 Spring Data JPA의 Auditing 기능을 사용하여 엔티티의 생성(`createdAt`) 및 수정(`updatedAt`) 일자를 자동으로 관리합니다. 설정 방법 및 상세 내용은 [JPA Auditing 가이드 문서](documents/JPA_AUDITING_GUIDE.md)를 참조해 주세요.
 
 ### 5.4. 전역 예외 처리 (`exception` 패키지)
 
-프로젝트는 `@RestControllerAdvice`를 활용한 전역 예외 처리 메커니즘을 통해 클라이언트에게 일관된 형식의 에러 응답을 제공합니다. `ErrorCode`, `ErrorResponse`, `CustomException`, `GlobalExceptionHandler`로 구성됩니다. 상세 내용은 [전역 예외 처리 가이드 문서](context/EXCEPTION_HANDLING_GUIDE.md)를 참조해 주세요.
+프로젝트는 `@RestControllerAdvice`를 활용한 전역 예외 처리 메커니즘을 통해 클라이언트에게 일관된 형식의 에러 응답을 제공합니다. `ErrorCode`, `ErrorResponse`, `CustomException`, `GlobalExceptionHandler`로 구성됩니다. 상세 내용은 [전역 예외 처리 가이드 문서](documents/EXCEPTION_HANDLING_GUIDE.md)를 참조해 주세요.
 
 ### 5.5. 데이터베이스 스키마 관리 (Flyway)
 
@@ -79,15 +80,15 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 *   `src/main/resources/db/migration` 경로에 `V{버전}__{설명}.sql` 형식의 SQL 파일을 추가하여 테이블 생성 및 변경을 관리합니다.
 *   애플리케이션 실행 시, Flyway가 현재 데이터베이스 스키마 버전과 마이그레이션 파일들을 비교하여 자동으로 최신 상태로 업데이트합니다.
 
-**Flyway의 상세한 개념, 동작 방식, 그리고 현재 프로젝트에 적용된 마이그레이션 스크립트 목록은 [Flyway 가이드 문서](context/FLYWAY_GUIDE.md)를 참조해 주세요.**
+**Flyway의 상세한 개념, 동작 방식, 그리고 현재 프로젝트에 적용된 마이그레이션 스크립트 목록은 [Flyway 가이드 문서](documents/FLYWAY_GUIDE.md)를 참조해 주세요.**
 
 ### 5.6. API 문서 자동화 (Swagger / OpenAPI)
 
-프로젝트는 `springdoc-openapi` 라이브러리를 사용하여 API 문서를 자동으로 생성합니다. 애플리케이션 실행 후 `http://localhost:8080/swagger-ui.html`에서 문서를 확인할 수 있습니다. 상세한 어노테이션 사용법 및 예시는 [Swagger/OpenAPI 가이드 문서](context/SWAGGER_OPENAPI_GUIDE.md)를 참조해 주세요.
+프로젝트는 `springdoc-openapi` 라이브러리를 사용하여 API 문서를 자동으로 생성합니다. 애플리케이션 실행 후 `http://localhost:8080/swagger-ui.html`에서 문서를 확인할 수 있습니다. 상세한 어노테이션 사용법 및 예시는 [Swagger/OpenAPI 가이드 문서](documents/SWAGGER_OPENAPI_GUIDE.md)를 참조해 주세요.
 
 ### 5.7. 보안 (Security)
 
-이 프로젝트는 Spring Security와 JWT(JSON Web Token)를 사용하여 API를 보호합니다. 상세한 설정 및 사용 방법은 [보안 가이드 문서](context/SECURITY_GUIDE.md)를 참조해 주세요.
+이 프로젝트는 Spring Security와 JWT(JSON Web Token)를 사용하여 API를 보호합니다. 상세한 설정 및 사용 방법은 [보안 가이드 문서](documents/SECURITY_GUIDE.md)를 참조해 주세요.
 
 ### 5.8. 테스트
 
@@ -97,38 +98,9 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 
 ## 6. 로깅
 
-### 6.1. 주요 정책
-- **파일 출력**: 로그는 콘솔과 파일 모두에 출력됩니다.
-- **날짜 기반 롤링**: 매일 새로운 로그 파일이 생성됩니다. (`...-yyyy-MM-dd` 형식)
-- **용량 기반 롤링**: 하루 동안 로그 파일이 `10MB`를 초과하면, 순번이 붙은 새 파일(`...-yyyy-MM-dd.0.log`, `...-yyyy-MM-dd.1.log`)이 생성됩니다.
-- **보관 기간**: 로그 파일은 최대 `30일`까지 보관됩니다.
-- **저장 경로**: 로그 파일은 프로젝트 루트의 `logs` 디렉터리에 저장됩니다.
+자세한 로깅 설정 및 정책은 [로깅 가이드 문서](documents/LOGGING_GUIDE.md)를 참조해 주세요.
 
-### 6.2. 설정 요약 (`logback-spring.xml`)
-- **`SizeAndTimeBasedRollingPolicy`**: 날짜와 용량 기반 롤링을 동시에 처리합니다.
-- **`<fileNamePattern>`**: 로그 파일의 이름 규칙을 정의합니다.
-- **`<maxHistory>`**: 보관할 로그 파일의 최대 일수를 `30`으로 설정합니다.
-- **`<maxFileSize>`**: 한 파일의 최대 크기를 `10MB`로 설정합니다.
-- **로그 레벨**: 전체 `root` 레벨은 `INFO`이지만, 프로젝트 패키지(`com.github.copyinaction`)는 `DEBUG` 레벨로 설정되어 더 상세한 로그를 확인할 수 있습니다.
+## 7. 개발 이력 (Development Log)
 
-### 6.3. 로거 사용 예시
+자세한 개발 이력은 [CHANGELOG.md](CHANGELOG.md) 파일을 참조해 주세요.
 
-로거를 사용하는 코드는 이전과 동일합니다. `LoggerFactory`를 통해 로거 인스턴스를 가져와 사용하면, `logback-spring.xml`에 정의된 정책에 따라 로그가 기록됩니다.
-
-```kotlin
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-
-@Service
-class MyService {
-
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    fun doSomething() {
-        logger.debug("상세 디버그 정보...")
-        logger.info("작업을 시작합니다...")
-        logger.warn("주의가 필요한 상황입니다!")
-        logger.error("오류가 발생했습니다!", RuntimeException("샘플 오류"))
-    }
-}
-```

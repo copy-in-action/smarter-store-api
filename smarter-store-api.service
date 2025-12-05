@@ -1,0 +1,12 @@
+[Unit]
+Description=Smarter Store API Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/java -jar /home/cic/smarter-store-api/app.jar --spring.profiles.active=prod
+User=cic
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

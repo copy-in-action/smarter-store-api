@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    # Use a local database for development, e.g., H2 in-memory or a local PostgreSQL instance
+    url: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store
+    username: postgres
+    password: sStore1@3
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  logging:
+    file:
+      path: ./logs/smarter-store-local/ # Local logs can be relative to project root
+
+jwt:
+  secret: "local_dev_secret_key" # A simpler secret for local development
