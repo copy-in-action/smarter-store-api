@@ -1,5 +1,17 @@
 # Changelog
 
+## 2025년 12월 5일 (금)
+
+*   **JWT WeakKeyException 해결 및 보안 강화:**
+    *   `JwtTokenProvider.kt`에서 JWT Secret을 Base64 디코딩하여 사용하도록 수정.
+    *   보안 강화를 위해 `application.yml`의 `jwt.secret`을 Base64 인코딩된 강력한 임의 키로 설정하도록 가이드 제공.
+*   **IntelliJ IDEA 환경 변수 설정 가이드 제공:**
+    *   IDE에서 환경 변수를 설정하는 방법 및 OS 환경 변수와의 우선순위 설명.
+*   **Docker 배포 환경 설정 (local):**
+    *   로컬 Docker 배포 가이드 문서(`documents/DOCKER_DEPLOYMENT_GUIDE.md`) 작성.
+    *   `docker run -d` 옵션 설명.
+
+
 ## 2025년 12월 4일 (목)
 
 *   **프로젝트 초기화 및 Git-flow 설정:**

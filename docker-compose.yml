@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  smarter-store-api:
+    image: smarter-store-api:latest
+    container_name: smarter-store-api-local
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - JWT_SECRET_LOCAL=${JWT_SECRET_LOCAL} # 호스트 환경 변수를 참조
+    restart: always

@@ -12,4 +12,4 @@ spring:
       path: /home/cic/logs/smarter-store/
 
 jwt:
-  secret: "ReplaceThisWithYourOwnSecretKeyThatIsLongAndSecureEnough" # Production secret, should be from env variable
+  secret: ${JWT_SECRET_PROD} # Production secret, should be from env variable

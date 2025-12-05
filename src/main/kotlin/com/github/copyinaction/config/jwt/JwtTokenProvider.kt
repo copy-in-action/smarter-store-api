@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
+import java.util.Base64
 import java.util.*
 import javax.crypto.SecretKey
 
@@ -18,7 +19,9 @@ class JwtTokenProvider(
     @Value("\${jwt.access-token-validity-in-seconds}") private val accessTokenValidityInSeconds: Long,
 ) {
     private val secretKey: SecretKey by lazy {
-        Keys.hmacShaKeyFor(secretString.toByteArray())
+        // Base64로 인코딩된 비밀 키를 디코딩합니다.
+        // JWT HS256은 최소 256비트(32바이트) 키를 요구합니다.
+        Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretString))
     }
 
     /**
