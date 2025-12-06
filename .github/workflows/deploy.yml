@@ -86,12 +86,12 @@ jobs:
           docker pull ${{ env.DOCKER_IMAGE_PATH }}:latest
           
           # 기존 컨테이너 중지 및 제거 (재배포)
-          docker stop smarter-store-api-prod || true
-          docker rm smarter-store-api-prod || true
+          docker stop ticket-be || true
+          docker rm ticket-be || true
           
           # 새로운 컨테이너 실행 (환경 변수 적용)
           docker run -d \
-            --name smarter-store-api-prod \
+            --name ticket-be \
             -p 48080:8080 \
             -v /var/log/smarter-store-api:/app/logs \
             -e SPRING_PROFILES_ACTIVE=prod \
