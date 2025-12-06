@@ -1,5 +1,14 @@
 # Changelog
 
+## 2025년 12월 6일 (토)
+
+*   **DB 접속정보 보안 강화:**
+    *   `application-local.yml`의 하드코딩된 DB 접속정보(url, username, password)를 환경변수 참조 방식으로 변경.
+    *   프로젝트 루트에 `.env` 파일 생성하여 민감한 정보 분리.
+    *   `.gitignore`에 `.env`, `.env.local`, `.env.*` 패턴 추가하여 Git 추적 제외.
+    *   `spring-dotenv` 라이브러리(4.0.0) 추가하여 `.env` 파일 자동 로드 지원.
+
+
 ## 2025년 12월 5일 (금)
 
 *   **JWT WeakKeyException 해결 및 보안 강화:**

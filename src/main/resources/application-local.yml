@@ -1,9 +1,8 @@
 spring:
   datasource:
-    # Use a local database for development, e.g., H2 in-memory or a local PostgreSQL instance
-    url: jdbc:postgresql://devhong.asuscomm.com:45432/smarter_store
-    username: postgres
-    password: sStore1@3
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true
