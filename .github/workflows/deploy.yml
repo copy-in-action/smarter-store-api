@@ -3,76 +3,93 @@ name: Deploy Smarter Store API
 on:
   push:
     branches:
-      - main # main 브랜치에 푸시될 때 워크플로우를 실행합니다.
+      - main
+
+env:
+  DOCKER_IMAGE_PATH: ${{ secrets.DOCKER_USERNAME }}/smarter-store-api
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest # 워크플로우가 실행될 환경을 지정합니다.
+  build-and-push:
+    # 빌드는 GitHub-hosted runner에서 수행하여 환경의 유연성을 확보합니다.
+    runs-on: ubuntu-latest
+    outputs:
+      image_name_with_sha: ${{ steps.set_tags.outputs.IMAGE_NAME_WITH_SHA }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # GitHub 저장소의 코드를 워크플로우 환경으로 가져옵니다.
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin' # Dockerfile에서 사용하는 JDK 배포판과 일치시킵니다.
-          java-version: '21'      # Dockerfile에서 사용하는 JDK 버전과 일치시킵니다.
-          cache: 'gradle'         # Gradle 종속성 캐싱을 활성화하여 빌드 속도를 높입니다.
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew # gradlew 파일에 실행 권한을 부여합니다.
+        run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test # Spring Boot 애플리케이션 JAR 파일을 빌드합니다.
+        run: ./gradlew clean build -x test
 
-      - name: Set Docker Image Name
-        id: set_image_name
-        run: echo "IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/smarter-store-api" >> "$GITHUB_OUTPUT"
-        # secrets.DOCKER_USERNAME: Docker Hub 사용자 이름 (GitHub Secrets에 등록 필요)
+      - name: Set Docker Tags
+        id: set_tags
+        run: |
+          SHA_TAG="${{ env.DOCKER_IMAGE_PATH }}:${{ github.sha }}"
+          echo "IMAGE_NAME_WITH_SHA=$SHA_TAG" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_NAME_LATEST=${{ env.DOCKER_IMAGE_PATH }}:latest" >> "$GITHUB_OUTPUT"
 
       - name: Build Docker Image
-        run: docker build -t "${{ steps.set_image_name.outputs.IMAGE_NAME }}":"${{ github.sha }}" .
-        # Docker 이미지를 빌드하고 Git SHA로 태그를 지정합니다.
+        run: |
+          docker build \
+            -t "${{ steps.set_tags.outputs.IMAGE_NAME_WITH_SHA }}" \
+            -t "${{ steps.set_tags.outputs.IMAGE_NAME_LATEST }}" .
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }} # Docker Hub 사용자 이름 (GitHub Secrets에 등록 필요)
-          password: ${{ secrets.DOCKER_PASSWORD }} # Docker Hub 비밀번호 또는 토큰 (GitHub Secrets에 등록 필요)
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker Image
-        run: docker push "${{ steps.set_image_name.outputs.IMAGE_NAME }}":"${{ github.sha }}" # 빌드된 Docker 이미지를 Docker Hub에 푸시합니다.
+      - name: Push Docker Images
+        run: |
+          docker push "${{ steps.set_tags.outputs.IMAGE_NAME_WITH_SHA }}"
+          docker push "${{ steps.set_tags.outputs.IMAGE_NAME_LATEST }}"
 
-      - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@master # SSH를 통해 원격 서버에 접속하는 액션입니다.
-        with:
-          host: ${{ secrets.SSH_HOST }}         # 배포 서버의 IP 주소 또는 호스트 이름 (GitHub Secrets에 등록 필요)
-          username: ${{ secrets.SSH_USERNAME }} # SSH 접속 사용자 이름 (GitHub Secrets에 등록 필요)
-          key: ${{ secrets.SSH_PRIVATE_KEY }}   # SSH 개인 키 (GitHub Secrets에 등록 필요)
-          script: |
-            # 서버에서 Docker Hub 로그인 (개인 이미지를 pull하기 위해 필요할 수 있습니다.)
-            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+  deploy:
+    # 📌 변경됨: 배포 서버에 설치된 self-hosted runner에서 직접 실행합니다.
+    runs-on: self-hosted
+    needs: build-and-push
+    environment: production
 
-            # 최신 이미지 pull (github.sha 태그 사용)
-            docker pull "${{ steps.set_image_name.outputs.IMAGE_NAME }}":"${{ github.sha }}"
+    steps:
+      # 📌 변경됨: SSH 접속 액션 제거
 
-            # 기존 컨테이너 중지 및 제거 (존재하지 않아도 에러 발생하지 않도록 || true 추가)
-            docker stop smarter-store-api-prod || true
-            docker rm smarter-store-api-prod || true
+      - name: Docker Hub Login (on self-hosted runner)
+        # self-hosted runner 환경에서 Docker Hub에 로그인합니다.
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-            # 새로운 컨테이너 실행
-            # 이 명령어는 애플리케이션의 특정 환경 변수를 주입합니다.
-            docker run -d \
-              --name smarter-store-api-prod \
-              -p 8080:8080 \
-              -v /var/log/smarter-store-api:/app/logs \ # 서버의 로그 저장 경로를 지정하세요. (예: /var/log/smarter-store-api)
-              -e SPRING_PROFILES_ACTIVE=prod \
-              -e JWT_SECRET_PROD="${{ secrets.JWT_SECRET_PROD }}" \ # 프로덕션 JWT Secret (GitHub Secrets에 등록 필요)
-              -e SPRING_DATASOURCE_URL="${{ secrets.PROD_DB_URL }}" \ # 프로덕션 DB URL (GitHub Secrets에 등록 필요)
-              -e SPRING_DATASOURCE_USERNAME="${{ secrets.PROD_DB_USERNAME }}" \ # 프로덕션 DB 사용자 이름 (GitHub Secrets에 등록 필요)
-              -e SPRING_DATASOURCE_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}" \ # 프로덕션 DB 비밀번호 (GitHub Secrets에 등록 필요)
-              "${{ steps.set_image_name.outputs.IMAGE_NAME }}":"${{ github.sha }}"
-
-            # 사용하지 않는 Docker 이미지 정리 (선택 사항)
-            docker image prune -f
+      - name: Pull and Deploy Container (Local execution)
+        # 로컬에서 직접 docker 명령을 실행합니다.
+        run: |
+          # 최신 이미지 pull
+          docker pull ${{ env.DOCKER_IMAGE_PATH }}:latest
+          
+          # 기존 컨테이너 중지 및 제거
+          docker stop smarter-store-api-prod || true
+          docker rm smarter-store-api-prod || true
+          
+          # 새로운 컨테이너 실행 (환경 변수 적용)
+          docker run -d \
+            --name smarter-store-api-prod \
+            -p 8080:8080 \
+            -v /var/log/smarter-store-api:/app/logs \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e JWT_SECRET_PROD="${{ secrets.JWT_SECRET_PROD }}" \
+            -e SPRING_DATASOURCE_URL="${{ secrets.PROD_DB_URL }}" \
+            -e SPRING_DATASOURCE_USERNAME="${{ secrets.PROD_DB_USERNAME }}" \
+            -e SPRING_DATASOURCE_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}" \
+            ${{ env.DOCKER_IMAGE_PATH }}:latest
+          
+          # 사용하지 않는 Docker 이미지 정리
+          docker image prune -f
