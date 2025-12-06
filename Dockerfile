@@ -1,5 +1,6 @@
 # OpenJDK 21 기반의 Slim 이미지를 사용합니다.
-FROM eclipse-temurin:21-jdk
+# 📌 ARM64 환경을 명시적으로 지정하여, Orange Pi 5에서 'exec format error'를 방지합니다.
+FROM --platform=linux/arm64 eclipse-temurin:21-jdk
 
 # 빌드된 JAR 파일의 경로를 인자로 받습니다.
 ARG JAR_FILE=build/libs/*.jar
