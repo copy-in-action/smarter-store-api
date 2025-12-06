@@ -1,9 +1,17 @@
 plugins {
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
+    id("org.flywaydb.flyway") version "10.15.0"
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
     kotlin("plugin.jpa") version "1.9.24"
+}
+
+buildscript {
+    dependencies {
+        classpath("org.flywaydb:flyway-database-postgresql:10.15.0")
+        classpath("org.postgresql:postgresql:42.7.3")
+    }
 }
 
 group = "com.github.copyinaction"
@@ -33,6 +41,7 @@ dependencies {
     // Security
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
 
@@ -62,4 +71,21 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// .env 파일 로드
+val dotenv = file(".env").takeIf { it.exists() }?.readLines()
+    ?.filter { it.isNotBlank() && !it.startsWith("#") }
+    ?.associate {
+        val (key, value) = it.split("=", limit = 2)
+        key.trim() to value.trim()
+    } ?: emptyMap()
+
+flyway {
+    url = dotenv["DB_URL"] ?: System.getenv("DB_URL")
+    user = dotenv["DB_USERNAME"] ?: System.getenv("DB_USERNAME")
+    password = dotenv["DB_PASSWORD"] ?: System.getenv("DB_PASSWORD")
+    locations = arrayOf("classpath:db/migration")
+    baselineOnMigrate = true
+    cleanDisabled = false
 }

@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 import java.util.Base64
 import java.util.*
 import javax.crypto.SecretKey
@@ -17,6 +18,7 @@ import javax.crypto.SecretKey
 class JwtTokenProvider(
     @Value("\${jwt.secret}") private val secretString: String,
     @Value("\${jwt.access-token-validity-in-seconds}") private val accessTokenValidityInSeconds: Long,
+    @Value("\${jwt.refresh-token-validity-in-seconds}") private val refreshTokenValidityInSeconds: Long,
 ) {
     private val secretKey: SecretKey by lazy {
         // Base64로 인코딩된 비밀 키를 디코딩합니다.
@@ -68,5 +70,26 @@ class JwtTokenProvider(
             // TODO: 로그 남기기 (JwtException, SecurityException, MalformedJwtException, ExpiredJwtException, etc.)
         }
         return false
+    }
+
+    /**
+     * Refresh Token 문자열 생성 (UUID 기반)
+     */
+    fun createRefreshToken(): String {
+        return UUID.randomUUID().toString()
+    }
+
+    /**
+     * Refresh Token 만료일시 계산
+     */
+    fun getRefreshTokenExpiryDate(): LocalDateTime {
+        return LocalDateTime.now().plusSeconds(refreshTokenValidityInSeconds)
+    }
+
+    /**
+     * Access Token 유효시간(초) 반환
+     */
+    fun getAccessTokenValidityInSeconds(): Long {
+        return accessTokenValidityInSeconds
     }
 }

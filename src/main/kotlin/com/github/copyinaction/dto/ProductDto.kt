@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
+import java.time.LocalDateTime
 
 @Schema(description = "상품 정보 응답 DTO")
 data class ProductResponse(
@@ -16,13 +17,21 @@ data class ProductResponse(
 
     @Schema(description = "상품 가격", example = "1000000.0")
     val price: Double,
+
+    @Schema(description = "생성일시")
+    val createdAt: LocalDateTime?,
+
+    @Schema(description = "수정일시")
+    val updatedAt: LocalDateTime?,
 ) {
     companion object {
         fun from(product: Product): ProductResponse {
             return ProductResponse(
                 id = product.id,
                 name = product.name,
-                price = product.price
+                price = product.price,
+                createdAt = product.createdAt,
+                updatedAt = product.updatedAt
             )
         }
     }

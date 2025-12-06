@@ -33,6 +33,7 @@ class SecurityConfig(
                 // 인증 없이 접근을 허용할 경로
                 it.requestMatchers(
                     "/api/auth/**",
+                    "/api/admin/auth/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                 ).permitAll()

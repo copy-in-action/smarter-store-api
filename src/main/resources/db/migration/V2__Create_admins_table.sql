@@ -1,9 +1,9 @@
--- User 테이블 생성
-CREATE TABLE users (
+-- Admin 테이블 생성
+CREATE TABLE admins (
     id BIGSERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    login_id VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );

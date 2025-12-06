@@ -2,6 +2,7 @@ package com.github.copyinaction.exception
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -29,6 +30,16 @@ class GlobalExceptionHandler {
         logger.error("handleCustomException", e)
         val response = ErrorResponse.of(e.errorCode)
         return ResponseEntity.status(e.errorCode.status).body(response)
+    }
+
+    /**
+     * 접근 권한이 없을 때 처리하는 핸들러
+     */
+    @ExceptionHandler(AccessDeniedException::class)
+    protected fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
+        logger.error("handleAccessDeniedException", e)
+        val response = ErrorResponse.of(ErrorCode.ACCESS_DENIED)
+        return ResponseEntity.status(ErrorCode.ACCESS_DENIED.status).body(response)
     }
     
     /**

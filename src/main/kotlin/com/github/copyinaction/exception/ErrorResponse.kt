@@ -1,12 +1,13 @@
 package com.github.copyinaction.exception
 
-/**
- * API 에러 발생 시 Body에 포함되는 표준 에러 응답 DTO
- * @param errorCode 직접 정의한 에러 코드 (ErrorCode Enum)
- * @param message 에러 메시지
- */
+import io.swagger.v3.oas.annotations.media.Schema
+
+@Schema(description = "API 에러 응답")
 data class ErrorResponse(
+    @Schema(description = "에러 코드", example = "INVALID_INPUT")
     val errorCode: String,
+
+    @Schema(description = "에러 메시지", example = "잘못된 입력 값입니다.")
     val message: String,
 ) {
     companion object {

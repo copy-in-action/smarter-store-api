@@ -84,13 +84,19 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 
 ### 5.6. API 문서 자동화 (Swagger / OpenAPI)
 
-프로젝트는 `springdoc-openapi` 라이브러리를 사용하여 API 문서를 자동으로 생성합니다. 애플리케이션 실행 후 `http://localhost:8080/swagger-ui.html`에서 문서를 확인할 수 있습니다. 상세한 어노테이션 사용법 및 예시는 [Swagger/OpenAPI 가이드 문서](documents/SWAGGER_OPENAPI_GUIDE.md)를 참조해 주세요.
+프로젝트는 `springdoc-openapi` 라이브러리를 사용하여 API 문서를 자동으로 생성합니다. 애플리케이션 실행 후 `http://localhost:8080/swagger-ui/index.html`에서 문서를 확인할 수 있습니다. 상세한 어노테이션 사용법 및 예시는 [Swagger/OpenAPI 가이드 문서](documents/SWAGGER_OPENAPI_GUIDE.md)를 참조해 주세요.
 
-### 5.7. 보안 (Security)
+### 5.7. RESTful API 설계
+
+프로젝트는 RESTful API 설계 원칙을 따릅니다. HTTP 메서드별 응답 규칙, 상태 코드 등은 [RESTful API 가이드 문서](documents/RESTFUL_API_GUIDE.md)를 참조해 주세요.
+
+### 5.8. 보안 (Security)
 
 이 프로젝트는 Spring Security와 JWT(JSON Web Token)를 사용하여 API를 보호합니다. 상세한 설정 및 사용 방법은 [보안 가이드 문서](documents/SECURITY_GUIDE.md)를 참조해 주세요.
 
-### 5.8. 테스트
+*   **[JWT 토큰 가이드](documents/JWT_TOKEN_GUIDE.md)**: Access Token / Refresh Token 발급, 갱신, 인증 흐름에 대한 상세 가이드입니다.
+
+### 5.9. 테스트
 
 - **단위 및 통합 테스트**: 테스트 구조화에는 JUnit 5를 사용합니다.
 - **모킹**: 단위 테스트에서 Mock 객체 생성 및 상호 작용 검증에는 `MockK`를 사용합니다.
