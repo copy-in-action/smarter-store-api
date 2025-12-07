@@ -46,3 +46,6 @@ logs/
 .env
 .env.local
 .env.*
+
+### Claude Code ###
+.claude/
