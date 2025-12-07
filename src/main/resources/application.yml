@@ -15,3 +15,13 @@ spring:
 jwt:
   access-token-validity-in-seconds: 3600 # 1시간
   refresh-token-validity-in-seconds: 604800 # 7일
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: when-authorized

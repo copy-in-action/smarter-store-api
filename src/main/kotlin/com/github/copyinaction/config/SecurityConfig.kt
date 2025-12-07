@@ -36,6 +36,7 @@ class SecurityConfig(
                     "/api/admin/auth/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
+                    "/actuator/health",
                 ).permitAll()
                 // 그 외 모든 경로는 인증 필요
                 .anyRequest().authenticated()
