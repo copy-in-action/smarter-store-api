@@ -1,5 +1,16 @@
 # Changelog
 
+## 2025년 12월 7일 (일)
+
+*   **Swagger API 문서에 권한 정보 추가:**
+    *   `OpenApiConfig.kt`에서 전역 `SecurityRequirement` 제거하여 API별 개별 설정 방식으로 변경.
+    *   `AuthController`, `AdminAuthController`에 `@SecurityRequirements` 어노테이션 추가 (인증 불필요 API 표시).
+    *   `ProductController` 각 API에 `@SecurityRequirement(name = "bearerAuth")` 추가 및 description에 권한 정보(ADMIN, USER) 명시.
+*   **documents 폴더 문서 파일명 한글화:**
+    *   12개 문서 파일명을 영문에서 한글로 변경 (예: `INITIAL_SETUP.md` → `초기_설정_가이드.md`).
+    *   `README.md`, `CHANGELOG.md`의 문서 링크를 새 파일명에 맞게 업데이트.
+
+
 ## 2025년 12월 6일 (토)
 
 *   **DB 접속정보 보안 강화:**
@@ -17,7 +28,7 @@
 *   **IntelliJ IDEA 환경 변수 설정 가이드 제공:**
     *   IDE에서 환경 변수를 설정하는 방법 및 OS 환경 변수와의 우선순위 설명.
 *   **Docker 배포 환경 설정 (local):**
-    *   로컬 Docker 배포 가이드 문서(`documents/DOCKER_DEPLOYMENT_GUIDE.md`) 작성.
+    *   로컬 Docker 배포 가이드 문서(`documents/Docker_로컬_배포_가이드.md`) 작성.
     *   `docker run -d` 옵션 설명.
 
 
@@ -38,7 +49,7 @@
     *   `application-prod.yml` 파일 생성 (운영 DB, 로깅 경로, JWT secret 설정 포함).
     *   `application-local.yml` 파일 생성 (로컬 개발 DB, 로깅 경로, JWT secret 설정 포함).
 *   **GitHub Actions Docker 배포 가이드 문서 작성:**
-    *   `documents/GITHUB_ACTIONS_DOCKER_DEPLOYMENT_GUIDE.md` 파일 생성 및 Docker 기반 배포 관련 상세 가이드 작성.
+    *   `documents/GitHub_Actions_Docker_배포_가이드.md` 파일 생성 및 Docker 기반 배포 관련 상세 가이드 작성.
 
 
 ## 2025년 12월 3일 (수)

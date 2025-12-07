@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -32,7 +33,8 @@ class ProductController(
     private val productService: ProductService,
 ) {
 
-    @Operation(summary = "상품 생성", description = "새로운 상품 정보를 생성합니다.")
+    @Operation(summary = "상품 생성", description = "새로운 상품 정보를 생성합니다.\n\n**권한: ADMIN**")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "상품 생성 성공"),
         ApiResponse(
@@ -53,7 +55,8 @@ class ProductController(
         return ResponseEntity.created(location).body(product)
     }
 
-    @Operation(summary = "단일 상품 조회", description = "ID로 특정 상품의 정보를 조회합니다.")
+    @Operation(summary = "단일 상품 조회", description = "ID로 특정 상품의 정보를 조회합니다.\n\n**권한: USER, ADMIN**")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "상품 조회 성공"),
         ApiResponse(
@@ -70,7 +73,8 @@ class ProductController(
         return ResponseEntity.ok(product)
     }
 
-    @Operation(summary = "모든 상품 조회", description = "모든 상품 목록을 조회합니다.")
+    @Operation(summary = "모든 상품 조회", description = "모든 상품 목록을 조회합니다.\n\n**권한: USER, ADMIN**")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "상품 목록 조회 성공"),
         ApiResponse(
@@ -85,7 +89,8 @@ class ProductController(
         return ResponseEntity.ok(products)
     }
 
-    @Operation(summary = "상품 정보 수정", description = "특정 상품의 정보를 수정합니다.")
+    @Operation(summary = "상품 정보 수정", description = "특정 상품의 정보를 수정합니다.\n\n**권한: ADMIN**")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "상품 정보 수정 성공"),
         ApiResponse(
@@ -111,7 +116,8 @@ class ProductController(
         return ResponseEntity.ok(product)
     }
 
-    @Operation(summary = "상품 삭제", description = "특정 상품을 삭제합니다.")
+    @Operation(summary = "상품 삭제", description = "특정 상품을 삭제합니다.\n\n**권한: ADMIN**")
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(
         ApiResponse(responseCode = "204", description = "상품 삭제 성공"),
         ApiResponse(

@@ -10,8 +10,8 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 
 ## 2. 프로젝트 초기 문서 (Initial Project Documents)
 
-*   **[INITIAL_SETUP.md](documents/INITIAL_SETUP.md)**: 이 문서는 프로젝트의 최초 생성 시점의 요구사항, 초기 기술 스택, 기본적인 설정 가이드 등을 담고 있습니다. 프로젝트의 시작점과 초기 방향성을 이해하는 데 도움을 줍니다.
-*   **[GitHub Actions Docker 배포 가이드](documents/GITHUB_ACTIONS_DOCKER_DEPLOYMENT_GUIDE.md)**: GitHub Actions를 활용한 Docker 기반 서버 배포에 대한 상세 가이드입니다.
+*   **[초기 설정 가이드](documents/초기_설정_가이드.md)**: 이 문서는 프로젝트의 최초 생성 시점의 요구사항, 초기 기술 스택, 기본적인 설정 가이드 등을 담고 있습니다. 프로젝트의 시작점과 초기 방향성을 이해하는 데 도움을 줍니다.
+*   **[GitHub Actions Docker 배포 가이드](documents/GitHub_Actions_Docker_배포_가이드.md)**: GitHub Actions를 활용한 Docker 기반 서버 배포에 대한 상세 가이드입니다.
 
 ## 3. 적용 기술 스택 (Applied Technology Stack)
 
@@ -63,15 +63,15 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 
 ### 5.2. 계층별 구조 (Product 및 User/Auth 도메인 예시)
 
-프로젝트는 DDD(도메인 주도 설계) 원칙에 따라 Controller, Service, DTO, Domain/Entity, Repository 계층으로 구성됩니다. 각 계층의 상세한 역할과 책임, 그리고 `Product` 및 사용자/인증 도메인의 예시는 [아키텍처 및 계층별 구조 가이드 문서](documents/ARCHITECTURE_DDD_GUIDE.md)를 참조해 주세요.
+프로젝트는 DDD(도메인 주도 설계) 원칙에 따라 Controller, Service, DTO, Domain/Entity, Repository 계층으로 구성됩니다. 각 계층의 상세한 역할과 책임, 그리고 `Product` 및 사용자/인증 도메인의 예시는 [아키텍처 및 계층별 구조 가이드 문서](documents/아키텍처_DDD_가이드.md)를 참조해 주세요.
 
 ### 5.3. JPA Auditing (생성/수정일자 자동화)
 
-프로젝트는 Spring Data JPA의 Auditing 기능을 사용하여 엔티티의 생성(`createdAt`) 및 수정(`updatedAt`) 일자를 자동으로 관리합니다. 설정 방법 및 상세 내용은 [JPA Auditing 가이드 문서](documents/JPA_AUDITING_GUIDE.md)를 참조해 주세요.
+프로젝트는 Spring Data JPA의 Auditing 기능을 사용하여 엔티티의 생성(`createdAt`) 및 수정(`updatedAt`) 일자를 자동으로 관리합니다. 설정 방법 및 상세 내용은 [JPA Auditing 가이드 문서](documents/JPA_Auditing_가이드.md)를 참조해 주세요.
 
 ### 5.4. 전역 예외 처리 (`exception` 패키지)
 
-프로젝트는 `@RestControllerAdvice`를 활용한 전역 예외 처리 메커니즘을 통해 클라이언트에게 일관된 형식의 에러 응답을 제공합니다. `ErrorCode`, `ErrorResponse`, `CustomException`, `GlobalExceptionHandler`로 구성됩니다. 상세 내용은 [전역 예외 처리 가이드 문서](documents/EXCEPTION_HANDLING_GUIDE.md)를 참조해 주세요.
+프로젝트는 `@RestControllerAdvice`를 활용한 전역 예외 처리 메커니즘을 통해 클라이언트에게 일관된 형식의 에러 응답을 제공합니다. `ErrorCode`, `ErrorResponse`, `CustomException`, `GlobalExceptionHandler`로 구성됩니다. 상세 내용은 [전역 예외 처리 가이드 문서](documents/전역_예외_처리_가이드.md)를 참조해 주세요.
 
 ### 5.5. 데이터베이스 스키마 관리 (Flyway)
 
@@ -80,21 +80,21 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 *   `src/main/resources/db/migration` 경로에 `V{버전}__{설명}.sql` 형식의 SQL 파일을 추가하여 테이블 생성 및 변경을 관리합니다.
 *   애플리케이션 실행 시, Flyway가 현재 데이터베이스 스키마 버전과 마이그레이션 파일들을 비교하여 자동으로 최신 상태로 업데이트합니다.
 
-**Flyway의 상세한 개념, 동작 방식, 그리고 현재 프로젝트에 적용된 마이그레이션 스크립트 목록은 [Flyway 가이드 문서](documents/FLYWAY_GUIDE.md)를 참조해 주세요.**
+**Flyway의 상세한 개념, 동작 방식, 그리고 현재 프로젝트에 적용된 마이그레이션 스크립트 목록은 [Flyway 가이드 문서](documents/Flyway_가이드.md)를 참조해 주세요.**
 
 ### 5.6. API 문서 자동화 (Swagger / OpenAPI)
 
-프로젝트는 `springdoc-openapi` 라이브러리를 사용하여 API 문서를 자동으로 생성합니다. 애플리케이션 실행 후 `http://localhost:8080/swagger-ui/index.html`에서 문서를 확인할 수 있습니다. 상세한 어노테이션 사용법 및 예시는 [Swagger/OpenAPI 가이드 문서](documents/SWAGGER_OPENAPI_GUIDE.md)를 참조해 주세요.
+프로젝트는 `springdoc-openapi` 라이브러리를 사용하여 API 문서를 자동으로 생성합니다. 애플리케이션 실행 후 `http://localhost:8080/swagger-ui/index.html`에서 문서를 확인할 수 있습니다. 상세한 어노테이션 사용법 및 예시는 [Swagger/OpenAPI 가이드 문서](documents/Swagger_OpenAPI_가이드.md)를 참조해 주세요.
 
 ### 5.7. RESTful API 설계
 
-프로젝트는 RESTful API 설계 원칙을 따릅니다. HTTP 메서드별 응답 규칙, 상태 코드 등은 [RESTful API 가이드 문서](documents/RESTFUL_API_GUIDE.md)를 참조해 주세요.
+프로젝트는 RESTful API 설계 원칙을 따릅니다. HTTP 메서드별 응답 규칙, 상태 코드 등은 [RESTful API 가이드 문서](documents/RESTful_API_가이드.md)를 참조해 주세요.
 
 ### 5.8. 보안 (Security)
 
-이 프로젝트는 Spring Security와 JWT(JSON Web Token)를 사용하여 API를 보호합니다. 상세한 설정 및 사용 방법은 [보안 가이드 문서](documents/SECURITY_GUIDE.md)를 참조해 주세요.
+이 프로젝트는 Spring Security와 JWT(JSON Web Token)를 사용하여 API를 보호합니다. 상세한 설정 및 사용 방법은 [보안 가이드 문서](documents/보안_가이드.md)를 참조해 주세요.
 
-*   **[JWT 토큰 가이드](documents/JWT_TOKEN_GUIDE.md)**: Access Token / Refresh Token 발급, 갱신, 인증 흐름에 대한 상세 가이드입니다.
+*   **[JWT 토큰 가이드](documents/JWT_토큰_가이드.md)**: Access Token / Refresh Token 발급, 갱신, 인증 흐름에 대한 상세 가이드입니다.
 
 ### 5.9. 테스트
 
@@ -104,7 +104,7 @@ Smarter Store API는 Kotlin과 Spring Boot로 구축된 백엔드 REST API 서�
 
 ## 6. 로깅
 
-자세한 로깅 설정 및 정책은 [로깅 가이드 문서](documents/LOGGING_GUIDE.md)를 참조해 주세요.
+자세한 로깅 설정 및 정책은 [로깅 가이드 문서](documents/로깅_가이드.md)를 참조해 주세요.
 
 ## 7. 개발 이력 (Development Log)
 
