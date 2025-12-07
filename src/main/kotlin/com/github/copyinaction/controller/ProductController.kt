@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
-@Tag(name = "상품 API", description = "상품 관련 CRUD를 처리하는 API")
+@Tag(name = "products", description = "상품 API - 상품 관련 CRUD를 처리하는 API")
 @RestController
 @RequestMapping("/api/products")
 class ProductController(

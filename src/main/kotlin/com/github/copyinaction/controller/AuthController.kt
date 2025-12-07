@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "인증 API", description = "사용자 회원가입 및 로그인 API (인증 불필요)")
+@Tag(name = "auth", description = "인증 API - 사용자 회원가입 및 로그인 (인증 불필요)")
 @SecurityRequirements
 @RestController
 @RequestMapping("/api/auth")
