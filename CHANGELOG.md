@@ -2,6 +2,11 @@
 
 ## 2025년 12월 7일 (일)
 
+*   **README.md 간소화:**
+    *   중복 내용 제거 및 상세 가이드는 `documents/` 폴더로 위임.
+    *   프로젝트 개요, 기술 스택, 빌드/실행 명령어 중심으로 정리.
+*   **CLAUDE.md 파일 생성:**
+    *   Claude Code용 프로젝트 가이드 문서 추가.
 *   **Swagger API 문서에 권한 정보 추가:**
     *   `OpenApiConfig.kt`에서 전역 `SecurityRequirement` 제거하여 API별 개별 설정 방식으로 변경.
     *   `AuthController`, `AdminAuthController`에 `@SecurityRequirements` 어노테이션 추가 (인증 불필요 API 표시).
