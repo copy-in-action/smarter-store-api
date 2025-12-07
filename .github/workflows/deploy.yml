@@ -92,6 +92,7 @@ jobs:
           # 새로운 컨테이너 실행 (환경 변수 적용)
           docker run -d \
             --name ticket-be \
+            --network ticket_network \
             -p 48080:8080 \
             -v /var/log/smarter-store-api:/app/logs \
             -e SPRING_PROFILES_ACTIVE=prod \
