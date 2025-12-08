@@ -2,6 +2,15 @@
 
 ## 2025년 12월 8일 (월)
 
+*   **공연 API 및 문서 구조 개편:**
+    *   공연 관련 기능 (Venue, Performance, PerformanceSchedule, TicketOption)에 대한
+        엔티티, DTO, Repository, Service, Controller 파일 초안 생성.
+    *   Flyway 마이그레이션 스크립트 추가 (`V4__Create_performance_related_tables.sql`).
+    *   `SecurityConfig`에 신규 API 엔드포인트 권한 설정 추가.
+    *   `ErrorCode`에 `VENUE_NOT_FOUND`, `PERFORMANCE_NOT_FOUND` 추가.
+    *   문서 디렉토리 구조 변경: 기존 문서를 `setup`, `infra`, `design` 폴더로 재분류.
+    *   변경 된 문서 구조에 따라 내부 링크 수정.
+    *   공연 기능 관련 문서 (`documents/features/공연_기능_가이드.md`) 추가.
 *   **JWT 쿠키 기반 인증 구현:**
     *   `documents/JWT_쿠키_전략_가이드.md` 문서 작성.
     *   `AuthDto.kt`에 `AuthTokenInfo` 데이터 클래스 추가 및 `TokenResponse` 제거.
