@@ -2,30 +2,15 @@
 
 ## 2025년 12월 8일 (월)
 
-*   **공연 API 및 문서 구조 개편:**
-    *   공연 관련 기능 (Venue, Performance, PerformanceSchedule, TicketOption)에 대한
-        엔티티, DTO, Repository, Service, Controller 파일 초안 생성.
-    *   Flyway 마이그레이션 스크립트 추가 (`V4__Create_performance_related_tables.sql`).
-    *   `SecurityConfig`에 신규 API 엔드포인트 권한 설정 추가.
-    *   `ErrorCode`에 `VENUE_NOT_FOUND`, `PERFORMANCE_NOT_FOUND` 추가.
-    *   문서 디렉토리 구조 변경: 기존 문서를 `setup`, `infra`, `design` 폴더로 재분류.
-    *   변경 된 문서 구조에 따라 내부 링크 수정.
-    *   공연 기능 관련 문서 (`documents/features/공연_기능_가이드.md`) 추가.
-*   **Product 관련 코드 삭제 및 초기 설정 가이드 업데이트:**
-    *   `product` 테이블 삭제를 위한 Flyway 마이그레이션 스크립트(`V5__Drop_product_table.sql`) 추가.
-    *   Product 관련 엔티티, DTO, Repository, Service, Controller 파일 삭제.
-    *   `ErrorCode.kt`에서 `PRODUCT_NOT_FOUND` 에러 코드 제거.
-    *   `SecurityConfig.kt`에서 Product 관련 권한 규칙 검토 (삭제할 항목 없음).
-    *   Product 관련 테스트 파일 (`SmarterStoreApiApplicationTests.kt`) 삭제.
-    *   `초기_설정_가이드.md` 문서 내 `Product` 예시를 `Performance` 예시로 변경.
-*   **JWT 쿠키 기반 인증 구현:**
-    *   `documents/JWT_쿠키_전략_가이드.md` 문서 작성.
-    *   `AuthDto.kt`에 `AuthTokenInfo` 데이터 클래스 추가 및 `TokenResponse` 제거.
-    *   `AuthService.kt`의 `login`, `refresh` 메서드 반환 타입을 `AuthTokenInfo`로 변경.
-    *   `AuthController.kt`에 `createAccessTokenCookie`, `createRefreshTokenCookie` 헬퍼 함수 추가, `login`, `refresh` 엔드포인트 수정하여 쿠키 설정, `logout` 엔드포인트 추가.
-    *   `JwtAuthenticationFilter.kt`를 수정하여 Access Token을 쿠키에서 추출하도록 변경.
-    *   `AuthController.kt`의 `login`, `refresh`, `logout` 엔드포인트 Swagger 문서 업데이트.
-    *   `SecurityConfig.kt`에서 CORS `allowCredentials` 설정 확인.
+*   **주요 기능 추가 및 리팩토링:**
+    *   공연(Performance) 관련 기능 (Venue, Performance, PerformanceSchedule, TicketOption) 추가 및 관련 API 구현.
+    *   초기 샘플 `Product` 관련 코드 및 데이터베이스 마이그레이션 삭제.
+    *   프로젝트 구조를 계층형에서 기능/도메인 단위로 리팩토링 (Auth, Admin, Venue, Performance 도메인 모듈 및 공유 컴포넌트 분리).
+    *   문서 디렉토리 구조 재편성 (`documents/setup`, `documents/infra`, `documents/design`, `documents/features`).
+    *   JWT 쿠키 기반 인증 구현 및 관련 코드 개선.
+    *   관련 문서(`공연_기능_가이드.md`, `아키텍처_DDD_가이드.md`, `초기_설정_가이드.md` 등) 및 `CHANGELOG.md` 업데이트.
+    *   `SecurityConfig` 및 `ErrorCode` 등 공통 설정 업데이트.
+    *   Swagger (`@Schema(description = "...")`) 및 DB (`COMMENT ON TABLE/COLUMN`)에 한글 설명 추가.
 
 
 ## 2025년 12월 7일 (일)
