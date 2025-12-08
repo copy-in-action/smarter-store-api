@@ -60,6 +60,8 @@ class SecurityConfig(
                     "/v3/api-docs/**",
                     "/actuator/health",
                 ).permitAll()
+                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/venues", "/api/venues/**").permitAll()
+                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/performances", "/api/performances/**").permitAll()
                 // 그 외 모든 경로는 인증 필요
                 .anyRequest().authenticated()
             }
