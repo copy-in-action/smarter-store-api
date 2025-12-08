@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
 
@@ -28,6 +29,7 @@ import java.time.Duration
 @RequestMapping("/api/auth")
 class AuthController(
     private val authService: AuthService,
+    @Value("\${cookie.secure:false}") private val cookieSecure: Boolean,
 ) {
 
     @Operation(summary = "회원가입", description = "새로운 사용자를 생성합니다.")
@@ -95,7 +97,7 @@ class AuthController(
     private fun createAccessTokenCookie(accessToken: String, expiresIn: Long): ResponseCookie {
         return ResponseCookie.from("accessToken", accessToken)
             .httpOnly(true)
-            .secure(true) // HTTPS에서만 전송
+            .secure(cookieSecure)
             .path("/")
             .maxAge(Duration.ofSeconds(expiresIn))
             .sameSite("Lax") // CSRF 보호
@@ -105,7 +107,7 @@ class AuthController(
     private fun createRefreshTokenCookie(refreshToken: String, expiresIn: Long): ResponseCookie {
         return ResponseCookie.from("refreshToken", refreshToken)
             .httpOnly(true)
-            .secure(true) // HTTPS에서만 전송
+            .secure(cookieSecure)
             .path("/")
             .maxAge(Duration.ofSeconds(expiresIn))
             .sameSite("Strict") // CSRF 보호
@@ -121,7 +123,7 @@ class AuthController(
         // Access Token 쿠키 삭제
         val accessTokenCookie = ResponseCookie.from("accessToken", "")
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieSecure)
             .path("/")
             .maxAge(0) // 즉시 만료
             .sameSite("Lax")
@@ -131,7 +133,7 @@ class AuthController(
         // Refresh Token 쿠키 삭제
         val refreshTokenCookie = ResponseCookie.from("refreshToken", "")
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieSecure)
             .path("/")
             .maxAge(0) // 즉시 만료
             .sameSite("Strict")

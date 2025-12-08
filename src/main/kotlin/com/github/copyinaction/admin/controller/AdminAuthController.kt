@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,6 +32,7 @@ import java.time.Duration
 @RequestMapping("/api/admin/auth")
 class AdminAuthController(
     private val adminAuthService: AdminAuthService,
+    @Value("\${cookie.secure:false}") private val cookieSecure: Boolean,
 ) {
 
     @Operation(summary = "관리자 회원가입", description = "새로운 관리자를 생성합니다.")
@@ -76,7 +78,7 @@ class AdminAuthController(
     private fun createAccessTokenCookie(accessToken: String, expiresIn: Long): ResponseCookie {
         return ResponseCookie.from("accessToken", accessToken)
             .httpOnly(true)
-            .secure(true) // HTTPS에서만 전송
+            .secure(cookieSecure)
             .path("/")
             .maxAge(Duration.ofSeconds(expiresIn))
             .sameSite("Lax") // CSRF 보호
@@ -97,7 +99,7 @@ class AdminAuthController(
         // Access Token 쿠키 삭제
         val accessTokenCookie = ResponseCookie.from("accessToken", "")
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieSecure)
             .path("/")
             .maxAge(0) // 즉시 만료
             .sameSite("Lax")
