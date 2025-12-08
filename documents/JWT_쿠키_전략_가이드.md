@@ -49,10 +49,19 @@
         *   `SameSite=Strict`: CSRF 방어에 더 엄격
         *   `Max-Age`: Refresh Token의 유효 기간과 동일하게 설정 (예: 7일)
 
-### 3.2. 프론트엔드 요청 시 (브라우저)
+### 3.2. 인증이 필요한 API 요청 시 (브라우저와 백엔드)
 
-*   프론트엔드 JavaScript 코드는 이 쿠키에 직접 접근할 수 없습니다(`HttpOnly` 때문에).
-*   하지만 브라우저는 API 요청 시 자동으로 해당 쿠키들을 백엔드로 전송합니다. 프론트엔드에서는 추가적인 헤더 설정 없이 일반적인 HTTP 요청만 보내면 됩니다.
+로그인 시 쿠키가 설정된 이후, 인증이 필요한 API를 요청할 때의 흐름은 다음과 같이 브라우저와 백엔드가 자동으로 처리합니다.
+
+1.  **브라우저의 쿠키 자동 전송:**
+    *   프론트엔드에서 보호된 API(예: `GET /api/products`)를 호출하면, 브라우저는 요청을 보낼 때 **자동으로 `accessToken` 쿠키를 `Cookie` 요청 헤더에 담아 함께 전송합니다.**
+    *   프론트엔드 개발자는 이 과정을 위해 별도의 코드를 작성할 필요가 없습니다. (단, `credentials: 'include'` 설정은 필요합니다.)
+
+2.  **백엔드의 쿠키 자동 검증 (`JwtAuthenticationFilter.kt`):**
+    *   백엔드 서버는 API 요청을 받으면 컨트롤러에 도달하기 전에 **`JwtAuthenticationFilter`**가 먼저 요청을 가로챕니다.
+    *   `JwtAuthenticationFilter`는 `Cookie` 요청 헤더에서 `accessToken`을 찾아 그 값을 읽습니다.
+    *   `accessToken`이 존재하고 유효하다면, 필터는 토큰을 검증하여 사용자 인증 정보를 생성하고, 이를 `SecurityContextHolder`에 저장합니다.
+    *   Spring Security는 `SecurityContextHolder`에 인증 정보가 저장된 것을 확인하고, 해당 요청이 인증되었다고 판단하여 API 접근을 허용합니다.
 
 ### 3.3. Access Token 만료 시 (백엔드와 프론트엔드 협업)
 
