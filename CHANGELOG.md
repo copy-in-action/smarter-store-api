@@ -11,6 +11,13 @@
     *   문서 디렉토리 구조 변경: 기존 문서를 `setup`, `infra`, `design` 폴더로 재분류.
     *   변경 된 문서 구조에 따라 내부 링크 수정.
     *   공연 기능 관련 문서 (`documents/features/공연_기능_가이드.md`) 추가.
+*   **Product 관련 코드 삭제 및 초기 설정 가이드 업데이트:**
+    *   `product` 테이블 삭제를 위한 Flyway 마이그레이션 스크립트(`V5__Drop_product_table.sql`) 추가.
+    *   Product 관련 엔티티, DTO, Repository, Service, Controller 파일 삭제.
+    *   `ErrorCode.kt`에서 `PRODUCT_NOT_FOUND` 에러 코드 제거.
+    *   `SecurityConfig.kt`에서 Product 관련 권한 규칙 검토 (삭제할 항목 없음).
+    *   Product 관련 테스트 파일 (`SmarterStoreApiApplicationTests.kt`) 삭제.
+    *   `초기_설정_가이드.md` 문서 내 `Product` 예시를 `Performance` 예시로 변경.
 *   **JWT 쿠키 기반 인증 구현:**
     *   `documents/JWT_쿠키_전략_가이드.md` 문서 작성.
     *   `AuthDto.kt`에 `AuthTokenInfo` 데이터 클래스 추가 및 `TokenResponse` 제거.
