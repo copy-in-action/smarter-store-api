@@ -1,5 +1,17 @@
 # Changelog
 
+## 2025년 12월 8일 (월)
+
+*   **JWT 쿠키 기반 인증 구현:**
+    *   `documents/JWT_쿠키_전략_가이드.md` 문서 작성.
+    *   `AuthDto.kt`에 `AuthTokenInfo` 데이터 클래스 추가 및 `TokenResponse` 제거.
+    *   `AuthService.kt`의 `login`, `refresh` 메서드 반환 타입을 `AuthTokenInfo`로 변경.
+    *   `AuthController.kt`에 `createAccessTokenCookie`, `createRefreshTokenCookie` 헬퍼 함수 추가, `login`, `refresh` 엔드포인트 수정하여 쿠키 설정, `logout` 엔드포인트 추가.
+    *   `JwtAuthenticationFilter.kt`를 수정하여 Access Token을 쿠키에서 추출하도록 변경.
+    *   `AuthController.kt`의 `login`, `refresh`, `logout` 엔드포인트 Swagger 문서 업데이트.
+    *   `SecurityConfig.kt`에서 CORS `allowCredentials` 설정 확인.
+
+
 ## 2025년 12월 7일 (일)
 
 *   **Swagger Tag name 영문화:**

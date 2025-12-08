@@ -3,9 +3,9 @@ package com.github.copyinaction.service
 import com.github.copyinaction.config.jwt.JwtTokenProvider
 import com.github.copyinaction.domain.RefreshToken
 import com.github.copyinaction.domain.User
+import com.github.copyinaction.dto.AuthTokenInfo
 import com.github.copyinaction.dto.LoginRequest
 import com.github.copyinaction.dto.SignupRequest
-import com.github.copyinaction.dto.TokenResponse
 import com.github.copyinaction.exception.CustomException
 import com.github.copyinaction.exception.ErrorCode
 import com.github.copyinaction.repository.RefreshTokenRepository
@@ -36,7 +36,7 @@ class AuthService(
     }
 
     @Transactional
-    fun login(request: LoginRequest): TokenResponse {
+    fun login(request: LoginRequest): AuthTokenInfo {
         val authenticationToken = UsernamePasswordAuthenticationToken(request.email, request.password)
         val authentication = authenticationManagerBuilder.`object`.authenticate(authenticationToken)
         val accessToken = jwtTokenProvider.createAccessToken(authentication)
@@ -56,15 +56,15 @@ class AuthService(
         )
         refreshTokenRepository.save(refreshToken)
 
-        return TokenResponse(
+        return AuthTokenInfo(
             accessToken = accessToken,
             refreshToken = refreshToken.token,
-            expiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
+            accessTokenExpiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
         )
     }
 
     @Transactional
-    fun refresh(refreshTokenString: String): TokenResponse {
+    fun refresh(refreshTokenString: String): AuthTokenInfo {
         // 리프레시 토큰 조회
         val refreshToken = refreshTokenRepository.findByToken(refreshTokenString)
             .orElseThrow { CustomException(ErrorCode.INVALID_REFRESH_TOKEN) }
@@ -91,10 +91,10 @@ class AuthService(
         )
         refreshTokenRepository.save(newRefreshToken)
 
-        return TokenResponse(
+        return AuthTokenInfo(
             accessToken = newAccessToken,
             refreshToken = newRefreshToken.token,
-            expiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
+            accessTokenExpiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
         )
     }
 }

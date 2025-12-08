@@ -45,23 +45,19 @@ data class SignupRequest(
 }
 
 
-@Schema(description = "JWT 토큰 응답 DTO")
-data class TokenResponse(
-    @Schema(description = "JWT Access Token")
-    val accessToken: String,
 
-    @Schema(description = "Refresh Token")
-    val refreshToken: String,
-
-    @Schema(description = "Access Token 만료시간(초)", example = "3600")
-    val expiresIn: Long
-)
 
 @Schema(description = "토큰 갱신 요청 DTO")
 data class RefreshTokenRequest(
     @field:NotBlank
     @Schema(description = "Refresh Token")
     val refreshToken: String
+)
+
+data class AuthTokenInfo(
+    val accessToken: String,
+    val refreshToken: String,
+    val accessTokenExpiresIn: Long
 )
 
 @Schema(description = "사용자 정보 응답 DTO")

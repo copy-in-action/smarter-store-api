@@ -4,7 +4,7 @@ import com.github.copyinaction.config.jwt.JwtTokenProvider
 import com.github.copyinaction.domain.Admin
 import com.github.copyinaction.dto.AdminLoginRequest
 import com.github.copyinaction.dto.AdminSignupRequest
-import com.github.copyinaction.dto.TokenResponse
+import com.github.copyinaction.dto.AuthTokenInfo
 import com.github.copyinaction.exception.CustomException
 import com.github.copyinaction.exception.ErrorCode
 import com.github.copyinaction.repository.AdminRepository
@@ -31,7 +31,7 @@ class AdminAuthService(
     }
 
     @Transactional(readOnly = true)
-    fun login(request: AdminLoginRequest): TokenResponse {
+    fun login(request: AdminLoginRequest): AuthTokenInfo {
         val admin = adminRepository.findByLoginId(request.loginId)
             .orElseThrow { CustomException(ErrorCode.ADMIN_LOGIN_FAILED) }
 
@@ -43,10 +43,10 @@ class AdminAuthService(
         val authentication = UsernamePasswordAuthenticationToken(admin.loginId, null, authorities)
         val accessToken = jwtTokenProvider.createAccessToken(authentication)
 
-        return TokenResponse(
+        return AuthTokenInfo(
             accessToken = accessToken,
-            refreshToken = "", // 관리자는 refresh token 미사용 (필요시 추가)
-            expiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
+            refreshToken = "", // 관리자는 refresh token 미사용 (빈 문자열)
+            accessTokenExpiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
         )
     }
 }
