@@ -1,7 +1,0 @@
--- V12__Alter_reservation_for_seats.sql
-
-ALTER TABLE reservation ADD COLUMN IF NOT EXISTS schedule_id BIGINT;
-ALTER TABLE reservation ADD CONSTRAINT fk_reservation_schedule
-    FOREIGN KEY (schedule_id) REFERENCES performance_schedule(id) ON DELETE SET NULL;
-
-COMMENT ON COLUMN reservation.schedule_id IS '공연 회차 ID (좌석 기반 예매용)';
