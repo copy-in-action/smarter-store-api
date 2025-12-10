@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    is_email_verified BOOLEAN NOT NULL DEFAULT false,
     role VARCHAR(50) NOT NULL,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
@@ -17,6 +18,7 @@ COMMENT ON COLUMN users.id IS '사용자 ID';
 COMMENT ON COLUMN users.email IS '이메일';
 COMMENT ON COLUMN users.username IS '사용자 이름';
 COMMENT ON COLUMN users.password_hash IS '비밀번호 해시';
+COMMENT ON COLUMN users.is_email_verified IS '이메일 인증 여부';
 COMMENT ON COLUMN users.role IS '역할 (USER, ADMIN)';
 COMMENT ON COLUMN users.created_at IS '생성일시';
 COMMENT ON COLUMN users.updated_at IS '수정일시';
