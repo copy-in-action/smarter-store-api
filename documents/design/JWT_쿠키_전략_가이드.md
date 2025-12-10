@@ -78,12 +78,13 @@
 
 ## 4. 구현 시 고려사항
 
-
-
 *   **CORS 설정:** 쿠키를 사용하는 경우 `Access-Control-Allow-Credentials: true`를 포함하여 CORS 설정을 올바르게 구성해야 합니다.
 *   **RefreshToken 무효화:** RefreshToken 탈취 시 재사용을 막기 위해 서버 측에서 무효화 목록(blacklist)을 관리하는 것이 좋습니다.
 *   **만료 시간 관리:** Access Token은 짧게, Refresh Token은 길게 설정하여 보안과 사용자 편의성을 동시에 고려합니다.
 *   **다중 탭/창:** `HttpOnly` 쿠키 사용 시에도 여전히 모든 탭/창은 동일한 쿠키를 공유합니다. 따라서 한 탭에서 로그아웃하면 모든 탭에서 인증이 풀리는 것은 마찬가지입니다. 하지만 XSS 공격으로부터 토큰을 보호하여 전반적인 보안을 크게 강화합니다.
+*   **Cross-site 쿠키 (localhost 개발 환경):** 프론트엔드 개발자가 `localhost`에서 개발서버 API에 직접 연결하는 경우, cross-site 쿠키 문제가 발생할 수 있습니다. 이를 해결하기 위해 백엔드에서 요청의 `Origin` 헤더를 확인하여 동적으로 쿠키 속성을 설정합니다:
+    *   **localhost/127.0.0.1 요청 시:** `SameSite=None`, `Secure=false`
+    *   **그 외 도메인 요청 시:** `SameSite=Lax/Strict`, `Secure=true`
 
 ## 5. 프론트엔드 개발자를 위한 참고사항
 

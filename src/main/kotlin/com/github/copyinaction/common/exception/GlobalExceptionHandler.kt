@@ -1,4 +1,4 @@
-package com.github.copyinaction.exception
+package com.github.copyinaction.common.exception
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity

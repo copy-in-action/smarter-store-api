@@ -1,4 +1,4 @@
-package com.github.copyinaction.exception
+package com.github.copyinaction.common.exception
 
 import io.swagger.v3.oas.annotations.media.Schema
 

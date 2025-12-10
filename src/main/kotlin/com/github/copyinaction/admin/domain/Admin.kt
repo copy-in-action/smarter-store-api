@@ -15,4 +15,4 @@ class Admin(
 
     @jakarta.persistence.Column(nullable = false)
     var passwordHash: String,
-) : com.github.copyinaction.domain.BaseEntity()
+) : com.github.copyinaction.common.domain.BaseEntity()

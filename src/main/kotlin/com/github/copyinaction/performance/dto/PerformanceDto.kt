@@ -34,6 +34,9 @@ data class PerformanceResponse(
     @Schema(description = "공연 대표 이미지 URL", example = "https://example.com/main.jpg")
     val mainImageUrl: String?,
 
+    @Schema(description = "공연 노출 여부", example = "true")
+    val visible: Boolean,
+
     @Schema(description = "공연이 열리는 공연장 정보")
     val venue: VenueResponse?,
 
@@ -59,6 +62,7 @@ data class PerformanceResponse(
                 runningTime = performance.runningTime,
                 ageRating = performance.ageRating,
                 mainImageUrl = performance.mainImageUrl,
+                visible = performance.visible,
                 venue = performance.venue?.let { VenueResponse.Companion.from(it) },
                 startDate = performance.startDate,
                 endDate = performance.endDate,
@@ -92,6 +96,9 @@ data class CreatePerformanceRequest(
     @Schema(description = "생성할 공연 대표 이미지 URL", example = "https://example.com/main.jpg")
     val mainImageUrl: String?,
 
+    @Schema(description = "공연 노출 여부", example = "false")
+    val visible: Boolean = false,
+
     @Schema(description = "공연이 열릴 공연장 ID", example = "1")
     val venueId: Long?,
 
@@ -113,6 +120,7 @@ data class CreatePerformanceRequest(
             runningTime = this.runningTime,
             ageRating = this.ageRating,
             mainImageUrl = this.mainImageUrl,
+            visible = this.visible,
             venue = venue,
             startDate = this.startDate,
             endDate = this.endDate
@@ -142,6 +150,9 @@ data class UpdatePerformanceRequest(
 
     @Schema(description = "수정할 공연 대표 이미지 URL", example = "https://example.com/main.jpg")
     val mainImageUrl: String?,
+
+    @Schema(description = "공연 노출 여부", example = "true")
+    val visible: Boolean,
 
     @Schema(description = "공연이 열릴 공연장 ID", example = "1")
     val venueId: Long?,

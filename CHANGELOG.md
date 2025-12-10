@@ -1,5 +1,40 @@
 # Changelog
 
+## 2025년 12월 10일 (수)
+
+*   **CORS 설정 환경변수화:**
+    *   `application-local.yml`, `application-prod.yml`의 `cors.allowed-origins`를 `${CORS_ALLOWED_ORIGINS}` 환경변수로 변경.
+    *   `.env` 파일에 `CORS_ALLOWED_ORIGINS` 항목 추가.
+
+*   **Cross-site 쿠키 문제 해결 (localhost 개발 환경 지원):**
+    *   `AuthController`, `AdminAuthController`에서 요청의 Origin 헤더를 확인하여 동적으로 쿠키 속성 설정.
+    *   localhost/127.0.0.1에서 요청 시: `SameSite=None`, `Secure=false` 적용.
+    *   그 외 도메인에서 요청 시: `SameSite=Lax/Strict`, `Secure=true` 유지.
+    *   `cookie.secure` yml 설정 제거 (Origin 기반 동적 처리로 대체).
+    *   프론트엔드 개발자가 localhost에서 개발서버 API에 직접 연결하여 쿠키 기반 인증 사용 가능.
+
+*   **메일 설정 공통화:**
+    *   `application.yml`로 메일 설정 이동 (host, port, smtp 옵션은 고정값).
+    *   `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`만 환경변수로 관리.
+    *   `application-local.yml`에서 중복 메일 설정 제거.
+
+## 2025년 12월 9일 (화)
+
+*   **대규모 기능 추가 및 리팩토링:**
+    *   **좌석 예매 시스템**: 공연의 특정 좌석을 지정하여 예매하는 기능을 구현했습니다.
+        *   관련 도메인: `Reservation`, `ScheduleSeat`, `Seat` 등 추가.
+        *   예매 및 좌석 상태 관리를 위한 서비스, 컨트롤러, DTO, Repository 구현.
+    *   **이메일 인증**: 회원가입 시 이메일 인증을 통해 계정을 활성화하는 기능을 추가했습니다.
+        *   `EmailVerificationToken` 도메인 및 관련 서비스, DTO, Repository 구현.
+    *   **SSE (Server-Sent Events)**: 좌석 상태의 실시간 업데이트를 위해 SSE를 도입했습니다. (관련 문서만 추가되었고, 코드는 아직 없는 것으로 보임)
+    *   **리팩토링**:
+        *   공통으로 사용되는 예외 처리, 엔티티 등을 `common` 패키지로 분리하여 코드 구조를 개선했습니다. (`BaseEntity`, `CustomException`, `ErrorResponse`, `GlobalExceptionHandler`)
+        *   `ErrorCode`를 체계적으로 관리하도록 변경했습니다.
+        *   `AsyncConfig`, `MailConfig` 등 새로운 설정 파일을 추가했습니다.
+    *   **데이터베이스**: `Flyway`를 사용하여 좌석(`V9`), 예매(`V8`, `V10`, `V11`, `V12`), 이메일 인증(`V13`) 관련 테이블 스키마를 추가하고 변경했습니다. 또한, `V7`로 성능 가시성 플래그를 추가했습니다.
+    *   **문서**: 신규 기능과 아키텍처 결정을 위한 설계 가이드 문서를 추가했습니다. (`documents/design/SSE_실시간_통신_가이드.md`, `documents/features/공연_이미지_업로드_가이드.md`, `documents/features/이메일_인증_프로세스_가이드.md`, `documents/features/좌석_예매_시스템_가이드.md`, `documents/guidelines/토큰_효율적_사용_가이드.md`)
+    *   `application-local.yml` 및 `application-prod.yml`에 프론트엔드 URL 및 메일 설정 관련 플레이스홀더 추가.
+
 ## 2025년 12월 8일 (월)
 
 *   **주요 기능 추가 및 리팩토링:**

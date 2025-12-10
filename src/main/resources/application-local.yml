@@ -10,12 +10,10 @@ spring:
   logging:
     file:
       path: ./logs/smarter-store-local/ # Local logs can be relative to project root
-
 jwt:
   secret: ${JWT_SECRET_LOCAL} # A simpler secret for local development
-
 cors:
-  allowed-origins: http://localhost:3000, http://localhost:5173, http://127.0.0.1:3000, http://127.0.0.1:5173
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
 
-cookie:
-  secure: false
+app:
+  frontend-url: http://localhost:3000

@@ -15,7 +15,7 @@ jwt:
   secret: ${JWT_SECRET_PROD} # Production secret, should be from env variable
 
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000, http://localhost:5173, http://127.0.0.1:3000, http://127.0.0.1:5173, https://api.ticket.devhong.cc, https://ticket.devhong.cc}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
 
-cookie:
-  secure: ${COOKIE_SECURE:true}
+app:
+  frontend-url: ${FRONTEND_URL:https://ticket.devhong.cc}

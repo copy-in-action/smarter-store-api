@@ -3,7 +3,7 @@ package com.github.copyinaction.venue.controller
 import com.github.copyinaction.venue.dto.CreateVenueRequest
 import com.github.copyinaction.venue.dto.UpdateVenueRequest
 import com.github.copyinaction.venue.dto.VenueResponse
-import com.github.copyinaction.exception.ErrorResponse
+import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.venue.service.VenueService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter

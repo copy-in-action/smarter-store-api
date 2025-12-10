@@ -18,4 +18,4 @@ class PerformanceSchedule(
 
     var saleStartDatetime: LocalDateTime?
 
-) : com.github.copyinaction.domain.BaseEntity()
+) : com.github.copyinaction.common.domain.BaseEntity()

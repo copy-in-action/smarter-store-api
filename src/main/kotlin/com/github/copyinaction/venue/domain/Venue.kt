@@ -11,7 +11,7 @@ class Venue(
     var address: String?,
 
     var seatingChartUrl: String?
-) : com.github.copyinaction.domain.BaseEntity() {
+) : com.github.copyinaction.common.domain.BaseEntity() {
     fun update(name: String, address: String?, seatingChartUrl: String?) {
         this.name = name
         this.address = address

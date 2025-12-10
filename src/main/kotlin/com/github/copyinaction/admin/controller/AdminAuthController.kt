@@ -3,7 +3,7 @@ package com.github.copyinaction.admin.controller
 import com.github.copyinaction.admin.dto.AdminLoginRequest
 import com.github.copyinaction.admin.dto.AdminResponse
 import com.github.copyinaction.admin.dto.AdminSignupRequest
-import com.github.copyinaction.exception.ErrorResponse
+import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.admin.service.AdminAuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.headers.Header
@@ -19,9 +19,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
@@ -32,7 +32,6 @@ import java.time.Duration
 @RequestMapping("/api/admin/auth")
 class AdminAuthController(
     private val adminAuthService: AdminAuthService,
-    @Value("\${cookie.secure:false}") private val cookieSecure: Boolean,
 ) {
 
     @Operation(summary = "관리자 회원가입", description = "새로운 관리자를 생성합니다.")
@@ -67,21 +66,26 @@ class AdminAuthController(
         )
     )
     @PostMapping("/login")
-    fun login(@Valid @RequestBody request: AdminLoginRequest, response: HttpServletResponse): ResponseEntity<Void> {
+    fun login(
+        @Valid @RequestBody request: AdminLoginRequest,
+        @RequestHeader(value = "Origin", required = false) origin: String?,
+        response: HttpServletResponse
+    ): ResponseEntity<Void> {
         val authTokenInfo = adminAuthService.login(request)
+        val isLocalhost = origin?.contains("localhost") == true || origin?.contains("127.0.0.1") == true
 
-        response.addHeader(HttpHeaders.SET_COOKIE, createAccessTokenCookie(authTokenInfo.accessToken, authTokenInfo.accessTokenExpiresIn).toString())
+        response.addHeader(HttpHeaders.SET_COOKIE, createAccessTokenCookie(authTokenInfo.accessToken, authTokenInfo.accessTokenExpiresIn, isLocalhost).toString())
 
         return ResponseEntity.ok().build()
     }
 
-    private fun createAccessTokenCookie(accessToken: String, expiresIn: Long): ResponseCookie {
+    private fun createAccessTokenCookie(accessToken: String, expiresIn: Long, isLocalhost: Boolean): ResponseCookie {
         return ResponseCookie.from("accessToken", accessToken)
             .httpOnly(true)
-            .secure(cookieSecure)
+            .secure(!isLocalhost)
             .path("/")
             .maxAge(Duration.ofSeconds(expiresIn))
-            .sameSite("Lax") // CSRF 보호
+            .sameSite(if (isLocalhost) "None" else "Lax")
             .build()
     }
 
@@ -95,14 +99,19 @@ class AdminAuthController(
         )
     )
     @PostMapping("/logout")
-    fun logout(response: HttpServletResponse): ResponseEntity<Void> {
+    fun logout(
+        @RequestHeader(value = "Origin", required = false) origin: String?,
+        response: HttpServletResponse
+    ): ResponseEntity<Void> {
+        val isLocalhost = origin?.contains("localhost") == true || origin?.contains("127.0.0.1") == true
+
         // Access Token 쿠키 삭제
         val accessTokenCookie = ResponseCookie.from("accessToken", "")
             .httpOnly(true)
-            .secure(cookieSecure)
+            .secure(!isLocalhost)
             .path("/")
             .maxAge(0) // 즉시 만료
-            .sameSite("Lax")
+            .sameSite(if (isLocalhost) "None" else "Lax")
             .build()
         response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
 

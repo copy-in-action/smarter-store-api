@@ -4,8 +4,8 @@ import com.github.copyinaction.config.jwt.JwtTokenProvider
 import com.github.copyinaction.admin.domain.Admin
 import com.github.copyinaction.admin.dto.AdminLoginRequest
 import com.github.copyinaction.admin.dto.AdminSignupRequest
-import com.github.copyinaction.exception.CustomException
-import com.github.copyinaction.exception.ErrorCode
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.admin.repository.AdminRepository
 import com.github.copyinaction.auth.dto.AuthTokenInfo
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken

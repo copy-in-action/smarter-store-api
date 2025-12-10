@@ -1,4 +1,4 @@
-package com.github.copyinaction.domain
+package com.github.copyinaction.common.domain
 
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.MappedSuperclass

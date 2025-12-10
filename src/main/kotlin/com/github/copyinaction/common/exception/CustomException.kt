@@ -1,4 +1,4 @@
-package com.github.copyinaction.exception
+package com.github.copyinaction.common.exception
 
 /**
  * 비즈니스 로직 상의 커스텀 예외

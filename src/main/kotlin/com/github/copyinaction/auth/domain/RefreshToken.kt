@@ -1,6 +1,6 @@
 package com.github.copyinaction.auth.domain
 
-import com.github.copyinaction.domain.BaseEntity
+import com.github.copyinaction.common.domain.BaseEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 

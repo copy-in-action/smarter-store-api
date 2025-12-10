@@ -20,4 +20,4 @@ class TicketOption(
 
     var totalQuantity: Int?
 
-) : com.github.copyinaction.domain.BaseEntity()
+) : com.github.copyinaction.common.domain.BaseEntity()

@@ -3,8 +3,8 @@ package com.github.copyinaction.performance.service
 import com.github.copyinaction.performance.dto.CreatePerformanceRequest
 import com.github.copyinaction.performance.dto.PerformanceResponse
 import com.github.copyinaction.performance.dto.UpdatePerformanceRequest
-import com.github.copyinaction.exception.CustomException
-import com.github.copyinaction.exception.ErrorCode
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.domain.Performance
 import com.github.copyinaction.performance.repository.PerformanceRepository
 import com.github.copyinaction.venue.repository.VenueRepository
@@ -50,6 +50,7 @@ class PerformanceService(
             runningTime = request.runningTime,
             ageRating = request.ageRating,
             mainImageUrl = request.mainImageUrl,
+            visible = request.visible,
             venue = venue,
             startDate = request.startDate,
             endDate = request.endDate

@@ -3,7 +3,7 @@ package com.github.copyinaction.performance.controller
 import com.github.copyinaction.performance.dto.CreatePerformanceRequest
 import com.github.copyinaction.performance.dto.PerformanceResponse
 import com.github.copyinaction.performance.dto.UpdatePerformanceRequest
-import com.github.copyinaction.exception.ErrorResponse
+import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.performance.service.PerformanceService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter

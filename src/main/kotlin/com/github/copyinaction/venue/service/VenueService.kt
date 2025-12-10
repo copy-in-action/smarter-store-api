@@ -4,8 +4,8 @@ import com.github.copyinaction.venue.domain.Venue
 import com.github.copyinaction.venue.dto.CreateVenueRequest
 import com.github.copyinaction.venue.dto.UpdateVenueRequest
 import com.github.copyinaction.venue.dto.VenueResponse
-import com.github.copyinaction.exception.CustomException
-import com.github.copyinaction.exception.ErrorCode
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.venue.repository.VenueRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

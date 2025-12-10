@@ -1,6 +1,6 @@
 package com.github.copyinaction.auth.domain
 
-import com.github.copyinaction.domain.BaseEntity
+import com.github.copyinaction.common.domain.BaseEntity
 import jakarta.persistence.*
 
 @Entity
@@ -18,6 +18,9 @@ class User(
 
     @Column(nullable = false)
     var passwordHash: String,
+
+    @Column(nullable = false)
+    var isEmailVerified: Boolean = false,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

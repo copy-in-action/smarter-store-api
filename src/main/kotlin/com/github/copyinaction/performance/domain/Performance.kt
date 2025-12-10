@@ -22,6 +22,8 @@ class Performance(
 
     var mainImageUrl: String?,
 
+    var visible: Boolean = false,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     var venue: com.github.copyinaction.venue.domain.Venue?,
@@ -36,7 +38,7 @@ class Performance(
     @OneToMany(mappedBy = "performance", cascade = [CascadeType.ALL], orphanRemoval = true)
     val ticketOptions: MutableList<TicketOption> = mutableListOf()
 
-) : com.github.copyinaction.domain.BaseEntity() {
+) : com.github.copyinaction.common.domain.BaseEntity() {
     fun update(
         title: String,
         description: String?,
@@ -44,6 +46,7 @@ class Performance(
         runningTime: Int?,
         ageRating: String?,
         mainImageUrl: String?,
+        visible: Boolean,
         venue: com.github.copyinaction.venue.domain.Venue?,
         startDate: LocalDate,
         endDate: LocalDate
@@ -54,6 +57,7 @@ class Performance(
         this.runningTime = runningTime
         this.ageRating = ageRating
         this.mainImageUrl = mainImageUrl
+        this.visible = visible
         this.venue = venue
         this.startDate = startDate
         this.endDate = endDate
