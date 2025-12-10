@@ -2,6 +2,12 @@
 
 ## 2025년 12월 10일 (수)
 
+*   **쿠키 처리 로직 리팩토링:**
+    *   `CookieService`를 도입하여 모든 인증 관련 쿠키 생성, 삭제 로직을 중앙 집중화.
+    *   `AuthController` 및 `AdminAuthController`에서 `CookieService`를 사용하여 쿠키 처리를 간소화.
+    *   쿠키 도메인 설정(`app.cookie.domain`)을 `application.yml`을 통해 관리하도록 변경하고, 로컬 환경에서는 도메인을 설정하지 않도록 조건부 처리.
+    *   관련 문서(`JWT_쿠키_전략_가이드.md`) 업데이트.
+
 *   **CORS 설정 환경변수화:**
     *   `application-local.yml`, `application-prod.yml`의 `cors.allowed-origins`를 `${CORS_ALLOWED_ORIGINS}` 환경변수로 변경.
     *   `.env` 파일에 `CORS_ALLOWED_ORIGINS` 항목 추가.

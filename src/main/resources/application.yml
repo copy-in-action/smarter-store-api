@@ -39,3 +39,8 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+# Application specific properties
+app:
+  cookie:
+    domain: .devhong.cc

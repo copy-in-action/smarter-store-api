@@ -32,22 +32,24 @@
 ### 3.1. 로그인 성공 시 (백엔드)
 
 1.  사용자 로그인 성공 시, 백엔드 서버는 **Access Token**과 **Refresh Token**을 모두 생성합니다.
-2.  백엔드는 이 토큰들을 HTTP 응답의 `Set-Cookie` 헤더를 통해 클라이언트(브라우저)에게 보냅니다.
+2.  백엔드는 이 토큰들을 HTTP 응답의 `Set-Cookie` 헤더를 통해 클라이언트(브라우저)에게 보냅니다. 이 모든 쿠키 생성 및 응답 추가 로직은 `com.github.copyinaction.auth.service.CookieService`에 의해 중앙 집중식으로 관리됩니다. 쿠키 도메인(`.devhong.cc`)은 `application.yml`의 `app.cookie.domain` 설정값을 따릅니다.
     *   **Access Token 쿠키 설정 예시:**
         ```
-        Set-Cookie: accessToken=<your_access_token>; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600
+        Set-Cookie: accessToken=<your_access_token>; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600; Domain=.devhong.cc
         ```
         *   `HttpOnly`: JavaScript 접근 불가
         *   `Secure`: HTTPS에서만 전송
         *   `SameSite=Lax` 또는 `Strict`: CSRF(Cross-Site Request Forgery) 방어 (권장)
         *   `Max-Age`: Access Token의 유효 기간과 동일하게 설정 (예: 1시간)
+        *   `Domain`: 쿠키가 유효한 도메인을 지정합니다. `application.yml`의 `app.cookie.domain` 값으로 설정되며, 로컬 환경(`localhost` 또는 `127.0.0.1`)에서는 설정되지 않습니다.
     *   **Refresh Token 쿠키 설정 예시:**
         ```
-        Set-Cookie: refreshToken=<your_refresh_token>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800
+        Set-Cookie: refreshToken=<your_refresh_token>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Domain=.devhong.cc
         ```
         *   `HttpOnly`, `Secure`: Access Token과 동일
         *   `SameSite=Strict`: CSRF 방어에 더 엄격
         *   `Max-Age`: Refresh Token의 유효 기간과 동일하게 설정 (예: 7일)
+        *   `Domain`: Access Token과 동일하게 설정됩니다.
 
 ### 3.2. 인증이 필요한 API 요청 시 (브라우저와 백엔드)
 
@@ -74,7 +76,7 @@
 ### 3.4. 로그아웃 시 (백엔드)
 
 1.  프론트엔드가 로그아웃 요청을 백엔드로 보냅니다.
-2.  백엔드는 해당 Refresh Token을 무효화하고 (데이터베이스 등에서), `Set-Cookie` 헤더를 통해 Access Token과 Refresh Token 쿠키의 만료 시간을 과거로 설정하여 브라우저에서 강제로 삭제하도록 합니다.
+2.  백엔드는 `CookieService`를 통해 해당 Refresh Token을 무효화하고 (데이터베이스 등에서), `Set-Cookie` 헤더를 통해 Access Token과 Refresh Token 쿠키의 만료 시간을 과거로 설정하여 브라우저에서 강제로 삭제하도록 합니다.
 
 ## 4. 구현 시 고려사항
 
@@ -82,9 +84,10 @@
 *   **RefreshToken 무효화:** RefreshToken 탈취 시 재사용을 막기 위해 서버 측에서 무효화 목록(blacklist)을 관리하는 것이 좋습니다.
 *   **만료 시간 관리:** Access Token은 짧게, Refresh Token은 길게 설정하여 보안과 사용자 편의성을 동시에 고려합니다.
 *   **다중 탭/창:** `HttpOnly` 쿠키 사용 시에도 여전히 모든 탭/창은 동일한 쿠키를 공유합니다. 따라서 한 탭에서 로그아웃하면 모든 탭에서 인증이 풀리는 것은 마찬가지입니다. 하지만 XSS 공격으로부터 토큰을 보호하여 전반적인 보안을 크게 강화합니다.
-*   **Cross-site 쿠키 (localhost 개발 환경):** 프론트엔드 개발자가 `localhost`에서 개발서버 API에 직접 연결하는 경우, cross-site 쿠키 문제가 발생할 수 있습니다. 이를 해결하기 위해 백엔드에서 요청의 `Origin` 헤더를 확인하여 동적으로 쿠키 속성을 설정합니다:
-    *   **localhost/127.0.0.1 요청 시:** `SameSite=None`, `Secure=false`
-    *   **그 외 도메인 요청 시:** `SameSite=Lax/Strict`, `Secure=true`
+*   **Cross-site 쿠키 (localhost 개발 환경):** 프론트엔드 개발자가 `localhost`에서 개발서버 API에 직접 연결하는 경우, cross-site 쿠키 문제가 발생할 수 있습니다. 이를 해결하기 위해 백엔드에서 요청의 `Origin` 헤더를 확인하여 동적으로 쿠키 속성을 설정하고, `app.cookie.domain` 설정값 적용 여부를 결정합니다.
+    *   `application.yml`에 `app.cookie.domain: .devhong.cc`와 같이 도메인을 설정할 수 있습니다.
+    *   **localhost/127.0.0.1 요청 시:** `SameSite=None`, `Secure=false`, `Domain` 속성 미설정
+    *   **그 외 도메인 요청 시:** `SameSite=Lax/Strict`, `Secure=true`, `Domain` 속성(`app.cookie.domain`에 설정된 값) 설정
 
 ## 5. 프론트엔드 개발자를 위한 참고사항
 
