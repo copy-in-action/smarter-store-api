@@ -1,6 +1,5 @@
 -- V11__Create_reservation_seat_table.sql
 
--- ä-Œ ğ° Lt
 CREATE TABLE IF NOT EXISTS reservation_seat (
     id BIGSERIAL PRIMARY KEY,
     reservation_id BIGINT NOT NULL,
@@ -12,6 +11,6 @@ CREATE TABLE IF NOT EXISTS reservation_seat (
     UNIQUE (reservation_id, schedule_seat_id)
 );
 
-COMMENT ON TABLE reservation_seat IS 'ä-Œ ğ° Lt';
-COMMENT ON COLUMN reservation_seat.reservation_id IS 'ä ID';
-COMMENT ON COLUMN reservation_seat.schedule_seat_id IS 'Œ(Ä Œ ID';
+COMMENT ON TABLE reservation_seat IS 'ì˜ˆë§¤-ì¢Œì„ ì—°ê²° í…Œì´ë¸”';
+COMMENT ON COLUMN reservation_seat.reservation_id IS 'ì˜ˆë§¤ ID';
+COMMENT ON COLUMN reservation_seat.schedule_seat_id IS 'íšŒì°¨ë³„ ì¢Œì„ ID';

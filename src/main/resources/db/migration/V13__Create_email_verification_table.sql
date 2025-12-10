@@ -1,20 +1,5 @@
 -- V13__Create_email_verification_table.sql
 
--- This script creates the email_verification_tokens table and related objects.
-
--- Create the ENUM type for token status
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'verification_token_status') THEN
-        CREATE TYPE verification_token_status AS ENUM (
-            'VERIFIED',
-            'UNVERIFIED',
-            'EXPIRED'
-        );
-    END IF;
-END$$;
-
--- Create the table for email verification tokens
 CREATE TABLE IF NOT EXISTS email_verification_tokens (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -26,7 +11,6 @@ CREATE TABLE IF NOT EXISTS email_verification_tokens (
     CONSTRAINT uk_email_verification_user UNIQUE (user_id)
 );
 
--- Comments for the table and its columns
 COMMENT ON TABLE email_verification_tokens IS '이메일 인증 토큰 테이블';
 COMMENT ON COLUMN email_verification_tokens.id IS '고유 식별자';
 COMMENT ON COLUMN email_verification_tokens.user_id IS '사용자 외래키';
@@ -35,5 +19,4 @@ COMMENT ON COLUMN email_verification_tokens.expiry_date IS '토큰 만료 시간
 COMMENT ON COLUMN email_verification_tokens.created_at IS '생성 시간';
 COMMENT ON COLUMN email_verification_tokens.updated_at IS '수정 시간';
 
--- Index for faster token lookups
 CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_token ON email_verification_tokens(token);

@@ -1,6 +1,5 @@
 -- V9__Create_seat_table.sql
 
---  Lt
 CREATE TABLE IF NOT EXISTS seat (
     id BIGSERIAL PRIMARY KEY,
     venue_id BIGINT NOT NULL,
@@ -16,11 +15,11 @@ CREATE TABLE IF NOT EXISTS seat (
     UNIQUE (venue_id, seat_row, seat_number)
 );
 
-COMMENT ON TABLE seat IS 'υπ¥  τ';
-COMMENT ON COLUMN seat.venue_id IS 'υπ¥ ID';
-COMMENT ON COLUMN seat.section IS 'lν';
-COMMENT ON COLUMN seat.seat_row IS 'τ';
-COMMENT ON COLUMN seat.seat_number IS ' 8';
-COMMENT ON COLUMN seat.seat_grade IS ' ρ	 (VIP, STANDARD, ECONOMY)';
-COMMENT ON COLUMN seat.position_x IS 'X \';
-COMMENT ON COLUMN seat.position_y IS 'Y \';
+COMMENT ON TABLE seat IS 'κ³µμ—°μ¥ μΆμ„ μ •λ³΄';
+COMMENT ON COLUMN seat.venue_id IS 'κ³µμ—°μ¥ ID';
+COMMENT ON COLUMN seat.section IS 'κµ¬μ—­';
+COMMENT ON COLUMN seat.seat_row IS 'μ—΄';
+COMMENT ON COLUMN seat.seat_number IS 'μΆμ„ λ²νΈ';
+COMMENT ON COLUMN seat.seat_grade IS 'μΆμ„ λ“±κΈ‰ (VIP, STANDARD, ECONOMY)';
+COMMENT ON COLUMN seat.position_x IS 'X μΆν‘';
+COMMENT ON COLUMN seat.position_y IS 'Y μΆν‘';
