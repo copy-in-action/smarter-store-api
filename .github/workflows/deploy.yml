@@ -94,7 +94,7 @@ jobs:
             --name ticket-be \
             --network ticket_network \
             -p 48080:8080 \
-            -v /var/log/smarter-store-api:/app/logs \
+            -v /home/cic/docker/logs:/app/logs \
             -e TZ=Asia/Seoul \
             -e SPRING_PROFILES_ACTIVE=prod \
             -e JWT_SECRET_PROD="${{ secrets.JWT_SECRET_PROD }}" \
