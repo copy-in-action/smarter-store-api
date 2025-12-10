@@ -101,6 +101,9 @@ jobs:
             -e SPRING_DATASOURCE_URL="${{ secrets.PROD_DB_URL }}" \
             -e SPRING_DATASOURCE_USERNAME="${{ secrets.PROD_DB_USERNAME }}" \
             -e SPRING_DATASOURCE_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}" \
+            -e CORS_ALLOWED_ORIGINS="${{ secrets.CORS_ALLOWED_ORIGINS }}" \
+            -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
+            -e SPRING_MAIL_PASSWORD="${{ secrets.SPRING_MAIL_PASSWORD }}" \
             ${{ env.DOCKER_IMAGE_PATH }}:latest
           
           # 사용하지 않는 Docker 이미지 정리
