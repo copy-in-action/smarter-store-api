@@ -117,6 +117,7 @@ class AuthService(
         // 기존 토큰이 있다면 삭제 (새로운 토큰 발급을 위함)
         emailVerificationTokenRepository.findByUserId(user.id).ifPresent {
             emailVerificationTokenRepository.delete(it)
+            emailVerificationTokenRepository.flush()
         }
 
         val token = UUID.randomUUID().toString()
