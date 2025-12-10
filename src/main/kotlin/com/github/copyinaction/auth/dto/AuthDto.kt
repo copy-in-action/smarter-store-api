@@ -23,7 +23,7 @@ data class LoginRequest(
 data class SignupRequest(
     @field:NotBlank
     @field:Email
-    @Schema(description = "사용자 이메일", example = "user@example.example.com")
+    @Schema(description = "사용자 이메일", example = "user@example.com")
     val email: String,
 
     @field:NotBlank

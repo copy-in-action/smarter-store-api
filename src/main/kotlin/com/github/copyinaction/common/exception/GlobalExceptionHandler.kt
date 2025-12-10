@@ -3,6 +3,7 @@ package com.github.copyinaction.common.exception
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -40,6 +41,16 @@ class GlobalExceptionHandler {
         logger.error("handleAccessDeniedException", e)
         val response = ErrorResponse.of(ErrorCode.ACCESS_DENIED)
         return ResponseEntity.status(ErrorCode.ACCESS_DENIED.status).body(response)
+    }
+
+    /**
+     * 로그인 실패 (이메일 또는 비밀번호 불일치) 처리 핸들러
+     */
+    @ExceptionHandler(BadCredentialsException::class)
+    protected fun handleBadCredentialsException(e: BadCredentialsException): ResponseEntity<ErrorResponse> {
+        logger.warn("handleBadCredentialsException: {}", e.message)
+        val response = ErrorResponse.of(ErrorCode.LOGIN_FAILED)
+        return ResponseEntity.status(ErrorCode.LOGIN_FAILED.status).body(response)
     }
     
     /**
