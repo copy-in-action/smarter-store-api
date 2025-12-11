@@ -66,10 +66,11 @@ class AuthController(
     fun login(
         @Valid @RequestBody request: LoginRequest,
         @RequestHeader(value = "Origin", required = false) origin: String?,
+        @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
     ): ResponseEntity<Void> {
         val authTokenInfo = authService.login(request)
-        cookieService.addAuthCookies(response, authTokenInfo, origin)
+        cookieService.addAuthCookies(response, authTokenInfo, origin, host)
         return ResponseEntity.ok().build()
     }
 
@@ -89,10 +90,11 @@ class AuthController(
     fun refresh(
         @Valid @RequestBody request: RefreshTokenRequest,
         @RequestHeader(value = "Origin", required = false) origin: String?,
+        @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
     ): ResponseEntity<Void> {
         val authTokenInfo = authService.refresh(request.refreshToken)
-        cookieService.addAuthCookies(response, authTokenInfo, origin)
+        cookieService.addAuthCookies(response, authTokenInfo, origin, host)
         return ResponseEntity.ok().build()
     }
 
@@ -139,9 +141,10 @@ class AuthController(
     @PostMapping("/logout")
     fun logout(
         @RequestHeader(value = "Origin", required = false) origin: String?,
+        @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
     ): ResponseEntity<Void> {
-        cookieService.clearAuthCookies(response, origin)
+        cookieService.clearAuthCookies(response, origin, host)
         return ResponseEntity.ok().build()
     }
 }

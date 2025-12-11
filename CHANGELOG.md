@@ -1,5 +1,19 @@
 # Changelog
 
+## 2025년 12월 11일 (목)
+
+*   **Flyway → JPA DDL-auto 전환:**
+    *   로컬 개발 환경에서 Flyway 마이그레이션 대신 JPA `ddl-auto: update` 방식으로 전환.
+    *   `Flyway_JPA_전략.md` 문서에 baseline 리셋 및 히스토리 관리 가이드 추가.
+
+*   **쿠키 localhost 판단 로직 개선:**
+    *   `CookieService`의 `isLocalhost()` 함수가 Origin 헤더만으로 판단하던 것을 Host 헤더로 fallback하도록 수정.
+    *   Swagger UI 등 Origin 없이 요청하는 경우에도 로컬 환경으로 인식하여 `Secure=false` 쿠키 설정.
+    *   `AuthController`, `AdminAuthController`에 Host 헤더 파라미터 추가.
+
+*   **공연/좌석 등록 플로우 가이드 업데이트:**
+    *   FE 협의내용 검토 섹션 추가 (CreateSeatRequest 필드 상세, 등록 순서, 협의 필요 사항).
+
 ## 2025년 12월 10일 (수)
 
 *   **쿠키 처리 로직 리팩토링:**

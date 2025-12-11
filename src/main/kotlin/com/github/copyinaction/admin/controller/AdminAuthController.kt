@@ -69,10 +69,11 @@ class AdminAuthController(
     fun login(
         @Valid @RequestBody request: AdminLoginRequest,
         @RequestHeader(value = "Origin", required = false) origin: String?,
+        @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
     ): ResponseEntity<Void> {
         val authTokenInfo = adminAuthService.login(request)
-        cookieService.addAdminAuthCookie(response, authTokenInfo, origin)
+        cookieService.addAdminAuthCookie(response, authTokenInfo, origin, host)
         return ResponseEntity.ok().build()
     }
 
@@ -88,9 +89,10 @@ class AdminAuthController(
     @PostMapping("/logout")
     fun logout(
         @RequestHeader(value = "Origin", required = false) origin: String?,
+        @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
     ): ResponseEntity<Void> {
-        cookieService.clearAdminAuthCookie(response, origin)
+        cookieService.clearAdminAuthCookie(response, origin, host)
         return ResponseEntity.ok().build()
     }
 }

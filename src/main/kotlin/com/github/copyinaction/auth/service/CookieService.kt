@@ -33,9 +33,10 @@ class CookieService(
      * @param response HTTP 응답 객체
      * @param authTokenInfo 발급된 JWT 토큰 정보 (Access Token, Refresh Token, 만료 시간 등)
      * @param origin 요청의 Origin 헤더 (로컬 환경 감지에 사용)
+     * @param host 요청의 Host 헤더 (Origin이 없을 때 fallback으로 사용)
      */
-    fun addAuthCookies(response: HttpServletResponse, authTokenInfo: AuthTokenInfo, origin: String?) {
-        val isLocalhost = isLocalhost(origin)
+    fun addAuthCookies(response: HttpServletResponse, authTokenInfo: AuthTokenInfo, origin: String?, host: String? = null) {
+        val isLocalhost = isLocalhost(origin, host)
         response.addHeader(HttpHeaders.SET_COOKIE, createAccessTokenCookie(authTokenInfo.accessToken, authTokenInfo.accessTokenExpiresIn, isLocalhost).toString())
         response.addHeader(HttpHeaders.SET_COOKIE, createRefreshTokenCookie(authTokenInfo.refreshToken, authTokenInfo.accessTokenExpiresIn * 7, isLocalhost).toString())
     }
@@ -47,9 +48,10 @@ class CookieService(
      * @param response HTTP 응답 객체
      * @param authTokenInfo 발급된 JWT 토큰 정보 (Access Token, 만료 시간 등)
      * @param origin 요청의 Origin 헤더 (로컬 환경 감지에 사용)
+     * @param host 요청의 Host 헤더 (Origin이 없을 때 fallback으로 사용)
      */
-    fun addAdminAuthCookie(response: HttpServletResponse, authTokenInfo: AuthTokenInfo, origin: String?) {
-        val isLocalhost = isLocalhost(origin)
+    fun addAdminAuthCookie(response: HttpServletResponse, authTokenInfo: AuthTokenInfo, origin: String?, host: String? = null) {
+        val isLocalhost = isLocalhost(origin, host)
         response.addHeader(HttpHeaders.SET_COOKIE, createAccessTokenCookie(authTokenInfo.accessToken, authTokenInfo.accessTokenExpiresIn, isLocalhost).toString())
     }
 
@@ -58,9 +60,10 @@ class CookieService(
      *
      * @param response HTTP 응답 객체
      * @param origin 요청의 Origin 헤더 (로컬 환경 감지에 사용)
+     * @param host 요청의 Host 헤더 (Origin이 없을 때 fallback으로 사용)
      */
-    fun clearAuthCookies(response: HttpServletResponse, origin: String?) {
-        val isLocalhost = isLocalhost(origin)
+    fun clearAuthCookies(response: HttpServletResponse, origin: String?, host: String? = null) {
+        val isLocalhost = isLocalhost(origin, host)
         response.addHeader(HttpHeaders.SET_COOKIE, createExpiredCookie("accessToken", isLocalhost, "Lax").toString())
         response.addHeader(HttpHeaders.SET_COOKIE, createExpiredCookie("refreshToken", isLocalhost, "Strict").toString())
     }
@@ -70,9 +73,10 @@ class CookieService(
      *
      * @param response HTTP 응답 객체
      * @param origin 요청의 Origin 헤더 (로컬 환경 감지에 사용)
+     * @param host 요청의 Host 헤더 (Origin이 없을 때 fallback으로 사용)
      */
-    fun clearAdminAuthCookie(response: HttpServletResponse, origin: String?) {
-        val isLocalhost = isLocalhost(origin)
+    fun clearAdminAuthCookie(response: HttpServletResponse, origin: String?, host: String? = null) {
+        val isLocalhost = isLocalhost(origin, host)
         response.addHeader(HttpHeaders.SET_COOKIE, createExpiredCookie("accessToken", isLocalhost, "Lax").toString())
     }
 
@@ -162,11 +166,14 @@ class CookieService(
 
     /**
      * 요청의 Origin 헤더를 분석하여 로컬 개발 환경인지 여부를 판단합니다.
+     * Origin이 없는 경우(Swagger 등) Host 헤더로 fallback합니다.
      *
      * @param origin 요청의 Origin 헤더 문자열
-     * @return Origin이 localhost 또는 127.0.0.1을 포함하면 true, 아니면 false
+     * @param host 요청의 Host 헤더 문자열
+     * @return Origin 또는 Host가 localhost/127.0.0.1을 포함하면 true, 아니면 false
      */
-    private fun isLocalhost(origin: String?): Boolean {
-        return origin?.contains("localhost") == true || origin?.contains("127.0.0.1") == true
+    private fun isLocalhost(origin: String?, host: String?): Boolean {
+        val target = origin ?: host
+        return target?.contains("localhost") == true || target?.contains("127.0.0.1") == true
     }
 }

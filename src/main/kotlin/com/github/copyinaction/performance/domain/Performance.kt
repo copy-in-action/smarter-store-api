@@ -11,7 +11,6 @@ class Performance(
 
     var title: String,
 
-    @Lob
     var description: String?,
 
     var category: String,
