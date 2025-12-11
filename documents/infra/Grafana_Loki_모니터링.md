@@ -64,8 +64,8 @@ cd ~/monitoring
 
 ```kotlin
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+   implementation("org.springframework.boot:spring-boot-starter-actuator")
+   runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 }
 ```
 
@@ -73,17 +73,17 @@ dependencies {
 
 ```yaml
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, prometheus, metrics
-  endpoint:
-    health:
-      show-details: always
-  prometheus:
-    metrics:
-      export:
-        enabled: true
+   endpoints:
+      web:
+         exposure:
+            include: health, info, prometheus, metrics
+   endpoint:
+      health:
+         show-details: always
+   prometheus:
+      metrics:
+         export:
+            enabled: true
 ```
 
 ---
@@ -98,43 +98,43 @@ management:
 auth_enabled: false
 
 server:
-  http_listen_port: 3100
+   http_listen_port: 3100
 
 ingester:
-  lifecycler:
-    ring:
-      kvstore:
-        store: inmemory
-      replication_factor: 1
-  chunk_idle_period: 5m
-  chunk_retain_period: 30s
+   lifecycler:
+      ring:
+         kvstore:
+            store: inmemory
+         replication_factor: 1
+   chunk_idle_period: 5m
+   chunk_retain_period: 30s
 
 schema_config:
-  configs:
-    - from: 2020-10-24
-      store: boltdb-shipper
-      object_store: filesystem
-      schema: v11
-      index:
-        prefix: index_
-        period: 24h
+   configs:
+      - from: 2020-10-24
+        store: boltdb-shipper
+        object_store: filesystem
+        schema: v11
+        index:
+           prefix: index_
+           period: 24h
 
 storage_config:
-  boltdb_shipper:
-    active_index_directory: /loki/index
-    cache_location: /loki/cache
-    shared_store: filesystem
-  filesystem:
-    directory: /loki/chunks
+   boltdb_shipper:
+      active_index_directory: /loki/index
+      cache_location: /loki/cache
+      shared_store: filesystem
+   filesystem:
+      directory: /loki/chunks
 
 limits_config:
-  enforce_metric_name: false
-  reject_old_samples: true
-  reject_old_samples_max_age: 168h
+   enforce_metric_name: false
+   reject_old_samples: true
+   reject_old_samples_max_age: 168h
 
 compactor:
-  working_directory: /loki/compactor
-  shared_store: filesystem
+   working_directory: /loki/compactor
+   shared_store: filesystem
 ```
 
 ### 3.2. Promtail 설정
@@ -143,37 +143,37 @@ compactor:
 
 ```yaml
 server:
-  http_listen_port: 9080
-  grpc_listen_port: 0
+   http_listen_port: 9080
+   grpc_listen_port: 0
 
 positions:
-  filename: /tmp/positions.yaml
+   filename: /tmp/positions.yaml
 
 clients:
-  - url: http://loki:3100/loki/api/v1/push
+   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # Docker 컨테이너 로그 수집
-  - job_name: docker
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: docker
-          __path__: /var/lib/docker/containers/*/*-json.log
-    pipeline_stages:
-      - json:
-          expressions:
-            log: log
-            stream: stream
-            time: time
-      - labels:
-          stream:
-      - timestamp:
-          source: time
-          format: RFC3339Nano
-      - output:
-          source: log
+   # Docker 컨테이너 로그 수집
+   - job_name: docker
+     static_configs:
+        - targets:
+             - localhost
+          labels:
+             job: docker
+             __path__: /var/lib/docker/containers/*/*-json.log
+     pipeline_stages:
+        - json:
+             expressions:
+                log: log
+                stream: stream
+                time: time
+        - labels:
+             stream:
+        - timestamp:
+             source: time
+             format: RFC3339Nano
+        - output:
+             source: log
 ```
 
 ### 3.3. Prometheus 설정
@@ -182,25 +182,25 @@ scrape_configs:
 
 ```yaml
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
+   scrape_interval: 15s
+   evaluation_interval: 15s
 
 scrape_configs:
-  # Prometheus 자체 메트릭
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
+   # Prometheus 자체 메트릭
+   - job_name: 'prometheus'
+     static_configs:
+        - targets: ['localhost:9090']
 
-  # Node Exporter (서버 시스템 메트릭)
-  - job_name: 'node-exporter'
-    static_configs:
-      - targets: ['node-exporter:9100']
+   # Node Exporter (서버 시스템 메트릭)
+   - job_name: 'node-exporter'
+     static_configs:
+        - targets: ['node-exporter:9100']
 
-  # Spring Boot Actuator (애플리케이션 메트릭)
-  - job_name: 'spring-boot'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['smarter-store-api:8080']  # Spring Boot 컨테이너명:포트
+   # Spring Boot Actuator (애플리케이션 메트릭)
+   - job_name: 'spring-boot'
+     metrics_path: '/actuator/prometheus'
+     static_configs:
+        - targets: ['smarter-store-api:8080']  # Spring Boot 컨테이너명:포트
 ```
 
 ---
@@ -215,93 +215,93 @@ scrape_configs:
 version: '3.8'
 
 services:
-  # Grafana - 대시보드
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana-data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123  # 변경 권장
-      - GF_USERS_ALLOW_SIGN_UP=false
-    restart: unless-stopped
-    networks:
-      - monitoring
+   # Grafana - 대시보드
+   grafana:
+      image: grafana/grafana:latest
+      container_name: grafana
+      ports:
+         - "3000:3000"
+      volumes:
+         - grafana-data:/var/lib/grafana
+      environment:
+         - GF_SECURITY_ADMIN_USER=admin
+         - GF_SECURITY_ADMIN_PASSWORD=admin123  # 변경 권장
+         - GF_USERS_ALLOW_SIGN_UP=false
+      restart: unless-stopped
+      networks:
+         - monitoring
 
-  # Loki - 로그 저장소
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
-      - loki-data:/loki
-    command: -config.file=/etc/loki/local-config.yaml
-    restart: unless-stopped
-    networks:
-      - monitoring
+   # Loki - 로그 저장소
+   loki:
+      image: grafana/loki:latest
+      container_name: loki
+      ports:
+         - "3100:3100"
+      volumes:
+         - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+         - loki-data:/loki
+      command: -config.file=/etc/loki/local-config.yaml
+      restart: unless-stopped
+      networks:
+         - monitoring
 
-  # Promtail - 로그 수집 에이전트
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    volumes:
-      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: -config.file=/etc/promtail/config.yml
-    restart: unless-stopped
-    networks:
-      - monitoring
+   # Promtail - 로그 수집 에이전트
+   promtail:
+      image: grafana/promtail:latest
+      container_name: promtail
+      volumes:
+         - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+         - /var/lib/docker/containers:/var/lib/docker/containers:ro
+         - /var/run/docker.sock:/var/run/docker.sock
+      command: -config.file=/etc/promtail/config.yml
+      restart: unless-stopped
+      networks:
+         - monitoring
 
-  # Prometheus - 메트릭 수집
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
-    restart: unless-stopped
-    networks:
-      - monitoring
+   # Prometheus - 메트릭 수집
+   prometheus:
+      image: prom/prometheus:latest
+      container_name: prometheus
+      ports:
+         - "9090:9090"
+      volumes:
+         - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+         - prometheus-data:/prometheus
+      command:
+         - '--config.file=/etc/prometheus/prometheus.yml'
+         - '--storage.tsdb.path=/prometheus'
+         - '--storage.tsdb.retention.time=15d'
+      restart: unless-stopped
+      networks:
+         - monitoring
 
-  # Node Exporter - 서버 시스템 메트릭
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    ports:
-      - "9100:9100"
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    restart: unless-stopped
-    networks:
-      - monitoring
+   # Node Exporter - 서버 시스템 메트릭
+   node-exporter:
+      image: prom/node-exporter:latest
+      container_name: node-exporter
+      ports:
+         - "9100:9100"
+      volumes:
+         - /proc:/host/proc:ro
+         - /sys:/host/sys:ro
+         - /:/rootfs:ro
+      command:
+         - '--path.procfs=/host/proc'
+         - '--path.sysfs=/host/sys'
+         - '--path.rootfs=/rootfs'
+         - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      restart: unless-stopped
+      networks:
+         - monitoring
 
 volumes:
-  grafana-data:
-  loki-data:
-  prometheus-data:
+   grafana-data:
+   loki-data:
+   prometheus-data:
 
 networks:
-  monitoring:
-    driver: bridge
+   monitoring:
+      driver: bridge
 ```
 
 ### 4.2. 기존 앱과 네트워크 연결
@@ -314,9 +314,9 @@ Spring Boot 앱이 별도 docker-compose로 실행 중이라면, 같은 네트�
 
 ```yaml
 networks:
-  monitoring:
-    external: true
-    name: smarter-store-network  # 기존 앱 네트워크명
+   monitoring:
+      external: true
+      name: smarter-store-network  # 기존 앱 네트워크명
 ```
 
 **옵션 B: Prometheus에서 호스트 IP 사용**
@@ -327,7 +327,7 @@ networks:
 - job_name: 'spring-boot'
   metrics_path: '/actuator/prometheus'
   static_configs:
-    - targets: ['host.docker.internal:8080']  # 또는 실제 IP
+     - targets: ['host.docker.internal:8080']  # 또는 실제 IP
 ```
 
 ---
@@ -508,8 +508,8 @@ docker stats
 ```yaml
 # docker-compose.yml에서 포트 매핑 제거 또는 localhost만
 prometheus:
-  ports:
-    - "127.0.0.1:9090:9090"  # localhost에서만 접근
+   ports:
+      - "127.0.0.1:9090:9090"  # localhost에서만 접근
 ```
 
 ### 9.3. 리버스 프록시 사용
