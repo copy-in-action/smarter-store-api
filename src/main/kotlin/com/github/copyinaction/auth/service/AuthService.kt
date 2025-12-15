@@ -110,14 +110,14 @@ class AuthService(
             throw CustomException(ErrorCode.EMAIL_ALREADY_EXISTS)
         }
 
-        emailVerificationTokenRepository.findByEmail(email).ifPresent {
-            emailVerificationTokenRepository.delete(it)
-        }
+        // 기존 토큰 삭제 후 flush하여 unique 제약 충돌 방지
+        emailVerificationTokenRepository.deleteByEmail(email)
+        emailVerificationTokenRepository.flush()
 
         val verificationToken = EmailVerificationToken.create(email)
         emailVerificationTokenRepository.save(verificationToken)
 
-        emailService.sendVerificationEmail(email, verificationToken.token) // Send the OTP
+        emailService.sendVerificationEmail(email, verificationToken.token)
     }
 
     @Transactional

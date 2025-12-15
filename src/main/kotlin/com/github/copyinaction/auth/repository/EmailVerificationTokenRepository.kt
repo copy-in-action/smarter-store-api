@@ -9,4 +9,5 @@ interface EmailVerificationTokenRepository : JpaRepository<EmailVerificationToke
     fun findByEmail(email: String): Optional<EmailVerificationToken>
     fun findByEmailAndToken(email: String, token: String): Optional<EmailVerificationToken>
     fun findByEmailAndIsConfirmed(email: String, isConfirmed: Boolean): Optional<EmailVerificationToken>
+    fun deleteByEmail(email: String)
 }
