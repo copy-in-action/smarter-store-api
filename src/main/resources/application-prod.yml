@@ -8,6 +8,9 @@ spring:
     enabled: true
     baseline-on-migrate: true
     baseline-version: 0
+  jpa:
+    hibernate:
+      ddl-auto: update
   logging:
     file:
       path: /home/cic/logs/smarter-store/

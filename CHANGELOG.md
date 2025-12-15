@@ -2,6 +2,9 @@
 
 ## 2025년 12월 15일 (월)
 
+*   **로깅 설정 개선:**
+    *   현재 로그를 항상 `smarter-store.log`에 기록하도록 변경.
+    *   롤오버된 파일만 날짜+인덱스 형식(`smarter-store-2025-12-15.0.log`)으로 아카이브.
 *   **DDD Rich Domain Model 리팩토링:**
     *   Service에 있던 비즈니스 로직을 Domain으로 이동하여 DDD 원칙에 맞게 리팩토링했습니다.
     *   **Auth 도메인:**

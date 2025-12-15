@@ -8,6 +8,8 @@
 
     <!-- 날짜 + 용량 기반으로 로그 파일을 관리하는 Appender 설정 -->
     <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 현재 로그는 항상 이 파일에 기록 -->
+        <file>${LOG_PATH}/smarter-store.log</file>
         <encoder>
             <!-- 로그 패턴은 Spring Boot 기본 패턴을 따릅니다 -->
             <pattern>${FILE_LOG_PATTERN}</pattern>
@@ -15,8 +17,9 @@
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!--
-              파일 이름 패턴:
-              'logs/smarter-store-2025-12-03.0.log' 처럼 날짜와 순번이 함께 기록됩니다.
+              롤오버된 파일 이름 패턴:
+              'logs/smarter-store-2025-12-15.1.log' 처럼 날짜와 순번이 함께 기록됩니다.
+              현재 로그는 항상 'smarter-store.log'에 기록됩니다.
             -->
             <fileNamePattern>${LOG_PATH}/smarter-store-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- 30일 분량의 로그 파일만 보관 -->
