@@ -4,8 +4,72 @@
 
 ## 1. 아키텍처 및 방법론
 
--   프로젝트는 **도메인 주도 설계(DDD)**를 따릅니다. 핵심 로직은 `domain` 패키지에, 비즈니스 로직은 `service`에, 외부와의 통신은 `controller`에 위치시켜 각 계층의 책임을 명확히 분리합니다.
+-   프로젝트는 **도메인 주도 설계(DDD)**와 **Rich Domain Model** 패턴을 따릅니다.
+-   **비즈니스 로직은 Domain(Entity)에 위치**하고, Service는 도메인 메서드를 호출하여 유스케이스를 조율합니다.
 -   모든 새로운 기능은 **테스트 주도 개발(TDD)** 접근 방식을 사용하여 개발되어야 합니다.
+
+### 1.1. Rich Domain Model 패턴
+
+**Domain에 구현하는 것:**
+-   **팩토리 메서드**: `Entity.create()` - 객체 생성 로직 캡슐화
+-   **비즈니스 검증**: `validatePassword()`, `canReserve()` 등
+-   **상태 변경**: `confirm()`, `cancel()`, `verifyEmail()` 등
+-   **계산 로직**: `calculateTotalPrice()` 등
+
+**Service에 남기는 것:**
+-   단순 조회/삭제 (Repository 호출)
+-   트랜잭션 조율
+-   외부 서비스 호출 (JWT 발급, 이메일 전송 등)
+-   여러 도메인 간 협력 조율
+
+### 1.2. Aggregate Root 패턴
+
+부모-자식 관계의 엔티티는 Aggregate Root를 통해 관리합니다.
+
+```kotlin
+// User가 RefreshToken의 Aggregate Root
+@Entity
+class User {
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val refreshTokens: MutableList<RefreshToken> = mutableListOf()
+
+    fun issueRefreshToken(jwtTokenProvider: JwtTokenProvider): RefreshToken {
+        val token = RefreshToken.create(this, jwtTokenProvider)
+        refreshTokens.add(token)
+        return token
+    }
+}
+```
+
+### 1.3. 코드 예시
+
+**Before (Anemic Domain Model):**
+```kotlin
+// Service에서 직접 로직 처리
+fun signup(request: SignupRequest): User {
+    val encodedPassword = passwordEncoder.encode(request.password)
+    val user = User(email = request.email, passwordHash = encodedPassword)
+    return userRepository.save(user)
+}
+```
+
+**After (Rich Domain Model):**
+```kotlin
+// Domain에서 로직 처리
+class User {
+    companion object {
+        fun create(email: String, rawPassword: String, passwordEncoder: PasswordEncoder): User {
+            return User(email = email, passwordHash = passwordEncoder.encode(rawPassword))
+        }
+    }
+}
+
+// Service는 도메인 메서드 호출
+fun signup(request: SignupRequest): User {
+    val user = User.create(request.email, request.password, passwordEncoder)
+    return userRepository.save(user)
+}
+```
 
 ## 2. 기능/도메인별 패키지 구조 (Feature/Domain-based Package Structure)
 
@@ -37,10 +101,10 @@
 
 *   **각 서브패키지의 역할:**
     -   **`controller`**: 해당 도메인의 HTTP 요청 처리 및 응답 반환. 서비스 계층에 위임.
-    -   **`domain`**: 해당 도메인의 핵심 엔티티, 값 객체, 애그리거트 루트 정의. (예: `User`, `Role`, `RefreshToken`은 `auth` 도메인의 핵심 요소)
-    -   **`dto`**: 계층 간 데이터 전송 객체 정의. API 스펙 역할.
+    -   **`domain`**: 해당 도메인의 핵심 엔티티, 값 객체, 애그리거트 루트 정의. **비즈니스 로직(검증, 상태 변경, 계산)과 팩토리 메서드 포함.**
+    -   **`dto`**: 계층 간 데이터 전송 객체 정의. API 스펙 역할. (`toEntity()` 대신 도메인의 `create()` 사용)
     -   **`repository`**: 해당 도메인 엔티티의 영속성 관리 (데이터베이스 접근).
-    -   **`service`**: 해당 도메인의 비즈니스 로직 수행, 트랜잭션 관리.
+    -   **`service`**: 도메인 메서드 호출을 통한 유스케이스 조율, 트랜잭션 관리, 외부 서비스 연동.
 
 ### 2.2. 공통 모듈 (Shared Modules)
 

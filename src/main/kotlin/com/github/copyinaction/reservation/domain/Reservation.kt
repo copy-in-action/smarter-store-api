@@ -5,6 +5,7 @@ import com.github.copyinaction.performance.domain.PerformanceSchedule
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Entity
 @Table(name = "reservation")
@@ -63,7 +64,73 @@ class Reservation(
 
 ) : BaseEntity() {
 
+    companion object {
+        private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+
+        fun generateReservationNumber(): String {
+            val now = LocalDateTime.now()
+            val dateTime = now.format(DATE_TIME_FORMAT)
+            val random = (1000..9999).random()
+            return "R$dateTime$random"
+        }
+
+        fun createWithStock(
+            stock: ScheduleTicketStock,
+            userId: Long?,
+            userName: String,
+            userPhone: String,
+            userEmail: String?,
+            quantity: Int
+        ): Reservation {
+            stock.validateAndDecreaseStock(quantity)
+            val totalPrice = stock.calculateTotalPrice(quantity)
+
+            return Reservation(
+                reservationNumber = generateReservationNumber(),
+                scheduleTicketStock = stock,
+                userId = userId,
+                userName = userName,
+                userPhone = userPhone,
+                userEmail = userEmail,
+                quantity = quantity,
+                totalPrice = totalPrice,
+                status = ReservationStatus.PENDING
+            )
+        }
+
+        fun createWithSeats(
+            schedule: PerformanceSchedule,
+            seats: List<ScheduleSeat>,
+            userId: Long?,
+            userName: String,
+            userPhone: String,
+            userEmail: String?
+        ): Reservation {
+            val totalPrice = seats.fold(BigDecimal.ZERO) { acc, seat ->
+                acc.add(seat.ticketOption.price)
+            }
+
+            return Reservation(
+                reservationNumber = generateReservationNumber(),
+                schedule = schedule,
+                userId = userId,
+                userName = userName,
+                userPhone = userPhone,
+                userEmail = userEmail,
+                quantity = seats.size,
+                totalPrice = totalPrice,
+                status = ReservationStatus.PENDING
+            )
+        }
+
+        fun normalizePhone(phone: String): String = phone.replace("-", "")
+    }
+
     fun isSeatBasedReservation(): Boolean = schedule != null && reservationSeats.isNotEmpty()
+
+    fun matchesPhone(inputPhone: String): Boolean {
+        return normalizePhone(this.userPhone) == normalizePhone(inputPhone)
+    }
 
     fun confirm() {
         require(status == ReservationStatus.PENDING) { "대기 상태의 예매만 확정할 수 있습니다." }

@@ -1,5 +1,37 @@
 # Changelog
 
+## 2025년 12월 15일 (월)
+
+*   **DDD Rich Domain Model 리팩토링:**
+    *   Service에 있던 비즈니스 로직을 Domain으로 이동하여 DDD 원칙에 맞게 리팩토링했습니다.
+    *   **Auth 도메인:**
+        *   `User.create()` 팩토리 메서드 추가 (비밀번호 인코딩 포함)
+        *   `User.verifyEmail()`, `changePassword()`, `updateProfile()` 도메인 메서드 추가
+        *   `User.issueRefreshToken()`, `rotateRefreshToken()` - Aggregate Root 패턴 적용
+        *   `EmailVerificationToken.create()`, `validate()` 도메인 메서드 추가
+        *   `RefreshToken.create()`, `validateNotExpired()` 도메인 메서드 추가
+    *   **Admin 도메인:**
+        *   `Admin.create()` 팩토리 메서드 추가 (비밀번호 인코딩 포함)
+        *   `Admin.validatePassword()`, `changePassword()`, `updateProfile()` 도메인 메서드 추가
+        *   `AdminSignupRequest.toEntity()` 제거
+    *   **Reservation 도메인:**
+        *   `Reservation.createWithStock()` 팩토리 메서드 추가 (예매번호 생성, 가격 계산 포함)
+        *   `Reservation.matchesPhone()` 연락처 검증 메서드 추가
+        *   `ScheduleTicketStock.canReserve()`, `validateAndDecreaseStock()`, `calculateTotalPrice()` 추가
+    *   DDD 리팩토링 태스크 목록 문서 생성 (`contexts/ddd-refactoring-tasks.md`)
+*   **회원가입 인증 흐름 리팩토링 및 오류 해결:**
+    *   **DB 무결성 오류 해결**: DDD 리팩토링 과정에서 발생한 `DataIntegrityViolationException`을 해결했습니다. `EmailVerificationToken`과 `User`의 관계를 분리하고, 로컬 환경에서는 `ddl-auto: create`를 사용하도록 변경하여 문제를 해결했습니다.
+    *   **2단계 OTP 인증 흐름 도입**: 사용자 요구사항에 맞춰, 6자리 영숫자 OTP를 사용하는 2단계 인증 프로세스를 구현했습니다.
+        *   `EmailVerificationToken`이 OTP 생성 및 '확인됨' 상태(`isConfirmed`)를 관리하도록 수정했습니다.
+        *   OTP를 검증하는 별도 API (`/api/auth/confirm-otp`)를 추가했습니다.
+        *   `signup` API는 사전에 OTP 인증이 완료된 이메일만 가입 처리하도록 변경했습니다.
+*   **이메일 템플릿 유지보수성 개선:**
+    *   `spring-boot-starter-thymeleaf` 의존성을 추가했습니다.
+    *   `EmailService`에 하드코딩 되어있던 HTML 본문을 별도의 Thymeleaf 템플릿 파일(`src/main/resources/templates/mail/verification.html`)로 분리하여 유지보수성을 향상시켰습니다.
+*   **메일 발송 오류 진단 및 해결:**
+    *   개발 중 발생했던 `PKIX path building failed` (SSL 인증서 신뢰) 오류와 `SocketTimeoutException` (응답 시간 초과) 오류의 원인이 코드가 아닌 네트워크 환경(이더넷 프록시) 문제임을 진단했습니다.
+    *   이에 따라 불필요하게 추가되었던 메일 관련 SSL 및 타임아웃 설정을 모두 제거하고 원래의 안정적인 상태로 복원했습니다.
+
 ## 2025년 12월 11일 (목)
 
 *   **Flyway → JPA DDL-auto 전환:**
