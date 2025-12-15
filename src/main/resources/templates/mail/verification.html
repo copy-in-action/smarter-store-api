@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Smarter Store 이메일 인증</title>
+</head>
+<body>
+    <div style="font-family: 'Apple SD Gothic Neo', 'sans-serif'; text-align: center; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">Smarter Store 이메일 인증</h1>
+        <p style="font-size: 16px;">회원가입을 계속하려면 아래 인증번호를 입력해주세요.</p>
+        <div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2; border-radius: 10px; display: inline-block;">
+            <h2 style="font-size: 32px; letter-spacing: 5px; color: #007BFF; margin: 0;" th:text="${otp}">123456</h2>
+        </div>
+        <p style="font-size: 14px; color: #888;">이 인증번호는 5분 동안 유효합니다.</p>
+        <p style="font-size: 12px; color: #aaa;">본인이 요청한 것이 아니라면 이 이메일을 무시해주세요.</p>
+    </div>
+</body>
+</html>

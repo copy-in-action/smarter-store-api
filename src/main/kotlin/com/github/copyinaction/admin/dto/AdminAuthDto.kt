@@ -3,7 +3,6 @@ package com.github.copyinaction.admin.dto
 import com.github.copyinaction.admin.domain.Admin
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
-import org.springframework.security.crypto.password.PasswordEncoder
 
 @Schema(description = "관리자 로그인 요청 DTO")
 data class AdminLoginRequest(
@@ -29,15 +28,7 @@ data class AdminSignupRequest(
     @field:NotBlank
     @Schema(description = "관리자 비밀번호", example = "password123")
     val password: String
-) {
-    fun toEntity(passwordEncoder: PasswordEncoder): Admin {
-        return Admin(
-            loginId = this.loginId,
-            name = this.name,
-            passwordHash = passwordEncoder.encode(this.password)
-        )
-    }
-}
+)
 
 @Schema(description = "관리자 정보 응답 DTO")
 data class AdminResponse(

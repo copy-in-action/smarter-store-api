@@ -35,9 +35,6 @@ class MailConfig(
         props["mail.smtp.connectiontimeout"] = connectionTimeout
         props["mail.smtp.timeout"] = timeout
         props["mail.smtp.writetimeout"] = writeTimeout
-        // If necessary, add properties for SSL trust as well
-        // props["mail.smtp.ssl.trust"] = "*"
-
 
         return mailSender
     }

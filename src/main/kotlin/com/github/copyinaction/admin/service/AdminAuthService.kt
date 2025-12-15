@@ -26,7 +26,14 @@ class AdminAuthService(
         if (adminRepository.findByLoginId(request.loginId).isPresent) {
             throw CustomException(ErrorCode.ADMIN_LOGIN_ID_ALREADY_EXISTS)
         }
-        val admin = request.toEntity(passwordEncoder)
+
+        // 도메인에서 Admin 생성
+        val admin = Admin.create(
+            loginId = request.loginId,
+            name = request.name,
+            rawPassword = request.password,
+            passwordEncoder = passwordEncoder
+        )
         return adminRepository.save(admin)
     }
 
@@ -35,9 +42,8 @@ class AdminAuthService(
         val admin = adminRepository.findByLoginId(request.loginId)
             .orElseThrow { CustomException(ErrorCode.ADMIN_LOGIN_FAILED) }
 
-        if (!passwordEncoder.matches(request.password, admin.passwordHash)) {
-            throw CustomException(ErrorCode.ADMIN_LOGIN_FAILED)
-        }
+        // 도메인에서 비밀번호 검증
+        admin.validatePassword(request.password, passwordEncoder)
 
         val authorities = listOf(SimpleGrantedAuthority("ROLE_ADMIN"))
         val authentication = UsernamePasswordAuthenticationToken(admin.loginId, null, authorities)
@@ -45,7 +51,7 @@ class AdminAuthService(
 
         return AuthTokenInfo(
             accessToken = accessToken,
-            refreshToken = "", // 관리자는 refresh token 미사용 (빈 문자열)
+            refreshToken = "",
             accessTokenExpiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
         )
     }

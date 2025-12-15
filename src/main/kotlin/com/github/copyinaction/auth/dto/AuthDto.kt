@@ -1,11 +1,9 @@
 package com.github.copyinaction.auth.dto
 
+import com.github.copyinaction.auth.domain.User
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import org.springframework.security.crypto.password.PasswordEncoder
-import com.github.copyinaction.auth.domain.Role
-import com.github.copyinaction.auth.domain.User
 
 @Schema(description = "로그인 요청 DTO")
 data class LoginRequest(
@@ -32,17 +30,24 @@ data class SignupRequest(
 
     @field:NotBlank
     @Schema(description = "사용자 비밀번호", example = "password123")
-    val password: String
-) {
-    fun toEntity(passwordEncoder: PasswordEncoder, role: Role = Role.USER): User {
-        return User(
-            email = this.email,
-            username = this.username,
-            passwordHash = passwordEncoder.encode(this.password),
-            role = role
-        )
-    }
-}
+    val password: String,
+
+    @field:NotBlank
+    @Schema(description = "핸드폰 번호", example = "01012345678")
+    val phoneNumber: String
+)
+
+@Schema(description = "OTP 인증 확인 요청 DTO")
+data class OtpConfirmationRequest(
+    @field:NotBlank
+    @field:Email
+    @Schema(description = "사용자 이메일", example = "user@example.com")
+    val email: String,
+
+    @field:NotBlank
+    @Schema(description = "6자리 OTP", example = "123456")
+    val otp: String
+)
 
 
 

@@ -5,7 +5,7 @@ import com.github.copyinaction.auth.dto.RefreshTokenRequest
 import com.github.copyinaction.auth.dto.SignupRequest
 import com.github.copyinaction.auth.dto.UserResponse
 import com.github.copyinaction.auth.dto.EmailVerificationRequest
-import com.github.copyinaction.auth.dto.EmailVerificationConfirm
+import com.github.copyinaction.auth.dto.OtpConfirmationRequest // Import the new DTO
 import org.springframework.http.HttpStatus
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.auth.service.AuthService
@@ -32,11 +32,11 @@ class AuthController(
     private val cookieService: CookieService
 ) {
 
-    @Operation(summary = "회원가입", description = "새로운 사용자를 생성합니다.")
+    @Operation(summary = "회원가입", description = "이메일 인증(OTP 확인)이 완료된 후 새로운 사용자를 생성합니다.")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "회원가입 성공"),
         ApiResponse(
-            responseCode = "400", description = "잘못된 입력 값",
+            responseCode = "400", description = "잘못된 입력 값 또는 이메일 인증이 완료되지 않음",
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         ),
         ApiResponse(
@@ -98,15 +98,11 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "이메일 인증 요청", description = "지정된 이메일 주소로 인증 이메일을 보냅니다.")
+    @Operation(summary = "이메일 인증 요청 (OTP 발송)", description = "회원가입을 위한 이메일 인증번호(OTP)를 요청합니다. 지정된 이메일 주소로 OTP가 발송됩니다.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "인증 이메일 전송 성공"),
+        ApiResponse(responseCode = "200", description = "인증 OTP 이메일 전송 성공"),
         ApiResponse(
-            responseCode = "404", description = "등록되지 않은 이메일",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        ),
-        ApiResponse(
-            responseCode = "409", description = "이미 인증된 이메일",
+            responseCode = "409", description = "이미 가입된 이메일",
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )
     )
@@ -116,21 +112,17 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "이메일 인증 확인", description = "받은 토큰으로 이메일 인증을 완료합니다.")
+    @Operation(summary = "OTP 확인", description = "이메일로 발송된 6자리 OTP를 확인합니다.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "이메일 인증 성공"),
+        ApiResponse(responseCode = "200", description = "OTP 확인 성공"),
         ApiResponse(
-            responseCode = "400", description = "유효하지 않거나 만료된 토큰",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        ),
-        ApiResponse(
-            responseCode = "409", description = "이미 인증된 이메일",
+            responseCode = "400", description = "유효하지 않거나 만료된 OTP",
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )
     )
-    @PostMapping("/email-verification/confirm")
-    fun confirmEmailVerification(@Valid @RequestBody request: EmailVerificationConfirm): ResponseEntity<Void> {
-        authService.confirmEmailVerification(request.token)
+    @PostMapping("/confirm-otp")
+    fun confirmOtp(@Valid @RequestBody request: OtpConfirmationRequest): ResponseEntity<Void> {
+        authService.confirmOtp(request.email, request.otp)
         return ResponseEntity.ok().build()
     }
 
