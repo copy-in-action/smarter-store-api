@@ -2,6 +2,10 @@
 
 ## 2025년 12월 15일 (월)
 
+*   **이메일 인증 OTP 재요청 기능 수정:**
+    *   동일 이메일로 OTP 재요청 시 unique 제약 충돌 방지 (`deleteByEmail` + `flush`)
+*   **JPA 설정 변경:**
+    *   `ddl-auto: create` → `update`로 변경하여 재기동 시 데이터 유실 방지
 *   **로깅 설정 개선:**
     *   현재 로그를 항상 `smarter-store.log`에 기록하도록 변경.
     *   롤오버된 파일만 날짜+인덱스 형식(`smarter-store-2025-12-15.0.log`)으로 아카이브.
