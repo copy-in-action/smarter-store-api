@@ -29,13 +29,7 @@ class Performance(
 
     var startDate: LocalDate,
 
-    var endDate: LocalDate,
-
-    @OneToMany(mappedBy = "performance", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val schedules: MutableList<PerformanceSchedule> = mutableListOf(),
-
-    @OneToMany(mappedBy = "performance", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val ticketOptions: MutableList<TicketOption> = mutableListOf()
+    var endDate: LocalDate
 
 ) : com.github.copyinaction.common.domain.BaseEntity() {
     fun update(

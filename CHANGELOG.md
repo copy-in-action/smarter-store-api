@@ -2,6 +2,11 @@
 
 ## 2025년 12월 16일 (화)
 
+*   **좌석 시스템 재설계 준비:**
+    *   FE 피드백을 반영하여 좌석 등록 방식을 JSON 기반으로 변경하기 위해, 기존의 좌석 및 예매 관련 코드(엔티티, 컨트롤러, 서비스 등)를 모두 삭제했습니다.
+    *   좌석 시스템 재설계 분석 문서를 추가했습니다. (`documents/design/신규_좌석_시스템_구현_계획.md`)
+*   **로깅 설정 개선:**
+    *   `NoResourceFoundException`으로 인한 불필요한 WARN 로그가 발생하지 않도록 `logback-spring.xml`에 `PageNotFound` 로거 레벨을 조정했습니다.
 *   **인증 API 개선:**
     *   `GET /api/auth/me` 엔드포인트 구현: 로그인된 사용자 정보를 조회합니다.
     *   `/api/auth/me` 엔드포인트에 `@PreAuthorize("isAuthenticated()")` 적용 및 `SecurityConfig` 업데이트를 통해 인증된 사용자만 접근 가능하도록 보안 강화.
