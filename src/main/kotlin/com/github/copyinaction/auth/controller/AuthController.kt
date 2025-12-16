@@ -1,6 +1,7 @@
 package com.github.copyinaction.auth.controller
 
 import com.github.copyinaction.auth.dto.LoginRequest
+import com.github.copyinaction.auth.dto.LoginResponse
 import com.github.copyinaction.auth.dto.RefreshTokenRequest
 import com.github.copyinaction.auth.dto.SignupRequest
 import com.github.copyinaction.auth.dto.UserResponse
@@ -21,6 +22,9 @@ import jakarta.validation.Valid
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "auth", description = "인증 API - 사용자 회원가입, 로그인 및 이메일 인증")
@@ -52,7 +56,7 @@ class AuthController(
 
     @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "로그인 성공 (Access Token 및 Refresh Token 쿠키로 발급, 사용자 정보 반환)",
+        ApiResponse(responseCode = "200", description = "로그인 성공 (사용자 정보 반환, 토큰은 쿠키로 발급)",
             content = [Content(schema = Schema(implementation = UserResponse::class))],
             headers = [
                 io.swagger.v3.oas.annotations.headers.Header(name = HttpHeaders.SET_COOKIE, description = "Access Token 쿠키 (HttpOnly, Secure, SameSite=Lax)"),
@@ -139,5 +143,19 @@ class AuthController(
     ): ResponseEntity<Void> {
         cookieService.clearAuthCookies(response, origin, host)
         return ResponseEntity.ok().build()
+    }
+
+    @Operation(summary = "내 정보 조회", description = "현재 로그인된 사용자 정보를 조회합니다.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공"),
+        ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+        ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+    )
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/me")
+    fun me(@AuthenticationPrincipal userDetails: UserDetails): ResponseEntity<UserResponse> {
+        val email = userDetails.username
+        val user = authService.getUserById(email)
+        return ResponseEntity.ok(UserResponse.from(user))
     }
 }

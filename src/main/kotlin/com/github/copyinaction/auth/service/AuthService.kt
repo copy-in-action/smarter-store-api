@@ -136,4 +136,10 @@ class AuthService(
         verificationToken.confirm() // Mark as confirmed
         emailVerificationTokenRepository.save(verificationToken)
     }
+
+    @Transactional(readOnly = true)
+    fun getUserById(email: String): User {
+        return userRepository.findByEmail(email)
+            .orElseThrow { CustomException(ErrorCode.USER_NOT_FOUND) }
+    }
 }

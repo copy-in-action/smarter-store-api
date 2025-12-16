@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.Base64
@@ -53,7 +54,9 @@ class JwtTokenProvider(
             .payload
 
         val authorities = claims["auth"].toString().split(",").map(::SimpleGrantedAuthority)
-        val principal = claims.subject
+
+        // @AuthenticationPrincipal UserDetails가 동작하도록 UserDetails 객체 생성
+        val principal = User(claims.subject, "", authorities)
 
         return UsernamePasswordAuthenticationToken(principal, token, authorities)
     }

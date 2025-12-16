@@ -54,12 +54,20 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 // 인증 없이 접근을 허용할 경로
                 it.requestMatchers(
-                    "/api/auth/**",
+                    "/api/auth/signup",
+                    "/api/auth/login",
+                    "/api/auth/refresh",
+                    "/api/auth/email-verification/request",
+                    "/api/auth/confirm-otp",
+                    "/api/auth/logout",
                     "/api/admin/auth/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health",
+                    "/actuator/prometheus",
+                    "/.well-known/**",  // Chrome DevTools 요청 무시
                 ).permitAll()
+                it.requestMatchers("/api/auth/me").authenticated()
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/venues", "/api/venues/**").permitAll()
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/performances", "/api/performances/**").permitAll()
                 // 그 외 모든 경로는 인증 필요

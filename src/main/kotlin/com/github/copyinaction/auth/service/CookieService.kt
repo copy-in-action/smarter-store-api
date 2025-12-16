@@ -159,26 +159,37 @@ class CookieService(
     
     /**
      * 환경에 따라 `SameSite` 정책을 반환합니다.
-     * 로컬 환경일 경우 "None"을 반환하여 Cross-Site 요청을 허용하고,
-     * 그 외 환경에서는 지정된 정책을 따릅니다.
+     *
+     * 주의: SameSite=None은 반드시 Secure=true와 함께 사용해야 합니다.
+     * 로컬 HTTP 환경에서는 SameSite=Lax를 사용합니다.
      *
      * @param policy 기본 SameSite 정책 ("Lax" 또는 "Strict")
      * @param isLocalhost 로컬 환경 여부
      * @return 적용할 SameSite 정책 문자열
      */
     private fun getSameSite(policy: String, isLocalhost: Boolean): String {
-        return if (isLocalhost) "None" else policy
+        // 로컬 환경에서는 Secure=false이므로 SameSite=None 사용 불가
+        // 대신 Lax를 사용하여 same-site 요청에서 쿠키가 전송되도록 함
+        return if (isLocalhost) "Lax" else policy
     }
 
     /**
-     * 요청의 Origin 헤더를 분석하여 로컬 개발 환경인지 여부를 판단합니다.
-     * Origin이 없는 경우(Swagger 등) Host 헤더로 fallback합니다.
+     * 요청의 Origin/Host 헤더를 분석하여 로컬 개발 환경인지 여부를 판단합니다.
+     *
+     * 판단 로직:
+     * 1. Host가 프로덕션 도메인(cookieDomain)을 포함하면 프로덕션으로 판단 (origin과 무관)
+     * 2. 그 외 Origin 또는 Host가 localhost/127.0.0.1이면 로컬로 판단
      *
      * @param origin 요청의 Origin 헤더 문자열
      * @param host 요청의 Host 헤더 문자열
-     * @return Origin 또는 Host가 localhost/127.0.0.1을 포함하면 true, 아니면 false
+     * @return 로컬 환경이면 true, 프로덕션이면 false
      */
     private fun isLocalhost(origin: String?, host: String?): Boolean {
+        // Host가 프로덕션 도메인을 포함하면 프로덕션으로 판단 (프론트가 localhost여도)
+        if (cookieDomain.isNotBlank() && host?.contains(cookieDomain.removePrefix(".")) == true) {
+            return false
+        }
+
         val target = origin ?: host
         return target?.contains("localhost") == true || target?.contains("127.0.0.1") == true
     }

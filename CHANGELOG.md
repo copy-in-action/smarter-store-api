@@ -2,15 +2,32 @@
 
 ## 2025년 12월 16일 (화)
 
+*   **인증 API 개선:**
+    *   `GET /api/auth/me` 엔드포인트 구현: 로그인된 사용자 정보를 조회합니다.
+    *   `/api/auth/me` 엔드포인트에 `@PreAuthorize("isAuthenticated()")` 적용 및 `SecurityConfig` 업데이트를 통해 인증된 사용자만 접근 가능하도록 보안 강화.
 *   **로그인 API 개선:**
     *   로그인 성공 시 사용자 정보(`UserResponse`)를 응답 본문에 포함하도록 변경.
     *   `LoginResponse` DTO 추가 (token + user).
+*   **쿠키 SameSite 정책 수정:**
+    *   로컬 환경에서 `SameSite=None` + `Secure=false` 조합이 브라우저에서 무시되는 문제 해결.
+    *   로컬: `SameSite=Lax`, 프로덕션: 기존 정책 유지.
+*   **쿠키 도메인 판단 로직 개선:**
+    *   프론트가 localhost에서 개발서버(api.ticket.devhong.cc) 호출 시 쿠키 도메인이 `.devhong.cc`로 정상 설정되도록 수정.
+    *   Host가 프로덕션 도메인을 포함하면 Origin과 무관하게 프로덕션으로 판단.
+*   **JWT 인증 개선:**
+    *   `JwtAuthenticationFilter`에 `Authorization: Bearer {token}` 헤더 지원 추가 (Swagger, Postman 등).
+    *   `JwtTokenProvider.getAuthentication()`에서 `UserDetails` 객체 생성하도록 수정 (`@AuthenticationPrincipal` 정상 동작).
+*   **SecurityConfig 업데이트:**
+    *   `/.well-known/**` 경로 permitAll 추가 (Chrome DevTools 요청).
+    *   `/actuator/prometheus` 경로 permitAll 추가 (모니터링용).
 *   **Grafana 모니터링 스택 구성:**
     *   `micrometer-registry-prometheus` 의존성 추가.
     *   Actuator에 `prometheus`, `metrics` 엔드포인트 노출.
     *   로컬 테스트용 `monitoring/` Docker Compose 설정 추가 (Grafana, Prometheus, Loki, Promtail).
-*   **쿠키 도메인 디버깅 로그 추가:**
-    *   `CookieService`에 쿠키 도메인 설정값 확인용 로그 추가.
+*   **요구사항 문서 정리:**
+    *   `contexts/performance.md` 요구사항 문서 업데이트 (출연진, 회차 등 추가).
+    *   `contexts/performance-todo.md` TODO 문서 통합 및 우선순위 정리.
+    *   `contexts/TODO_performance_and_reservation.md` 삭제 (통합 완료).
 
 
 ## 2025년 12월 15일 (월)
