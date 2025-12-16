@@ -52,7 +52,8 @@ class AuthController(
 
     @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "로그인 성공 (Access Token 및 Refresh Token 쿠키로 발급)",
+        ApiResponse(responseCode = "200", description = "로그인 성공 (Access Token 및 Refresh Token 쿠키로 발급, 사용자 정보 반환)",
+            content = [Content(schema = Schema(implementation = UserResponse::class))],
             headers = [
                 io.swagger.v3.oas.annotations.headers.Header(name = HttpHeaders.SET_COOKIE, description = "Access Token 쿠키 (HttpOnly, Secure, SameSite=Lax)"),
                 io.swagger.v3.oas.annotations.headers.Header(name = HttpHeaders.SET_COOKIE, description = "Refresh Token 쿠키 (HttpOnly, Secure, SameSite=Strict)")
@@ -68,10 +69,10 @@ class AuthController(
         @RequestHeader(value = "Origin", required = false) origin: String?,
         @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
-    ): ResponseEntity<Void> {
-        val authTokenInfo = authService.login(request)
-        cookieService.addAuthCookies(response, authTokenInfo, origin, host)
-        return ResponseEntity.ok().build()
+    ): ResponseEntity<UserResponse> {
+        val loginResponse = authService.login(request)
+        cookieService.addAuthCookies(response, loginResponse.token, origin, host)
+        return ResponseEntity.ok(loginResponse.user)
     }
 
     @Operation(summary = "토큰 갱신", description = "리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.")

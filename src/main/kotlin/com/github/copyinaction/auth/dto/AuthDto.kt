@@ -69,6 +69,14 @@ data class AuthTokenInfo(
     val accessTokenExpiresIn: Long
 )
 
+@Schema(description = "로그인 응답 DTO")
+data class LoginResponse(
+    @Schema(description = "인증 토큰 정보")
+    val token: AuthTokenInfo,
+    @Schema(description = "사용자 정보")
+    val user: UserResponse
+)
+
 @Schema(description = "사용자 정보 응답 DTO")
 data class UserResponse(
     @Schema(description = "사용자 ID", example = "1")

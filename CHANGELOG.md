@@ -1,5 +1,18 @@
 # Changelog
 
+## 2025년 12월 16일 (화)
+
+*   **로그인 API 개선:**
+    *   로그인 성공 시 사용자 정보(`UserResponse`)를 응답 본문에 포함하도록 변경.
+    *   `LoginResponse` DTO 추가 (token + user).
+*   **Grafana 모니터링 스택 구성:**
+    *   `micrometer-registry-prometheus` 의존성 추가.
+    *   Actuator에 `prometheus`, `metrics` 엔드포인트 노출.
+    *   로컬 테스트용 `monitoring/` Docker Compose 설정 추가 (Grafana, Prometheus, Loki, Promtail).
+*   **쿠키 도메인 디버깅 로그 추가:**
+    *   `CookieService`에 쿠키 도메인 설정값 확인용 로그 추가.
+
+
 ## 2025년 12월 15일 (월)
 
 *   **이메일 인증 OTP 재요청 기능 수정:**

@@ -26,6 +26,11 @@ import java.time.Duration
 class CookieService(
     @Value("\${app.cookie.domain:}") private val cookieDomain: String // application.yml에서 쿠키 도메인 값을 주입받습니다.
 ) {
+    private val logger = org.slf4j.LoggerFactory.getLogger(javaClass)
+
+    init {
+        logger.info("CookieService initialized with cookieDomain: '$cookieDomain'")
+    }
 
     /**
      * 일반 사용자(User)의 Access Token 및 Refresh Token 쿠키를 HTTP 응답 헤더에 추가합니다.
@@ -37,6 +42,7 @@ class CookieService(
      */
     fun addAuthCookies(response: HttpServletResponse, authTokenInfo: AuthTokenInfo, origin: String?, host: String? = null) {
         val isLocalhost = isLocalhost(origin, host)
+        logger.debug("addAuthCookies - origin: '$origin', host: '$host', isLocalhost: $isLocalhost, cookieDomain: '$cookieDomain'")
         response.addHeader(HttpHeaders.SET_COOKIE, createAccessTokenCookie(authTokenInfo.accessToken, authTokenInfo.accessTokenExpiresIn, isLocalhost).toString())
         response.addHeader(HttpHeaders.SET_COOKIE, createRefreshTokenCookie(authTokenInfo.refreshToken, authTokenInfo.accessTokenExpiresIn * 7, isLocalhost).toString())
     }

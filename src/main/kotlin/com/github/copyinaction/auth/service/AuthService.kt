@@ -3,7 +3,9 @@ package com.github.copyinaction.auth.service
 import com.github.copyinaction.auth.domain.EmailVerificationToken
 import com.github.copyinaction.auth.dto.AuthTokenInfo
 import com.github.copyinaction.auth.dto.LoginRequest
+import com.github.copyinaction.auth.dto.LoginResponse
 import com.github.copyinaction.auth.dto.SignupRequest
+import com.github.copyinaction.auth.dto.UserResponse
 import com.github.copyinaction.auth.repository.EmailVerificationTokenRepository
 import com.github.copyinaction.auth.repository.UserRepository
 import com.github.copyinaction.common.service.EmailService
@@ -59,7 +61,7 @@ class AuthService(
     }
 
     @Transactional
-    fun login(request: LoginRequest): AuthTokenInfo {
+    fun login(request: LoginRequest): LoginResponse {
         val user = userRepository.findByEmail(request.email)
             .orElseThrow { CustomException(ErrorCode.LOGIN_FAILED) }
 
@@ -75,10 +77,15 @@ class AuthService(
         val refreshToken = user.issueRefreshToken(jwtTokenProvider)
         userRepository.save(user)
 
-        return AuthTokenInfo(
+        val tokenInfo = AuthTokenInfo(
             accessToken = accessToken,
             refreshToken = refreshToken.token,
             accessTokenExpiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
+        )
+
+        return LoginResponse(
+            token = tokenInfo,
+            user = UserResponse.from(user)
         )
     }
 
