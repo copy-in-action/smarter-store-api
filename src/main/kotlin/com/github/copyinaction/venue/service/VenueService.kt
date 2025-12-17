@@ -21,7 +21,8 @@ class VenueService(
         val venue = Venue.create(
             name = request.name,
             address = request.address,
-            seatingChartUrl = request.seatingChartUrl
+            seatingChartUrl = request.seatingChartUrl,
+            phoneNumber = request.phoneNumber
         )
         val savedVenue = venueRepository.save(venue)
         return VenueResponse.from(savedVenue)
@@ -39,7 +40,12 @@ class VenueService(
     @Transactional
     fun updateVenue(id: Long, request: UpdateVenueRequest): VenueResponse {
         val venue = findVenueById(id)
-        venue.update(name = request.name, address = request.address, seatingChartUrl = request.seatingChartUrl)
+        venue.update(
+            name = request.name,
+            address = request.address,
+            seatingChartUrl = request.seatingChartUrl,
+            phoneNumber = request.phoneNumber
+        )
         return VenueResponse.Companion.from(venue)
     }
 

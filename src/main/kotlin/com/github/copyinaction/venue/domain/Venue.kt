@@ -16,26 +16,31 @@ class Venue(
 
     var address: String?,
 
-    var seatingChartUrl: String?
+    var seatingChartUrl: String?,
+
+    var phoneNumber: String? = null
 ) : BaseEntity() {
 
     companion object {
         fun create(
             name: String,
             address: String?,
-            seatingChartUrl: String?
+            seatingChartUrl: String?,
+            phoneNumber: String? = null
         ): Venue {
             return Venue(
                 name = name,
                 address = address,
-                seatingChartUrl = seatingChartUrl
+                seatingChartUrl = seatingChartUrl,
+                phoneNumber = phoneNumber
             )
         }
     }
 
-    fun update(name: String, address: String?, seatingChartUrl: String?) {
+    fun update(name: String, address: String?, seatingChartUrl: String?, phoneNumber: String?) {
         this.name = name
         this.address = address
         this.seatingChartUrl = seatingChartUrl
+        this.phoneNumber = phoneNumber
     }
 }

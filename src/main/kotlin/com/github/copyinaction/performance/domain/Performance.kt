@@ -1,7 +1,9 @@
 package com.github.copyinaction.performance.domain
 
+import com.github.copyinaction.common.domain.BaseEntity
 import com.github.copyinaction.venue.domain.Venue
 import jakarta.persistence.*
+import org.hibernate.annotations.Comment
 import java.time.LocalDate
 
 @Entity
@@ -12,6 +14,7 @@ class Performance(
 
     var title: String,
 
+    @Column(columnDefinition = "TEXT")
     var description: String?,
 
     var category: String,
@@ -30,9 +33,53 @@ class Performance(
 
     var startDate: LocalDate,
 
-    var endDate: LocalDate
+    var endDate: LocalDate,
 
-) : com.github.copyinaction.common.domain.BaseEntity() {
+    @Column(columnDefinition = "TEXT")
+    @Comment("출연진")
+    var cast: String? = null,
+
+    @Column(length = 255)
+    @Comment("기획사")
+    var agency: String? = null,
+
+    @Column(length = 255)
+    @Comment("제작사")
+    var producer: String? = null,
+
+    @Column(length = 255)
+    @Comment("주최")
+    var host: String? = null,
+
+    @Column(columnDefinition = "TEXT")
+    @Comment("할인정보")
+    var discountInfo: String? = null,
+
+    @Column(columnDefinition = "TEXT")
+    @Comment("이용안내")
+    var usageGuide: String? = null,
+
+    @Column(columnDefinition = "TEXT")
+    @Comment("취소/환불규정")
+    var refundPolicy: String? = null,
+
+    @Column(length = 500)
+    @Comment("상품상세 이미지 URL")
+    var detailImageUrl: String? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    @Comment("판매자/기획사 정보")
+    var company: Company? = null,
+
+    @Comment("예매 수수료")
+    var bookingFee: Int? = null,
+
+    @Column(columnDefinition = "TEXT")
+    @Comment("배송 안내")
+    var shippingGuide: String? = null
+
+) : BaseEntity() {
 
     companion object {
         fun create(
@@ -45,7 +92,18 @@ class Performance(
             visible: Boolean = false,
             venue: Venue?,
             startDate: LocalDate,
-            endDate: LocalDate
+            endDate: LocalDate,
+            cast: String? = null,
+            agency: String? = null,
+            producer: String? = null,
+            host: String? = null,
+            discountInfo: String? = null,
+            usageGuide: String? = null,
+            refundPolicy: String? = null,
+            detailImageUrl: String? = null,
+            company: Company? = null,
+            bookingFee: Int? = null,
+            shippingGuide: String? = null
         ): Performance {
             return Performance(
                 title = title,
@@ -57,7 +115,18 @@ class Performance(
                 visible = visible,
                 venue = venue,
                 startDate = startDate,
-                endDate = endDate
+                endDate = endDate,
+                cast = cast,
+                agency = agency,
+                producer = producer,
+                host = host,
+                discountInfo = discountInfo,
+                usageGuide = usageGuide,
+                refundPolicy = refundPolicy,
+                detailImageUrl = detailImageUrl,
+                company = company,
+                bookingFee = bookingFee,
+                shippingGuide = shippingGuide
             )
         }
     }
@@ -72,7 +141,18 @@ class Performance(
         visible: Boolean,
         venue: Venue?,
         startDate: LocalDate,
-        endDate: LocalDate
+        endDate: LocalDate,
+        cast: String? = null,
+        agency: String? = null,
+        producer: String? = null,
+        host: String? = null,
+        discountInfo: String? = null,
+        usageGuide: String? = null,
+        refundPolicy: String? = null,
+        detailImageUrl: String? = null,
+        company: Company? = null,
+        bookingFee: Int? = null,
+        shippingGuide: String? = null
     ) {
         this.title = title
         this.description = description
@@ -84,5 +164,16 @@ class Performance(
         this.venue = venue
         this.startDate = startDate
         this.endDate = endDate
+        this.cast = cast
+        this.agency = agency
+        this.producer = producer
+        this.host = host
+        this.discountInfo = discountInfo
+        this.usageGuide = usageGuide
+        this.refundPolicy = refundPolicy
+        this.detailImageUrl = detailImageUrl
+        this.company = company
+        this.bookingFee = bookingFee
+        this.shippingGuide = shippingGuide
     }
 }

@@ -6,6 +6,7 @@ import com.github.copyinaction.performance.dto.UpdatePerformanceRequest
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.domain.Performance
+import com.github.copyinaction.performance.repository.CompanyRepository
 import com.github.copyinaction.performance.repository.PerformanceRepository
 import com.github.copyinaction.venue.repository.VenueRepository
 import org.springframework.stereotype.Service
@@ -15,13 +16,17 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class PerformanceService(
     private val performanceRepository: PerformanceRepository,
-    private val venueRepository: VenueRepository
+    private val venueRepository: VenueRepository,
+    private val companyRepository: CompanyRepository
 ) {
 
     @Transactional
     fun createPerformance(request: CreatePerformanceRequest): PerformanceResponse {
         val venue = request.venueId?.let {
             venueRepository.findById(it).orElseThrow { CustomException(ErrorCode.VENUE_NOT_FOUND) }
+        }
+        val company = request.companyId?.let {
+            companyRepository.findById(it).orElseThrow { CustomException(ErrorCode.COMPANY_NOT_FOUND) }
         }
         val performance = Performance.create(
             title = request.title,
@@ -33,7 +38,18 @@ class PerformanceService(
             visible = request.visible,
             venue = venue,
             startDate = request.startDate,
-            endDate = request.endDate
+            endDate = request.endDate,
+            cast = request.cast,
+            agency = request.agency,
+            producer = request.producer,
+            host = request.host,
+            discountInfo = request.discountInfo,
+            usageGuide = request.usageGuide,
+            refundPolicy = request.refundPolicy,
+            detailImageUrl = request.detailImageUrl,
+            company = company,
+            bookingFee = request.bookingFee,
+            shippingGuide = request.shippingGuide
         )
         val savedPerformance = performanceRepository.save(performance)
         return PerformanceResponse.from(savedPerformance)
@@ -54,6 +70,9 @@ class PerformanceService(
         val venue = request.venueId?.let {
             venueRepository.findById(it).orElseThrow { CustomException(ErrorCode.VENUE_NOT_FOUND) }
         }
+        val company = request.companyId?.let {
+            companyRepository.findById(it).orElseThrow { CustomException(ErrorCode.COMPANY_NOT_FOUND) }
+        }
         performance.update(
             title = request.title,
             description = request.description,
@@ -64,9 +83,20 @@ class PerformanceService(
             visible = request.visible,
             venue = venue,
             startDate = request.startDate,
-            endDate = request.endDate
+            endDate = request.endDate,
+            cast = request.cast,
+            agency = request.agency,
+            producer = request.producer,
+            host = request.host,
+            discountInfo = request.discountInfo,
+            usageGuide = request.usageGuide,
+            refundPolicy = request.refundPolicy,
+            detailImageUrl = request.detailImageUrl,
+            company = company,
+            bookingFee = request.bookingFee,
+            shippingGuide = request.shippingGuide
         )
-        return PerformanceResponse.Companion.from(performance)
+        return PerformanceResponse.from(performance)
     }
 
     @Transactional

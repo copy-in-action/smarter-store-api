@@ -4,6 +4,7 @@
 |------|------|--------|----------|
 | 1.0 | 2025-12-16 | BE | 초안 작성 |
 | 1.1 | 2025-12-17 | BE | 예매 안내사항(TicketingNotice) 추가, DDD 리팩토링 섹션 추가, Company CRUD API 완료 체크, Flyway 관련 항목 삭제 |
+| 1.2 | 2025-12-17 | BE | Venue/Performance 필드 추가 완료, JSON 기반 좌석 배치도 구현 섹션 추가 |
 
 > 기준 문서: `contexts/performance.md`
 
@@ -162,26 +163,62 @@
 
 ---
 
-## 7. 주요 설계 변경 제안 (FE 피드백)
+## 7. JSON 기반 좌석 배치도 구현 (신규)
 
-- [ ] **좌석 등록 방식 JSON으로 변경 제안 (현재 BE는 개별 좌석에 좌표를 부여하는 방식)**
-  - **내용:** 공연장(Venue)에 좌석 배치 정보 전체(행/열 수, 등급, 벽, 복도 등)를 JSON 형태로 저장하는 방식.
-  - **장점(FE):** API 호출 한 번으로 전체 좌석 정보를 받아 렌더링하기 용이함.
-  - **검토 필요 사항(BE):** 현재 백엔드는 개별 `Seat` 엔티티를 기준으로 좌석 상태(점유, 예매)를 관리하고 있음. 이 제안을 수용할 경우, `Seat`, `ScheduleSeat` 관련 도메인 및 로직 전반에 대한 재설계가 필요. **단순 구현이 아닌 심도 깊은 기술 검토가 우선되어야 함.**
+> 기준 문서: `contexts/seatChat.js`
 
----
+### 설계 개요
+- **정적 데이터** (Venue): 좌석 배치 구조 (rows, columns, seatTypes, disabledSeats)
+- **동적 데이터** (ScheduleSeatStatus): 회차별 좌석 상태 (AVAILABLE, PENDING, RESERVED)
+- **클라이언트 전용**: selectedSeats, mode
 
-## 우선순위 (1차 개발) ✅
+### 7-1. 좌석 배치 DTO 생성
+- [ ] `SeatingChartConfig` data class 생성
+  - rows: Int
+  - columns: Int
+  - seatTypes: Map<String, SeatTypeConfig>
+  - disabledSeats: List<SeatPosition>
+  - rowSpacers: List<Int>
+  - columnSpacers: List<Int>
+- [ ] `SeatTypeConfig` data class 생성 (label, grade, color)
+- [ ] `SeatPosition` data class 생성 (row, col)
 
-| 순위 | 항목 | 이유 |
-|------|------|------|
-| 1 | 달력 모달용 API | 프론트엔드 예매 플로우 필수 |
-| 2 | 비회원 예매 차단 | 로그인 필수 정책 적용 |
-| 3 | Performance 필드 추가 | 출연진, 할인정보 등 단순 필드 추가 |
-| 4 | Venue 필드 추가 | 대표번호 등 단순 필드 추가 |
-| 5 | 회차 관리 API | Admin 기능 보완 |
-| 6 | 이미지 업로드 (MinIO) | 인프라 설정 필요 |
-| 7 | 등급별 허용좌석수 테이블 | 새 엔티티 추가 필요 |
-| 8 | 지도 API 연동 | 외부 API 연동 필요 |
+### 7-2. Venue 엔티티 수정
+- [ ] `Venue.seatingChartUrl` → `Venue.seatingChart` (JSONB) 변경
+  - `@JdbcTypeCode(SqlTypes.JSON)` 적용
+  - `@Column(columnDefinition = "jsonb")` 적용
+- [ ] `VenueDto` 수정 (seatingChartUrl → seatingChart)
+- [ ] `VenueService` 수정
+
+### 7-3. 회차별 좌석 상태 엔티티 생성
+- [ ] `SeatStatus` enum 생성 (AVAILABLE, PENDING, RESERVED)
+- [ ] `ScheduleSeatStatus` 엔티티 생성
+  - schedule_id (FK → PerformanceSchedule)
+  - row_num, col_num (좌석 위치)
+  - status (SeatStatus)
+  - held_by (점유 유저 ID, nullable)
+  - held_until (점유 만료 시간, nullable)
+  - unique constraint: (schedule_id, row_num, col_num)
+- [ ] `ScheduleSeatStatusRepository` 생성
+
+### 7-4. 좌석 배치도 API 구현
+- [ ] `GET /api/venues/{venueId}/seating-chart` - 공연장 배치도 조회
+- [ ] `PUT /api/admin/venues/{venueId}/seating-chart` - 배치도 저장/수정 (관리자)
+- [ ] `GET /api/schedules/{scheduleId}/seats` - 회차별 좌석 상태 조회 (배치도 + 상태 병합)
+
+### 7-5. 좌석 점유/예약 API 구현
+- [ ] `POST /api/schedules/{scheduleId}/seats/hold` - 좌석 점유 (10분)
+  - Request: List<SeatPosition>
+  - 최대 4석 제한
+  - 로그인 필수
+- [ ] `DELETE /api/schedules/{scheduleId}/seats/hold` - 좌석 점유 해제
+- [ ] `POST /api/schedules/{scheduleId}/seats/reserve` - 좌석 예약 확정
+- [ ] 점유 만료 스케줄러 구현 (10분 초과 시 자동 해제)
+
+### 7-6. 좌석 배치도 서비스 구현
+- [ ] `SeatChartService` 생성
+  - 정적 배치도(Venue) + 동적 상태(ScheduleSeatStatus) 병합 로직
+  - 좌석 점유/해제/예약 비즈니스 로직
+  - 동시성 제어 (비관적 락 또는 Redis 분산 락)
 
 ---

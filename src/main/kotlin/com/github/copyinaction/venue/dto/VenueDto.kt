@@ -20,6 +20,9 @@ data class VenueResponse(
     @Schema(description = "공연장 좌석 배치도 이미지 URL", example = "https://example.com/seating_chart.jpg")
     val seatingChartUrl: String?,
 
+    @Schema(description = "공연장 대표번호", example = "02-1234-5678")
+    val phoneNumber: String?,
+
     @Schema(description = "공연장 정보 생성일시", example = "2023-01-01T12:00:00")
     val createdAt: LocalDateTime?,
 
@@ -33,6 +36,7 @@ data class VenueResponse(
                 name = venue.name,
                 address = venue.address,
                 seatingChartUrl = venue.seatingChartUrl,
+                phoneNumber = venue.phoneNumber,
                 createdAt = venue.createdAt,
                 updatedAt = venue.updatedAt
             )
@@ -52,7 +56,11 @@ data class CreateVenueRequest(
     val address: String?,
 
     @Schema(description = "생성할 공연장 좌석 배치도 이미지 URL", example = "https://example.com/seating_chart.jpg")
-    val seatingChartUrl: String?
+    val seatingChartUrl: String?,
+
+    @field:Size(max = 50, message = "대표번호는 50자를 초과할 수 없습니다.")
+    @Schema(description = "공연장 대표번호", example = "02-1234-5678")
+    val phoneNumber: String? = null
 )
 
 @Schema(description = "공연장 수정 요청 DTO")
@@ -67,5 +75,9 @@ data class UpdateVenueRequest(
     val address: String?,
 
     @Schema(description = "수정할 공연장 좌석 배치도 이미지 URL", example = "https://example.com/new_seating_chart.jpg")
-    val seatingChartUrl: String?
+    val seatingChartUrl: String?,
+
+    @field:Size(max = 50, message = "대표번호는 50자를 초과할 수 없습니다.")
+    @Schema(description = "공연장 대표번호", example = "02-1234-5678")
+    val phoneNumber: String? = null
 )
