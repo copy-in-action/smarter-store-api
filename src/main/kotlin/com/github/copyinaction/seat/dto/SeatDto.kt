@@ -1,0 +1,78 @@
+package com.github.copyinaction.seat.dto
+
+import com.github.copyinaction.seat.domain.ScheduleSeatStatus
+import com.github.copyinaction.seat.domain.SeatStatus
+import io.swagger.v3.oas.annotations.media.Schema
+
+/**
+ * 좌석 위치 요청
+ */
+@Schema(description = "좌석 위치")
+data class SeatPositionRequest(
+    @Schema(description = "행 번호 (0부터 시작)", example = "3")
+    val row: Int,
+
+    @Schema(description = "열 번호 (0부터 시작)", example = "5")
+    val col: Int
+)
+
+/**
+ * 좌석 점유 요청
+ */
+@Schema(description = "좌석 점유 요청 DTO")
+data class SeatHoldRequest(
+    @Schema(description = "점유할 좌석 목록 (최대 4석)")
+    val seats: List<SeatPositionRequest>
+)
+
+/**
+ * 좌석 상태 응답
+ */
+@Schema(description = "좌석 상태 응답 DTO")
+data class SeatStatusResponse(
+    @Schema(description = "행 번호", example = "3")
+    val row: Int,
+
+    @Schema(description = "열 번호", example = "5")
+    val col: Int,
+
+    @Schema(description = "좌석 상태", example = "PENDING")
+    val status: SeatStatus
+) {
+    companion object {
+        fun from(seatStatus: ScheduleSeatStatus): SeatStatusResponse {
+            return SeatStatusResponse(
+                row = seatStatus.rowNum,
+                col = seatStatus.colNum,
+                status = seatStatus.status
+            )
+        }
+    }
+}
+
+/**
+ * 회차별 좌석 상태 목록 응답
+ */
+@Schema(description = "회차별 좌석 상태 목록 응답 DTO")
+data class ScheduleSeatStatusResponse(
+    @Schema(description = "회차 ID", example = "1")
+    val scheduleId: Long,
+
+    @Schema(description = "좌석 상태 목록 (PENDING, RESERVED만 포함)")
+    val seats: List<SeatStatusResponse>
+)
+
+/**
+ * 좌석 점유 응답
+ */
+@Schema(description = "좌석 점유 응답 DTO")
+data class SeatHoldResponse(
+    @Schema(description = "회차 ID", example = "1")
+    val scheduleId: Long,
+
+    @Schema(description = "점유된 좌석 목록")
+    val heldSeats: List<SeatStatusResponse>,
+
+    @Schema(description = "점유 만료 시간", example = "2025-01-15T14:30:00")
+    val expiresAt: String
+)

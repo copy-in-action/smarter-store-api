@@ -64,12 +64,16 @@ enum class ErrorCode(
     SEAT_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 좌석이 이미 존재합니다."),
 
     // Schedule Seat
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연 회차를 찾을 수 없습니다."),
     SCHEDULE_SEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회차 좌석을 찾을 수 없습니다."),
     SEAT_NOT_AVAILABLE(HttpStatus.CONFLICT, "이미 선택된 좌석입니다."),
+    SEAT_ALREADY_OCCUPIED(HttpStatus.CONFLICT, "이미 점유 또는 예약된 좌석입니다."),
     SEAT_ALREADY_HELD(HttpStatus.CONFLICT, "이미 점유된 좌석입니다."),
     SEAT_HOLD_EXPIRED(HttpStatus.BAD_REQUEST, "좌석 점유 시간이 만료되었습니다."),
     SEAT_NOT_HELD_BY_USER(HttpStatus.FORBIDDEN, "본인이 점유한 좌석이 아닙니다."),
+    SEAT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "최대 선택 가능 좌석 수(4석)를 초과했습니다."),
     MAX_SEATS_EXCEEDED(HttpStatus.BAD_REQUEST, "최대 선택 가능 좌석 수를 초과했습니다."),
+    NO_SEATS_TO_RESERVE(HttpStatus.BAD_REQUEST, "예약할 좌석이 없습니다. 먼저 좌석을 선택해주세요."),
     SCHEDULE_SEATS_ALREADY_INITIALIZED(HttpStatus.CONFLICT, "이미 좌석이 초기화된 회차입니다."),
 
     // Ticketing Notice

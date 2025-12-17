@@ -2,6 +2,7 @@ package com.github.copyinaction.venue.service
 
 import com.github.copyinaction.venue.domain.Venue
 import com.github.copyinaction.venue.dto.CreateVenueRequest
+import com.github.copyinaction.venue.dto.SeatingChartResponse
 import com.github.copyinaction.venue.dto.UpdateVenueRequest
 import com.github.copyinaction.venue.dto.VenueResponse
 import com.github.copyinaction.common.exception.CustomException
@@ -21,7 +22,6 @@ class VenueService(
         val venue = Venue.create(
             name = request.name,
             address = request.address,
-            seatingChartUrl = request.seatingChartUrl,
             phoneNumber = request.phoneNumber
         )
         val savedVenue = venueRepository.save(venue)
@@ -30,11 +30,11 @@ class VenueService(
 
     fun getVenue(id: Long): VenueResponse {
         val venue = findVenueById(id)
-        return VenueResponse.Companion.from(venue)
+        return VenueResponse.from(venue)
     }
 
     fun getAllVenues(): List<VenueResponse> {
-        return venueRepository.findAll().map { VenueResponse.Companion.from(it) }
+        return venueRepository.findAll().map { VenueResponse.from(it) }
     }
 
     @Transactional
@@ -43,16 +43,35 @@ class VenueService(
         venue.update(
             name = request.name,
             address = request.address,
-            seatingChartUrl = request.seatingChartUrl,
             phoneNumber = request.phoneNumber
         )
-        return VenueResponse.Companion.from(venue)
+        return VenueResponse.from(venue)
     }
 
     @Transactional
     fun deleteVenue(id: Long) {
         val venue = findVenueById(id)
         venueRepository.delete(venue)
+    }
+
+    // === 좌석 배치도 관련 ===
+
+    fun getSeatingChart(venueId: Long): SeatingChartResponse {
+        val venue = findVenueById(venueId)
+        return SeatingChartResponse(
+            venueId = venue.id,
+            seatingChart = venue.seatingChart
+        )
+    }
+
+    @Transactional
+    fun updateSeatingChart(venueId: Long, seatingChart: String): SeatingChartResponse {
+        val venue = findVenueById(venueId)
+        venue.updateSeatingChart(seatingChart)
+        return SeatingChartResponse(
+            venueId = venue.id,
+            seatingChart = venue.seatingChart
+        )
     }
 
     private fun findVenueById(id: Long): Venue {

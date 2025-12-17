@@ -1,10 +1,12 @@
 package com.github.copyinaction.venue.domain
 
 import com.github.copyinaction.common.domain.BaseEntity
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import org.hibernate.annotations.Comment
 
 @Entity
 class Venue(
@@ -16,7 +18,9 @@ class Venue(
 
     var address: String?,
 
-    var seatingChartUrl: String?,
+    @Column(columnDefinition = "TEXT")
+    @Comment("좌석 배치도 JSON")
+    var seatingChart: String? = null,
 
     var phoneNumber: String? = null
 ) : BaseEntity() {
@@ -25,22 +29,25 @@ class Venue(
         fun create(
             name: String,
             address: String?,
-            seatingChartUrl: String?,
+            seatingChart: String? = null,
             phoneNumber: String? = null
         ): Venue {
             return Venue(
                 name = name,
                 address = address,
-                seatingChartUrl = seatingChartUrl,
+                seatingChart = seatingChart,
                 phoneNumber = phoneNumber
             )
         }
     }
 
-    fun update(name: String, address: String?, seatingChartUrl: String?, phoneNumber: String?) {
+    fun update(name: String, address: String?, phoneNumber: String?) {
         this.name = name
         this.address = address
-        this.seatingChartUrl = seatingChartUrl
         this.phoneNumber = phoneNumber
+    }
+
+    fun updateSeatingChart(seatingChart: String?) {
+        this.seatingChart = seatingChart
     }
 }

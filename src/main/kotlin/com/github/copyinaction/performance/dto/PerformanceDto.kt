@@ -46,7 +46,7 @@ data class PerformanceResponse(
     val endDate: LocalDate,
 
     @Schema(description = "출연진", example = "효린, 다솜")
-    val cast: String?,
+    val actors: String?,
 
     @Schema(description = "기획사", example = "미쓰잭슨 주식회사")
     val agency: String?,
@@ -98,7 +98,7 @@ data class PerformanceResponse(
                 venue = performance.venue?.let { VenueResponse.from(it) },
                 startDate = performance.startDate,
                 endDate = performance.endDate,
-                cast = performance.cast,
+                actors = performance.actors,
                 agency = performance.agency,
                 producer = performance.producer,
                 host = performance.host,
@@ -156,7 +156,7 @@ data class CreatePerformanceRequest(
     val endDate: LocalDate,
 
     @Schema(description = "출연진", example = "효린, 다솜")
-    val cast: String? = null,
+    val actors: String? = null,
 
     @field:Size(max = 255)
     @Schema(description = "기획사", example = "미쓰잭슨 주식회사")
@@ -233,7 +233,7 @@ data class UpdatePerformanceRequest(
     val endDate: LocalDate,
 
     @Schema(description = "출연진", example = "효린, 다솜")
-    val cast: String? = null,
+    val actors: String? = null,
 
     @field:Size(max = 255)
     @Schema(description = "기획사", example = "미쓰잭슨 주식회사")

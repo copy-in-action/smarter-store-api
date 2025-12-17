@@ -37,7 +37,7 @@ class Performance(
 
     @Column(columnDefinition = "TEXT")
     @Comment("출연진")
-    var cast: String? = null,
+    var actors: String? = null,
 
     @Column(length = 255)
     @Comment("기획사")
@@ -93,7 +93,7 @@ class Performance(
             venue: Venue?,
             startDate: LocalDate,
             endDate: LocalDate,
-            cast: String? = null,
+            actors: String? = null,
             agency: String? = null,
             producer: String? = null,
             host: String? = null,
@@ -116,7 +116,7 @@ class Performance(
                 venue = venue,
                 startDate = startDate,
                 endDate = endDate,
-                cast = cast,
+                actors = actors,
                 agency = agency,
                 producer = producer,
                 host = host,
@@ -142,7 +142,7 @@ class Performance(
         venue: Venue?,
         startDate: LocalDate,
         endDate: LocalDate,
-        cast: String? = null,
+        actors: String? = null,
         agency: String? = null,
         producer: String? = null,
         host: String? = null,
@@ -164,7 +164,7 @@ class Performance(
         this.venue = venue
         this.startDate = startDate
         this.endDate = endDate
-        this.cast = cast
+        this.actors = actors
         this.agency = agency
         this.producer = producer
         this.host = host

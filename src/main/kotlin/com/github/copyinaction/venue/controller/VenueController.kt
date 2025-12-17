@@ -1,6 +1,8 @@
 package com.github.copyinaction.venue.controller
 
 import com.github.copyinaction.venue.dto.CreateVenueRequest
+import com.github.copyinaction.venue.dto.SeatingChartRequest
+import com.github.copyinaction.venue.dto.SeatingChartResponse
 import com.github.copyinaction.venue.dto.UpdateVenueRequest
 import com.github.copyinaction.venue.dto.VenueResponse
 import com.github.copyinaction.common.exception.ErrorResponse
@@ -135,5 +137,49 @@ class VenueController(
     fun deleteVenue(@Parameter(description = "삭제할 공연장의 ID", required = true, example = "1") @PathVariable id: Long): ResponseEntity<Unit> {
         venueService.deleteVenue(id)
         return ResponseEntity.noContent().build()
+    }
+
+    // === 좌석 배치도 API ===
+
+    @Operation(summary = "좌석 배치도 조회", description = "공연장의 좌석 배치도 JSON을 조회합니다.\n\n**권한: 인증 불필요**")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "좌석 배치도 조회 성공"),
+        ApiResponse(
+            responseCode = "404",
+            description = "공연장을 찾을 수 없음",
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+        )
+    )
+    @GetMapping("/{id}/seating-chart")
+    fun getSeatingChart(
+        @Parameter(description = "공연장 ID", required = true, example = "1") @PathVariable id: Long
+    ): ResponseEntity<SeatingChartResponse> {
+        val seatingChart = venueService.getSeatingChart(id)
+        return ResponseEntity.ok(seatingChart)
+    }
+
+    @Operation(summary = "좌석 배치도 저장/수정", description = "공연장의 좌석 배치도 JSON을 저장하거나 수정합니다.\n\n**권한: ADMIN**")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "좌석 배치도 저장 성공"),
+        ApiResponse(
+            responseCode = "404",
+            description = "공연장을 찾을 수 없음",
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+        ),
+        ApiResponse(
+            responseCode = "403",
+            description = "접근 권한 없음",
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+        )
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/seating-chart")
+    fun updateSeatingChart(
+        @Parameter(description = "공연장 ID", required = true, example = "1") @PathVariable id: Long,
+        @RequestBody request: SeatingChartRequest
+    ): ResponseEntity<SeatingChartResponse> {
+        val seatingChart = venueService.updateSeatingChart(id, request.seatingChart)
+        return ResponseEntity.ok(seatingChart)
     }
 }

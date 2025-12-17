@@ -17,11 +17,11 @@ data class VenueResponse(
     @Schema(description = "공연장 주소", example = "서울특별시 송파구 올림픽로 424")
     val address: String?,
 
-    @Schema(description = "공연장 좌석 배치도 이미지 URL", example = "https://example.com/seating_chart.jpg")
-    val seatingChartUrl: String?,
-
     @Schema(description = "공연장 대표번호", example = "02-1234-5678")
     val phoneNumber: String?,
+
+    @Schema(description = "좌석 배치도 존재 여부", example = "true")
+    val hasSeatingChart: Boolean,
 
     @Schema(description = "공연장 정보 생성일시", example = "2023-01-01T12:00:00")
     val createdAt: LocalDateTime?,
@@ -35,8 +35,8 @@ data class VenueResponse(
                 id = venue.id,
                 name = venue.name,
                 address = venue.address,
-                seatingChartUrl = venue.seatingChartUrl,
                 phoneNumber = venue.phoneNumber,
+                hasSeatingChart = !venue.seatingChart.isNullOrBlank(),
                 createdAt = venue.createdAt,
                 updatedAt = venue.updatedAt
             )
@@ -55,9 +55,6 @@ data class CreateVenueRequest(
     @Schema(description = "생성할 공연장 주소", example = "서울특별시 송파구 올림픽로 424")
     val address: String?,
 
-    @Schema(description = "생성할 공연장 좌석 배치도 이미지 URL", example = "https://example.com/seating_chart.jpg")
-    val seatingChartUrl: String?,
-
     @field:Size(max = 50, message = "대표번호는 50자를 초과할 수 없습니다.")
     @Schema(description = "공연장 대표번호", example = "02-1234-5678")
     val phoneNumber: String? = null
@@ -74,10 +71,22 @@ data class UpdateVenueRequest(
     @Schema(description = "수정할 공연장 주소", example = "변경된 주소")
     val address: String?,
 
-    @Schema(description = "수정할 공연장 좌석 배치도 이미지 URL", example = "https://example.com/new_seating_chart.jpg")
-    val seatingChartUrl: String?,
-
     @field:Size(max = 50, message = "대표번호는 50자를 초과할 수 없습니다.")
     @Schema(description = "공연장 대표번호", example = "02-1234-5678")
     val phoneNumber: String? = null
+)
+
+@Schema(description = "좌석 배치도 저장 요청 DTO")
+data class SeatingChartRequest(
+    @Schema(description = "좌석 배치도 JSON", required = true)
+    val seatingChart: String
+)
+
+@Schema(description = "좌석 배치도 응답 DTO")
+data class SeatingChartResponse(
+    @Schema(description = "공연장 ID", example = "1")
+    val venueId: Long,
+
+    @Schema(description = "좌석 배치도 JSON")
+    val seatingChart: String?
 )

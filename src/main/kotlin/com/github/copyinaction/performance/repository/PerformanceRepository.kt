@@ -1,6 +1,15 @@
 package com.github.copyinaction.performance.repository
 
 import com.github.copyinaction.performance.domain.Performance
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
+import java.util.Optional
 
-interface PerformanceRepository : JpaRepository<Performance, Long>
+interface PerformanceRepository : JpaRepository<Performance, Long> {
+
+    @EntityGraph(attributePaths = ["venue", "company"])
+    override fun findById(id: Long): Optional<Performance>
+
+    @EntityGraph(attributePaths = ["venue", "company"])
+    override fun findAll(): List<Performance>
+}
