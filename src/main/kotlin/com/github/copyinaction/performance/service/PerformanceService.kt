@@ -23,9 +23,20 @@ class PerformanceService(
         val venue = request.venueId?.let {
             venueRepository.findById(it).orElseThrow { CustomException(ErrorCode.VENUE_NOT_FOUND) }
         }
-        val performance = request.toEntity(venue)
+        val performance = Performance.create(
+            title = request.title,
+            description = request.description,
+            category = request.category,
+            runningTime = request.runningTime,
+            ageRating = request.ageRating,
+            mainImageUrl = request.mainImageUrl,
+            visible = request.visible,
+            venue = venue,
+            startDate = request.startDate,
+            endDate = request.endDate
+        )
         val savedPerformance = performanceRepository.save(performance)
-        return PerformanceResponse.Companion.from(savedPerformance)
+        return PerformanceResponse.from(savedPerformance)
     }
 
     fun getPerformance(id: Long): PerformanceResponse {

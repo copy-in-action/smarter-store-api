@@ -1,7 +1,6 @@
 package com.github.copyinaction.performance.dto
 
 import com.github.copyinaction.performance.domain.Performance
-import com.github.copyinaction.venue.domain.Venue
 import com.github.copyinaction.venue.dto.VenueResponse
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.FutureOrPresent
@@ -111,22 +110,7 @@ data class CreatePerformanceRequest(
     @field:FutureOrPresent
     @Schema(description = "생성할 공연 종료일", example = "2025-12-31", required = true)
     val endDate: LocalDate
-) {
-    fun toEntity(venue: Venue?): Performance {
-        return Performance(
-            title = this.title,
-            description = this.description,
-            category = this.category,
-            runningTime = this.runningTime,
-            ageRating = this.ageRating,
-            mainImageUrl = this.mainImageUrl,
-            visible = this.visible,
-            venue = venue,
-            startDate = this.startDate,
-            endDate = this.endDate
-        )
-    }
-}
+)
 
 @Schema(description = "공연 수정 요청 DTO")
 data class UpdatePerformanceRequest(

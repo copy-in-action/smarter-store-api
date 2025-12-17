@@ -23,6 +23,10 @@ enum class ErrorCode(
     // Performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
 
+    // Company
+    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 기획사를 찾을 수 없습니다."),
+    COMPANY_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 사업자등록번호입니다."),
+
     // Auth
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 가입된 이메일입니다."),
@@ -67,4 +71,7 @@ enum class ErrorCode(
     SEAT_NOT_HELD_BY_USER(HttpStatus.FORBIDDEN, "본인이 점유한 좌석이 아닙니다."),
     MAX_SEATS_EXCEEDED(HttpStatus.BAD_REQUEST, "최대 선택 가능 좌석 수를 초과했습니다."),
     SCHEDULE_SEATS_ALREADY_INITIALIZED(HttpStatus.CONFLICT, "이미 좌석이 초기화된 회차입니다."),
+
+    // Ticketing Notice
+    TICKETING_NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예매 안내사항을 찾을 수 없습니다."),
 }

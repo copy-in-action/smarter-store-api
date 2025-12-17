@@ -2,10 +2,10 @@ spring:
   application:
     name: smarter-store-api
   profiles:
-    active: local # Default to local profile
+    active: local
   jpa:
     hibernate:
-      ddl-auto: none # Flyway를 사용하므로 none으로 설정
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -25,12 +25,10 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
-# JWT 설정 (secret은 프로파일로 이동)
 jwt:
-  access-token-validity-in-seconds: 3600 # 1시간
-  refresh-token-validity-in-seconds: 604800 # 7일
+  access-token-validity-in-seconds: 3600
+  refresh-token-validity-in-seconds: 604800
 
-# Actuator 설정
 management:
   endpoints:
     web:
@@ -44,7 +42,6 @@ management:
       export:
         enabled: true
 
-# Application specific properties
 app:
   cookie:
     domain: .devhong.cc

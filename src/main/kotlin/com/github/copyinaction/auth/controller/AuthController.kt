@@ -36,7 +36,7 @@ class AuthController(
     private val cookieService: CookieService
 ) {
 
-    @Operation(summary = "회원가입", description = "이메일 인증(OTP 확인)이 완료된 후 새로운 사용자를 생성합니다.")
+    @Operation(summary = "회원가입", description = "이메일 인증(OTP 확인)이 완료된 후 새로운 사용자를 생성합니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "회원가입 성공"),
         ApiResponse(
@@ -54,7 +54,7 @@ class AuthController(
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(user))
     }
 
-    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "로그인 성공 (사용자 정보 반환, 토큰은 쿠키로 발급)",
             content = [Content(schema = Schema(implementation = UserResponse::class))],
@@ -79,7 +79,7 @@ class AuthController(
         return ResponseEntity.ok(loginResponse.user)
     }
 
-    @Operation(summary = "토큰 갱신", description = "리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.")
+    @Operation(summary = "토큰 갱신", description = "리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "토큰 갱신 성공 (새로운 Access Token 및 Refresh Token 쿠키로 발급)",
             headers = [
@@ -103,7 +103,7 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "이메일 인증 요청 (OTP 발송)", description = "회원가입을 위한 이메일 인증번호(OTP)를 요청합니다. 지정된 이메일 주소로 OTP가 발송됩니다.")
+    @Operation(summary = "이메일 인증 요청 (OTP 발송)", description = "회원가입을 위한 이메일 인증번호(OTP)를 요청합니다. 지정된 이메일 주소로 OTP가 발송됩니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "인증 OTP 이메일 전송 성공"),
         ApiResponse(
@@ -117,7 +117,7 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "OTP 확인", description = "이메일로 발송된 6자리 OTP를 확인합니다.")
+    @Operation(summary = "OTP 확인", description = "이메일로 발송된 6자리 OTP를 확인합니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "OTP 확인 성공"),
         ApiResponse(
@@ -131,7 +131,7 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "로그아웃", description = "사용자 세션을 종료하고 인증 쿠키를 삭제합니다.")
+    @Operation(summary = "로그아웃", description = "사용자 세션을 종료하고 인증 쿠키를 삭제합니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "로그아웃 성공")
     )
@@ -145,7 +145,7 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "내 정보 조회", description = "현재 로그인된 사용자 정보를 조회합니다.")
+    @Operation(summary = "내 정보 조회", description = "현재 로그인된 사용자 정보를 조회합니다.\n\n**권한: USER, ADMIN**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공"),
         ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),

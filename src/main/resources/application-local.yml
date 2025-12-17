@@ -4,11 +4,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-  flyway:
-    enabled: false
-  jpa:
-    hibernate:
-      ddl-auto: update
   logging:
     file:
       path: ./logs/smarter-store-local/ # Local logs can be relative to project root

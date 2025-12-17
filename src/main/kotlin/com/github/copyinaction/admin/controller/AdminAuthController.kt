@@ -34,7 +34,7 @@ class AdminAuthController(
     private val cookieService: CookieService
 ) {
 
-    @Operation(summary = "관리자 회원가입", description = "새로운 관리자를 생성합니다.")
+    @Operation(summary = "관리자 회원가입", description = "새로운 관리자를 생성합니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "관리자 회원가입 성공"),
         ApiResponse(
@@ -52,7 +52,7 @@ class AdminAuthController(
         return ResponseEntity.status(HttpStatus.CREATED).body(AdminResponse.Companion.from(admin))
     }
 
-    @Operation(summary = "관리자 로그인", description = "로그인 ID와 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
+    @Operation(summary = "관리자 로그인", description = "로그인 ID와 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(
             responseCode = "200", description = "로그인 성공 (Access Token 쿠키로 발급)",
@@ -77,7 +77,7 @@ class AdminAuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "관리자 로그아웃", description = "관리자 세션을 종료하고 인증 쿠키를 삭제합니다.")
+    @Operation(summary = "관리자 로그아웃", description = "관리자 세션을 종료하고 인증 쿠키를 삭제합니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(
             responseCode = "200", description = "로그아웃 성공 (Access Token 쿠키 삭제)",

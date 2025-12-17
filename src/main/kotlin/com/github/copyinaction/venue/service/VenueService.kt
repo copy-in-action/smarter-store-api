@@ -18,9 +18,13 @@ class VenueService(
 
     @Transactional
     fun createVenue(request: CreateVenueRequest): VenueResponse {
-        val venue = request.toEntity()
+        val venue = Venue.create(
+            name = request.name,
+            address = request.address,
+            seatingChartUrl = request.seatingChartUrl
+        )
         val savedVenue = venueRepository.save(venue)
-        return VenueResponse.Companion.from(savedVenue)
+        return VenueResponse.from(savedVenue)
     }
 
     fun getVenue(id: Long): VenueResponse {

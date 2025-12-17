@@ -1,5 +1,17 @@
 # Changelog
 
+## 2025년 12월 17일 (수)
+
+*   **공연/좌석 등록 플로우 문서 업데이트:**
+    *   `performance-todo.md`의 최신 설계 변경 사항을 반영하여 `공연_좌석_등록_플로우.md` 문서를 업데이트했습니다.
+    *   주요 변경 사항: 공연장(`Venue`)에 대표번호(`phoneNumber`) 필드 추가, 등급별 허용좌석수(`VenueSeatCapacity`) 등록 절차 추가, 기획사(`Company`) 등록 및 공연(`Performance`)과의 연관 관계 추가, 공연 회차(`PerformanceSchedule`)에 티켓 옵션(`TicketOption`) 직접 연결, 좌석 초기화 로직 설명 개선.
+    *   FE 협의 필요 사항 및 데이터 관계도 업데이트, 기존 불필요한 협의 내용은 제거했습니다.
+    *   DDD 리팩토링(향후 과제) 섹션을 추가하여 코드 품질 개선 방향을 명시했습니다.
+*   **Swagger API 문서 권한 정보 추가:**
+    *   `AdminAuthController.kt` 및 `AuthController.kt` 파일의 각 API 엔드포인트 `@Operation` description에 권한 정보 (`**권한: 누구나**`, `**권한: USER, ADMIN**` 등)를 추가하여 API 문서의 명확성을 높였습니다.
+*   **성능 TODO 문서 업데이트:**
+    *   `공연_좌석_등록_플로우.md` 문서 업데이트로 인해 완료된 항목들을 `contexts/performance-todo.md`에 반영하여 진행 상황을 업데이트했습니다.
+
 ## 2025년 12월 16일 (화)
 
 *   **좌석 시스템 재설계 준비:**

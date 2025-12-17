@@ -53,15 +53,7 @@ data class CreateVenueRequest(
 
     @Schema(description = "생성할 공연장 좌석 배치도 이미지 URL", example = "https://example.com/seating_chart.jpg")
     val seatingChartUrl: String?
-) {
-    fun toEntity(): Venue {
-        return Venue(
-            name = this.name,
-            address = this.address,
-            seatingChartUrl = this.seatingChartUrl
-        )
-    }
-}
+)
 
 @Schema(description = "공연장 수정 요청 DTO")
 data class UpdateVenueRequest(
