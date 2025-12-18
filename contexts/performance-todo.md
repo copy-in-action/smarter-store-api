@@ -52,11 +52,11 @@
 - [x] `Company` 관리용 CRUD API 구현
 
 ### 예매 안내사항 (TicketingNotice) - 플랫폼 공통
-- [ ] `TicketingNotice` 엔티티 생성 (category, title, content, displayOrder, isActive)
-- [ ] `TicketingNoticeRepository` 생성
-- [ ] `TicketingNoticeDto` 생성 (Request/Response)
-- [ ] `TicketingNoticeService` 생성 (CRUD 로직)
-- [ ] `TicketingNoticeController` 생성 (관리자 CRUD + 사용자 조회 API)
+- [x] `TicketingNotice` 엔티티 생성 (category, title, content, displayOrder, isActive)
+- [x] `TicketingNoticeRepository` 생성
+- [x] `TicketingNoticeDto` 생성 (Request/Response)
+- [x] `TicketingNoticeService` 생성 (CRUD 로직)
+- [x] `TicketingNoticeController` 생성 (관리자 CRUD + 사용자 조회 API)
 
 ### 이미지 업로드 (MinIO)
 - [ ] MinIO 의존성 추가 (`io.minio:minio`)
@@ -79,7 +79,6 @@
 ### 티켓 가격 정책 재설계 (중요) ✅
 - [x] **(필수)** `TicketOption`이 `Performance`가 아닌 `PerformanceSchedule`에 연결되도록 엔티티 관계 수정
 - [x] 회차별로 좌석 등급과 가격을 설정하는 API 및 로직 구현
-- [ ] 관련 DB 마이그레이션 스크립트 작성
 
 ### 회차 관리 API
 - [ ] 관리자용 회차 CRUD API 확인/보완
@@ -129,16 +128,16 @@
 ### 좌석 선택 규칙 적용 (현재 구현 확인)
 - [x] 좌석 점유 시간: 10분
 - [x] 최대 선택 좌석수: 4석
-- [ ] 비회원 예매 차단 로직 추가 (로그인 필수)
+- [x] 비회원 예매 차단 로직 추가 (로그인 필수)
 
 ---
 
 ## 5. DDD 리팩토링 (코드 품질 개선)
 
 ### DTO toEntity() 제거 → Domain 팩토리 메서드 전환
-- [ ] `CreateVenueRequest.toEntity()` → `Venue.create()`
+- [x] `CreateVenueRequest.toEntity()` → `Venue.create()` (기존 구현 완료)
 - [ ] `CreatePerformanceRequest.toEntity()` → `Performance.create()`
-- [ ] `CreatePerformanceScheduleRequest.toEntity()` → `PerformanceSchedule.create()`
+- [x] `CreatePerformanceScheduleRequest.toEntity()` → `PerformanceSchedule.create()`
 - [x] `CompanyRequest.toEntity()` → `Company.create()`
 
 ### 풍부한 도메인 모델 적용

@@ -20,7 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "seats", description = "좌석 API - 좌석 상태 조회 및 점유/예약 처리")
+@Tag(name = "seat", description = "좌석 API - 좌석 상태 조회 및 점유/예약 처리")
 @RestController
 @RequestMapping("/api/schedules/{scheduleId}")
 class SeatController(

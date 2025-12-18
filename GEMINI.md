@@ -6,7 +6,7 @@
 - **언어**: Kotlin
 - **프레임워크**: Spring Boot (Spring Security, Spring Data JPA)
 - **빌드 도구**: Gradle (Kotlin DSL)
-- **데이터베이스**: PostgreSQL (Flyway를 이용한 마이그레이션 관리)
+- **데이터베이스**: PostgreSQL
 - **인증**: JWT (JSON Web Tokens)
 - **API 문서**: Springdoc OpenAPI (Swagger UI)
 - **로깅**: SLF4J + Logback
@@ -94,29 +94,4 @@ docker-compose up -d
 ```
 
 ## 개발 컨벤션
-
-*   **언어 및 플랫폼**: Kotlin, Spring Boot 기반, Java 21 대상.
-*   **빌드 시스템**: Kotlin DSL을 사용하는 Gradle.
-*   **의존성**: `build.gradle.kts`를 통해 관리되며, 일반적인 기능(web, data-jpa, security, validation)을 위한 Spring Boot starter 사용.
-*   **API 문서**: `springdoc-openapi-starter-webmvc-ui`를 사용하여 Swagger UI 생성.
-*   **보안**: JWT를 사용한 Spring Security 인증. JWT Secret은 환경 변수를 통해 관리되며 Base64 인코딩. Swagger UI 엔드포인트(`swagger-ui/**`, `v3/api-docs/**`)는 공개 접근을 허용하도록 설정.
-*   **데이터베이스**: PostgreSQL, Flyway를 사용한 데이터베이스 마이그레이션. 데이터베이스 연결 정보는 환경 변수로 외부화.
-*   **로깅**: `logback-spring.xml`을 통해 구성되며, 로그는 `logs` 디렉토리에 기록.
-*   **설정**: Spring Profiles (`local`, `prod`) 및 환경 변수 (`${VAR_NAME}`)를 활용하여 민감한 데이터 및 환경별 설정 관리. 로컬 개발에서 `.env` 파일 지원을 위해 `spring-dotenv` 사용.
-*   **Dockerfile**: `eclipse-temurin:21-jdk`를 베이스 이미지로 사용하며, `WORKDIR /app`, 8080 포트 노출, 로그용 볼륨 설정 및 Entrypoint 정의.
-*   **Git Hooks**: `.gitattributes` 및 `.gitignore`를 버전 관리용으로 사용.
-
-## 주요 파일
-
-*   **`build.gradle.kts`**: 메인 Gradle 빌드 스크립트, 의존성, 플러그인, Java 버전 및 Flyway 구성 정의.
-*   **`settings.gradle.kts`**: 루트 프로젝트 이름을 정의.
-*   **`src/main/kotlin/com/github/copyinaction/SmarterStoreApiApplication.kt`**: Spring Boot 애플리케이션의 메인 진입점.
-*   **`src/main/resources/application.yml`**: 기본 애플리케이션 구성, 기본 프로필, JWT 기본값, Actuator 설정.
-*   **`src/main/resources/application-local.yml`**: 로컬 개발 프로필별 구성, 데이터소스, 로깅 경로, JWT secret 플레이스홀더 (`JWT_SECRET_LOCAL`), CORS Origin 포함.
-*   **`src/main/resources/application-prod.yml`**: 프로덕션 프로필별 구성, 안전한 데이터소스 자격 증명 (`PROD_DB_URL`, `PROD_DB_USERNAME`, `PROD_DB_PASSWORD`) 및 JWT secret (`JWT_SECRET_PROD`)을 위한 환경 변수 플레이스홀더 포함.
-*   **`Dockerfile`**: 베이스 이미지(`eclipse-temurin:21-jdk`), JAR 복사, 작업 디렉토리, 볼륨 및 진입점 정의를 포함한 Docker 이미지 빌드 프로세스 정의.
-*   **`docker-compose.yml`**: 로컬 배포용 Docker 서비스를 정의하며, 현재 `smarter-store-api` 서비스만 실행 (외부 DB에 연결).
-*   **`src/main/kotlin/com/github/copyinaction/config/jwt/JwtTokenProvider.kt`**: JWT 토큰 생성 및 검증 처리, Base64 시크릿 키 디코딩 포함.
-*   **`src/main/kotlin/com/github/copyinaction/config/SecurityConfig.kt`**: Spring Security 구성, 요청 매처, 세션 관리, 비밀번호 인코더 정의 및 JWT 인증 필터 통합. `/api/auth/**`, `/swagger-ui/**`, `/v3/api-docs/**`에 대한 `permitAll()` 허용.
-*   **`documents/Docker_로컬_배포_가이드.md`**: Dockerfile 설정, 빌드, 실행 및 Docker Compose 사용법을 포함한 로컬 Docker 배포를 위한 자세한 단계별 가이드.
-*   **`CHANGELOG.md`**: 프로젝트 개발 이력 및 주요 변경 사항.
+[자세한 개발 컨벤션은 여기를 참고하세요.](documents/DEVELOPMENT_CONVENTION.md)

@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "공연 회차 관리 (관리자)", description = "관리자용 공연 회차 CRUD API")
+@Tag(name = "performance-schedule", description = "관리자용 공연 회차 CRUD API")
 @RestController
 @RequestMapping("/api/admin/performances/{performanceId}/schedules")
 @PreAuthorize("hasRole('ADMIN')")

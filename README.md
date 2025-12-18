@@ -8,7 +8,7 @@ DDD(도메인 주도 설계)와 TDD(테스트 주도 개발) 원칙을 따릅니
 - **언어**: Kotlin
 - **프레임워크**: Spring Boot 3.3.0 (Spring Security, Spring Data JPA)
 - **빌드 도구**: Gradle (Kotlin DSL)
-- **데이터베이스**: PostgreSQL + Flyway
+- **데이터베이스**: PostgreSQL
 - **인증**: JWT
 - **요청 검증**: Jakarta Validation
 - **API 문서**: Swagger (`/swagger-ui/index.html`)

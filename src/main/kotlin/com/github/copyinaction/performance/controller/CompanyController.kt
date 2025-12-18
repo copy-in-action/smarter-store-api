@@ -18,7 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 
-@Tag(name = "companies", description = "기획사/판매자 API - 기획사/판매자 정보 CRUD를 처리하는 API")
+@Tag(name = "company", description = "기획사/판매자 API - 기획사/판매자 정보 CRUD를 처리하는 API")
 @RestController
 @RequestMapping("/api/admin/companies")
 @PreAuthorize("hasRole('ADMIN')")

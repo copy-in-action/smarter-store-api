@@ -1,6 +1,5 @@
 package com.github.copyinaction.performance.dto
 
-import com.github.copyinaction.performance.domain.Performance
 import com.github.copyinaction.performance.domain.PerformanceSchedule
 import com.github.copyinaction.performance.domain.TicketOption
 import io.swagger.v3.oas.annotations.media.Schema
@@ -26,25 +25,7 @@ data class CreatePerformanceScheduleRequest(
     @field:Valid
     @Schema(description = "회차별 티켓 가격 옵션 목록", required = true)
     val ticketOptions: List<TicketOptionRequest>
-) {
-    fun toEntity(performance: Performance): PerformanceSchedule {
-        return PerformanceSchedule(
-            performance = performance,
-            showDateTime = this.showDateTime,
-            saleStartDateTime = this.saleStartDateTime
-        )
-    }
-
-    fun toTicketOptionEntities(performanceSchedule: PerformanceSchedule): List<TicketOption> {
-        return this.ticketOptions.map {
-            TicketOption(
-                performanceSchedule = performanceSchedule,
-                seatGrade = it.seatGrade,
-                price = it.price
-            )
-        }
-    }
-}
+)
 
 @Schema(description = "공연 회차 응답 DTO")
 data class PerformanceScheduleResponse(

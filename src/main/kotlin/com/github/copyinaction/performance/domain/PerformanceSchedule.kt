@@ -27,4 +27,19 @@ class PerformanceSchedule(
     @Comment("티켓 판매 시작 일시")
     val saleStartDateTime: LocalDateTime
 
-) : BaseEntity()
+) : BaseEntity() {
+
+    companion object {
+        fun create(
+            performance: Performance,
+            showDateTime: LocalDateTime,
+            saleStartDateTime: LocalDateTime
+        ): PerformanceSchedule {
+            return PerformanceSchedule(
+                performance = performance,
+                showDateTime = showDateTime,
+                saleStartDateTime = saleStartDateTime
+            )
+        }
+    }
+}

@@ -2,6 +2,8 @@ package com.github.copyinaction.performance.service
 
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
+import com.github.copyinaction.performance.domain.PerformanceSchedule
+import com.github.copyinaction.performance.domain.TicketOption
 import com.github.copyinaction.performance.dto.CreatePerformanceScheduleRequest
 import com.github.copyinaction.performance.dto.PerformanceScheduleResponse
 import com.github.copyinaction.performance.repository.PerformanceRepository
@@ -26,10 +28,20 @@ class PerformanceScheduleService(
         val performance = performanceRepository.findById(performanceId)
             .orElseThrow { CustomException(ErrorCode.PERFORMANCE_NOT_FOUND) }
 
-        val performanceSchedule = request.toEntity(performance)
+        val performanceSchedule = PerformanceSchedule.create(
+            performance = performance,
+            showDateTime = request.showDateTime,
+            saleStartDateTime = request.saleStartDateTime
+        )
         val savedSchedule = performanceScheduleRepository.save(performanceSchedule)
 
-        val ticketOptions = request.toTicketOptionEntities(savedSchedule)
+        val ticketOptions = request.ticketOptions.map { ticketOptionRequest ->
+            TicketOption(
+                performanceSchedule = savedSchedule,
+                seatGrade = ticketOptionRequest.seatGrade,
+                price = ticketOptionRequest.price
+            )
+        }
         val savedTicketOptions = ticketOptionRepository.saveAll(ticketOptions)
 
         return PerformanceScheduleResponse.from(savedSchedule, savedTicketOptions)

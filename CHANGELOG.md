@@ -1,5 +1,19 @@
 # Changelog
 
+## 2025년 12월 18일 (목)
+
+*   **VenueSeatCapacity CRUD 구현:**
+    *   `VenueService`, `VenueController`에 등급별 좌석 용량 API 추가 (조회, 단건등록, 일괄설정, 삭제)
+    *   `VenueSeatCapacity.create()` 팩토리 메서드 추가
+*   **DDD 리팩토링 - DTO toEntity() 제거:**
+    *   `PerformanceSchedule.create()` 팩토리 메서드 구현
+    *   `CreatePerformanceScheduleRequest.toEntity()` 제거, Service에서 팩토리 메서드 사용
+*   **CLAUDE.md 업데이트:**
+    *   필수 참조 문서 섹션 추가 (`DEVELOPMENT_CONVENTION.md` 링크)
+*   **DEVELOPMENT_CONVENTION.md 업데이트:**
+    *   Flyway 관련 내용 삭제
+    *   신규 섹션 추가: 풍부한 도메인 모델, DTO 설계/Validation, 예외 처리, 엔티티 설계 규칙, 트랜잭션 관리, 문서 관리
+
 ## 2025년 12월 17일 (수)
 
 *   **공연/좌석 등록 플로우 문서 업데이트:**

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
-@Tag(name = "Ticketing Notice", description = "예매 안내사항 API")
+@Tag(name = "notice", description = "예매 안내사항 API")
 class TicketingNoticeController(
     private val ticketingNoticeService: TicketingNoticeService
 ) {

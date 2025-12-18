@@ -19,6 +19,8 @@ enum class ErrorCode(
 
     // Venue
     VENUE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연장을 찾을 수 없습니다."),
+    SEAT_CAPACITY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 용량 정보를 찾을 수 없습니다."),
+    SEAT_CAPACITY_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 등급의 좌석 용량이 이미 존재합니다."),
 
     // Performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
