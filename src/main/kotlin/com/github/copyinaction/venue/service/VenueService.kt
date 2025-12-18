@@ -1,18 +1,18 @@
 package com.github.copyinaction.venue.service
 
-import com.github.copyinaction.venue.domain.SeatGrade
 import com.github.copyinaction.venue.domain.Venue
 import com.github.copyinaction.venue.domain.VenueSeatCapacity
 import com.github.copyinaction.venue.dto.CreateVenueRequest
+import com.github.copyinaction.venue.dto.SeatingChartRequest
 import com.github.copyinaction.venue.dto.SeatingChartResponse
 import com.github.copyinaction.venue.dto.UpdateVenueRequest
 import com.github.copyinaction.venue.dto.VenueResponse
-import com.github.copyinaction.venue.dto.VenueSeatCapacityRequest
 import com.github.copyinaction.venue.dto.VenueSeatCapacityResponse
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.venue.repository.VenueRepository
 import com.github.copyinaction.venue.repository.VenueSeatCapacityRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class VenueService(
     private val venueRepository: VenueRepository,
-    private val venueSeatCapacityRepository: VenueSeatCapacityRepository
+    private val venueSeatCapacityRepository: VenueSeatCapacityRepository,
+    private val objectMapper: ObjectMapper
 ) {
 
     @Transactional
@@ -64,77 +65,52 @@ class VenueService(
 
     fun getSeatingChart(venueId: Long): SeatingChartResponse {
         val venue = findVenueById(venueId)
+        val capacities = venueSeatCapacityRepository.findByVenueId(venueId)
+            .map { VenueSeatCapacityResponse.from(it) }
+
+        // DB의 JSON 문자열을 객체로 역직렬화
+        val seatingChartObject = venue.seatingChart?.let {
+            objectMapper.readValue(it, Any::class.java)
+        }
+
         return SeatingChartResponse(
             venueId = venue.id,
-            seatingChart = venue.seatingChart
+            seatingChart = seatingChartObject,
+            seatCapacities = capacities.ifEmpty { null }
         )
     }
 
     @Transactional
-    fun updateSeatingChart(venueId: Long, seatingChart: String): SeatingChartResponse {
+    fun updateSeatingChart(venueId: Long, request: SeatingChartRequest): SeatingChartResponse {
         val venue = findVenueById(venueId)
-        venue.updateSeatingChart(seatingChart)
+
+        // 객체를 JSON 문자열로 직렬화해서 DB에 저장
+        val seatingChartJson = objectMapper.writeValueAsString(request.seatingChart)
+        venue.updateSeatingChart(seatingChartJson)
+
+        // 좌석 수가 함께 전달된 경우 일괄 저장
+        val savedCapacities = request.seatCapacities?.let { capacities ->
+            venueSeatCapacityRepository.deleteByVenueId(venueId)
+            val seatCapacities = capacities.map { req ->
+                VenueSeatCapacity.create(
+                    venue = venue,
+                    seatGrade = req.seatGrade,
+                    capacity = req.capacity
+                )
+            }
+            venueSeatCapacityRepository.saveAll(seatCapacities)
+                .map { VenueSeatCapacityResponse.from(it) }
+        }
+
         return SeatingChartResponse(
             venueId = venue.id,
-            seatingChart = venue.seatingChart
+            seatingChart = request.seatingChart,  // 요청 객체 그대로 반환
+            seatCapacities = savedCapacities
         )
     }
 
     private fun findVenueById(id: Long): Venue {
         return venueRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.VENUE_NOT_FOUND) }
-    }
-
-    // === 등급별 좌석 용량 관련 ===
-
-    fun getSeatCapacities(venueId: Long): List<VenueSeatCapacityResponse> {
-        findVenueById(venueId) // 존재 확인
-        return venueSeatCapacityRepository.findByVenueId(venueId)
-            .map { VenueSeatCapacityResponse.from(it) }
-    }
-
-    @Transactional
-    fun createSeatCapacity(venueId: Long, request: VenueSeatCapacityRequest): VenueSeatCapacityResponse {
-        val venue = findVenueById(venueId)
-
-        // 중복 체크
-        val existing = venueSeatCapacityRepository.findByVenueIdAndSeatGrade(venueId, request.seatGrade)
-        if (existing != null) {
-            throw CustomException(ErrorCode.SEAT_CAPACITY_ALREADY_EXISTS)
-        }
-
-        val seatCapacity = VenueSeatCapacity.create(
-            venue = venue,
-            seatGrade = request.seatGrade,
-            capacity = request.capacity
-        )
-        val saved = venueSeatCapacityRepository.save(seatCapacity)
-        return VenueSeatCapacityResponse.from(saved)
-    }
-
-    @Transactional
-    fun createSeatCapacitiesBulk(venueId: Long, requests: List<VenueSeatCapacityRequest>): List<VenueSeatCapacityResponse> {
-        val venue = findVenueById(venueId)
-
-        // 기존 데이터 삭제 후 새로 저장
-        venueSeatCapacityRepository.deleteByVenueId(venueId)
-
-        val seatCapacities = requests.map { request ->
-            VenueSeatCapacity.create(
-                venue = venue,
-                seatGrade = request.seatGrade,
-                capacity = request.capacity
-            )
-        }
-        val saved = venueSeatCapacityRepository.saveAll(seatCapacities)
-        return saved.map { VenueSeatCapacityResponse.from(it) }
-    }
-
-    @Transactional
-    fun deleteSeatCapacity(venueId: Long, seatGrade: SeatGrade) {
-        findVenueById(venueId) // 존재 확인
-        val seatCapacity = venueSeatCapacityRepository.findByVenueIdAndSeatGrade(venueId, seatGrade)
-            ?: throw CustomException(ErrorCode.SEAT_CAPACITY_NOT_FOUND)
-        venueSeatCapacityRepository.delete(seatCapacity)
     }
 }

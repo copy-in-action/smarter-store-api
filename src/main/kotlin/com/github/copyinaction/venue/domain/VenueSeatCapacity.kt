@@ -6,18 +6,18 @@ import org.hibernate.annotations.Comment
 
 /**
  * 공연장별 등급별 허용 좌석수
- * 공연장마다 고정된 좌석 용량을 관리합니다.
+ * 공연장마다 고정된 좌석 수를 관리합니다.
  */
 @Entity
 @Table(
     name = "venue_seat_capacity",
     uniqueConstraints = [UniqueConstraint(columnNames = ["venue_id", "seat_grade"])]
 )
-@Comment("공연장 등급별 좌석 용량")
+@Comment("공연장 등급별 좌석 수")
 class VenueSeatCapacity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Comment("좌석 용량 ID")
+    @Comment("좌석 수 ID")
     val id: Long = 0,
 
     @ManyToOne(fetch = FetchType.LAZY)

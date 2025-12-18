@@ -78,8 +78,11 @@ data class UpdateVenueRequest(
 
 @Schema(description = "좌석 배치도 저장 요청 DTO")
 data class SeatingChartRequest(
-    @Schema(description = "좌석 배치도 JSON", required = true)
-    val seatingChart: String
+    @Schema(description = "좌석 배치도 JSON 객체", required = true)
+    val seatingChart: Any,
+
+    @Schema(description = "등급별 좌석 수 목록 (배치도와 함께 저장)")
+    val seatCapacities: List<VenueSeatCapacityRequest>? = null
 )
 
 @Schema(description = "좌석 배치도 응답 DTO")
@@ -87,6 +90,9 @@ data class SeatingChartResponse(
     @Schema(description = "공연장 ID", example = "1")
     val venueId: Long,
 
-    @Schema(description = "좌석 배치도 JSON")
-    val seatingChart: String?
+    @Schema(description = "좌석 배치도 JSON 객체")
+    val seatingChart: Any?,
+
+    @Schema(description = "등급별 좌석 수 목록")
+    val seatCapacities: List<VenueSeatCapacityResponse>? = null
 )

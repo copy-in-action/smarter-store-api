@@ -2,8 +2,15 @@
 
 ## 2025년 12월 18일 (목)
 
+*   **좌석 배치도 API 통합 및 개선:**
+    *   `PUT /api/venues/{id}/seating-chart` API에서 배치도와 등급별 좌석수를 한 번에 저장하도록 통합
+    *   `seatingChart` 타입을 String에서 JSON Object로 변경 (프론트 편의성 개선, 이스케이프 불필요)
+    *   등급별 좌석수 별도 CRUD API 제거 (배치도 저장 API에 통합)
+        *   삭제된 API: `GET/POST /venues/{id}/seat-capacities`, `POST /venues/{id}/seat-capacities/bulk`, `DELETE /venues/{id}/seat-capacities/{grade}`
+    *   `VenueService`에 ObjectMapper 주입하여 JSON 직렬화/역직렬화 처리
+    *   `VenueSeatCapacityBulkRequest` DTO 삭제
 *   **VenueSeatCapacity CRUD 구현:**
-    *   `VenueService`, `VenueController`에 등급별 좌석 용량 API 추가 (조회, 단건등록, 일괄설정, 삭제)
+    *   `VenueService`, `VenueController`에 등급별 좌석 용량 API 추가 (조회, 단건등록, 일괄설정, 삭제) → 이후 통합 API로 대체됨
     *   `VenueSeatCapacity.create()` 팩토리 메서드 추가
 *   **DDD 리팩토링 - DTO toEntity() 제거:**
     *   `PerformanceSchedule.create()` 팩토리 메서드 구현
