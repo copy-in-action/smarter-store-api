@@ -19,8 +19,8 @@ enum class ErrorCode(
 
     // Venue
     VENUE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연장을 찾을 수 없습니다."),
-    SEAT_CAPACITY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 용량 정보를 찾을 수 없습니다."),
-    SEAT_CAPACITY_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 등급의 좌석 용량이 이미 존재합니다."),
+    SEAT_CAPACITY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 수 정보를 찾을 수 없습니다."),
+    SEAT_CAPACITY_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 등급의 좌석 수가 이미 존재합니다."),
 
     // Performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
@@ -47,6 +47,7 @@ enum class ErrorCode(
 
     // Performance Schedule
     PERFORMANCE_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연 회차를 찾을 수 없습니다."),
+    PERFORMANCE_SCHEDULE_PERFORMANCE_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "공연 회차의 공연 정보는 변경할 수 없습니다."),
 
     // Ticket Option
     TICKET_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 등급을 찾을 수 없습니다."),

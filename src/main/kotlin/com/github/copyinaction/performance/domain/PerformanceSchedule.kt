@@ -21,11 +21,11 @@ class PerformanceSchedule(
 
     @Column(nullable = false)
     @Comment("공연 날짜 및 시간")
-    val showDateTime: LocalDateTime,
+    var showDateTime: LocalDateTime,
 
     @Column(nullable = false)
     @Comment("티켓 판매 시작 일시")
-    val saleStartDateTime: LocalDateTime
+    var saleStartDateTime: LocalDateTime
 
 ) : BaseEntity() {
 
@@ -41,5 +41,13 @@ class PerformanceSchedule(
                 saleStartDateTime = saleStartDateTime
             )
         }
+    }
+
+    fun update(
+        showDateTime: LocalDateTime,
+        saleStartDateTime: LocalDateTime
+    ) {
+        this.showDateTime = showDateTime
+        this.saleStartDateTime = saleStartDateTime
     }
 }

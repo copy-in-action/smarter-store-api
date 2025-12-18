@@ -60,3 +60,26 @@ data class PerformanceScheduleResponse(
         }
     }
 }
+
+@Schema(description = "공연 회차 수정 요청 DTO")
+data class UpdatePerformanceScheduleRequest(
+    @field:NotNull
+    @Schema(description = "공연 ID", example = "1", required = true)
+    val performanceId: Long,
+
+    @field:NotNull
+    @field:Future
+    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00", required = true)
+    val showDateTime: LocalDateTime,
+
+    @field:NotNull
+    @field:Future
+    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00", required = true)
+    val saleStartDateTime: LocalDateTime,
+
+    @field:NotEmpty
+    @field:Valid
+    @Schema(description = "회차별 티켓 가격 옵션 목록", required = true)
+    val ticketOptions: List<TicketOptionRequest>
+)
+

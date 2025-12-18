@@ -23,8 +23,8 @@
   - capacity (INT)
 - [x] `VenueSeatCapacityRepository` 생성
 - [x] `VenueSeatCapacityDto` 생성
-- [x] `VenueService`에 좌석 용량 CRUD 로직 추가
-- [x] `VenueController`에 좌석 용량 API 추가
+- [x] `VenueService`에 좌석 수 CRUD 로직 추가
+- [x] `VenueController`에 좌석 수 API 추가
   - `GET /api/venues/{venueId}/seat-capacities`
   - `POST /api/venues/{venueId}/seat-capacities`
   - `POST /api/venues/{venueId}/seat-capacities/bulk`
@@ -81,11 +81,11 @@
 - [x] 회차별로 좌석 등급과 가격을 설정하는 API 및 로직 구현
 
 ### 회차 관리 API
-- [ ] 관리자용 회차 CRUD API 확인/보완
-  - `POST /api/admin/performances/{performanceId}/schedules`
-  - `GET /api/admin/performances/{performanceId}/schedules`
-  - `PUT /api/admin/schedules/{scheduleId}`
-  - `DELETE /api/admin/schedules/{scheduleId}`
+- [x] 관리자용 회차 CRUD API 확인/보완
+  - [x] `POST /api/admin/performances/{performanceId}/schedules`
+  - [x] `GET /api/admin/performances/{performanceId}/schedules`
+  - [x] `PUT /api/admin/schedules/{scheduleId}`
+  - [x] `DELETE /api/admin/schedules/{scheduleId}`
 - [ ] 판매 시작일 기반 예매 오픈 로직 검토
 
 ### 회차별 좌석 재고 연동

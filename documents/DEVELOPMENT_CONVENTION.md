@@ -1,18 +1,21 @@
 # Smarter Store API 개발 컨벤션 가이드
 
+| 버전 | 날짜 | 작성자 | 변경 내용 |
+|------|------|--------|----------|
+| 1.0  | 2025-12-18 | Gemini | 개발 컨벤션 문서 초안 작성 |
+
 이 문서는 `smarter-store-api` 프로젝트의 개발 컨벤션을 정의하여, 코드의 일관성과 품질을 유지하고 협업 효율성을 높이는 것을 목표로 합니다.
 
 ## 1. 일반 원칙
 
 *   **도메인 주도 설계 (DDD)**: 비즈니스 도메인의 복잡성을 관리하기 위해 DDD 원칙을 따릅니다. 도메인 엔티티는 비즈니스 로직을 포함하며, 서비스 계층은 도메인 간의 조율을 담당합니다.
-*   **테스트 주도 개발 (TDD)**: 새로운 기능을 개발하거나 버그를 수정할 때 테스트 코드를 먼저 작성하여 기능을 검증하고 리팩토링을 용이하게 합니다.
 *   **클린 아키텍처 지향**: 계층 간의 관심사를 분리하고 의존성을 단방향으로 유지하여 유연하고 유지보수하기 쉬운 구조를 지향합니다.
 
 ## 2. 언어 및 플랫폼
 
 *   **언어**: Kotlin
 *   **프레임워크**: Spring Boot 3.3.0
-*   **런타임**: Java 21 (Docker 환경에서는 Temurin 배포판 사용)
+*   **런타임**: Java 21
 
 ## 3. 빌드 시스템
 
@@ -41,7 +44,7 @@
     *   `com.github.copyinaction.[도메인명].dto`: 요청(Request) 및 응답(Response) 데이터 전송 객체
 *   **DTO toEntity() 제거 및 Domain 팩토리 메서드 전환**: DTO가 도메인 엔티티 생성 로직을 가지는 대신, 도메인 엔티티 내부에 `create()`와 같은 팩토리 메서드를 두어 엔티티의 생성 책임을 도메인 자체로 이동시킵니다.
 *   **풍부한 도메인 모델 (Rich Domain Model)**: 도메인 엔티티는 단순한 데이터 홀더(Anemic Domain Model)가 아닌, 비즈니스 로직과 행위를 포함하는 풍부한 객체여야 합니다.
-    *   **비즈니스 로직은 도메인에**: Service 계층의 비즈니스 로직을 가능한 한 도메인 엔티티 내부로 이동시킵니다.
+    *   **비즈니스 로직은 도메인에**: 엔티티 상태 변경, 유효성 검증, 도메인 규칙은 도메인 엔티티 내부에 구현합니다. Service는 트랜잭션 관리, 여러 도메인 간 조율, 외부 시스템 호출만 담당합니다.
     *   **자기 캡슐화**: 엔티티의 상태 변경은 반드시 엔티티 내부 메서드를 통해서만 이루어져야 합니다. (예: `entity.updateName(newName)`)
     *   **불변식 보장**: 도메인 규칙과 검증 로직을 엔티티 내부에 캡슐화하여 항상 유효한 상태를 유지합니다.
     *   **예시**:
@@ -140,9 +143,8 @@
 ## 9. 보안
 
 *   **인증/인가**: JWT(JSON Web Tokens)와 Spring Security를 사용하여 인증 및 인가를 처리합니다.
-*   **JWT Secret**: `JWT Secret` 값은 환경 변수(`JWT_SECRET_LOCAL`, `JWT_SECRET_PROD`)를 통해 관리하며, Base64 인코딩된 문자열을 사용합니다.
 *   **권한 부여**: `@PreAuthorize` 어노테이션을 사용하여 메서드 수준에서 권한을 제어합니다.
-*   **공개 엔드포인트**: Swagger UI 관련 엔드포인트(`swagger-ui/**`, `v3/api-docs/**`) 및 인증 관련 엔드포인트(`api/auth/**`)는 별도의 인증 없이 접근 가능하도록 설정합니다.
+*   **상세 설정**: `documents/setup/보안.md` 참조
 
 ## 10. 데이터베이스
 
@@ -201,7 +203,7 @@
 
 *   **로깅 프레임워크**: SLF4J (추상화 계층) + Logback (구현체)
 *   **설정 파일**: `logback-spring.xml`을 통해 로깅 레벨, 출력 형식, 파일 저장 경로 등을 구성합니다.
-*   **로그 경로**: Docker 환경에서는 `/home/cic/logs/smarter-store/`, 로컬 환경에서는 `./logs/smarter-store-local/`에 로그가 저장됩니다.
+*   **상세 설정**: `documents/setup/로깅.md` 참조
 
 ## 13. 테스트
 
@@ -213,10 +215,12 @@
 ## 14. Git 활용
 
 *   `.gitattributes` / `.gitignore`: 버전 관리에서 제외할 파일 및 속성을 정의합니다.
-*   **브랜치 전략**: Git Flow 기반 (`main`, `develop`, `feature/*`, `hotfix/*`)
+*   **브랜치 전략**: main + develop 2브랜치 전략
+    *   `develop`: 일상 개발 작업 (직접 커밋)
+    *   `main`: 배포용 (GitHub Actions 자동 배포 트리거)
 
 ### 커밋 메시지 규칙
-Conventional Commits 형식을 따릅니다.
+Conventional Commits 형식을 따르되, **간결하게** 작성합니다. 상세 내용은 CHANGELOG에 기록합니다.
 
 **형식**: `<type>: <subject>`
 
@@ -235,14 +239,12 @@ Conventional Commits 형식을 따릅니다.
 feat: VenueSeatCapacity CRUD API 추가
 fix: 좌석 점유 만료 시간 계산 오류 수정
 refactor: PerformanceSchedule 팩토리 메서드로 전환
-docs: DEVELOPMENT_CONVENTION 문서 관리 섹션 추가
 ```
 
 **작성 원칙**:
-*   제목은 50자 이내, 명령형으로 작성 (예: "추가", "수정", "삭제")
+*   제목은 50자 이내, 명령형으로 작성
 *   제목 끝에 마침표(.) 사용하지 않음
-*   본문이 필요한 경우 제목과 본문 사이에 빈 줄 추가
-*   "무엇을" 변경했는지 명확하게 기술
+*   커밋 메시지는 간결하게, 상세 내용은 CHANGELOG에 기록
 
 ## 15. 문서 관리
 
@@ -251,13 +253,19 @@ docs: DEVELOPMENT_CONVENTION 문서 관리 섹션 추가
 
 ### 문서 종류
 
-| 문서 | 파일 | 설명 |
-|------|------|------|
-| 개발 컨벤션 | `documents/DEVELOPMENT_CONVENTION.md` | 코딩 규칙, 아키텍처 패턴 |
-| 기능 명세 | `documents/features/*.md` | 도메인별 기능 상세 설명 |
-| 설정 가이드 | `documents/setup/*.md` | 환경 설정, 인프라 관련 |
-| API 명세 | Swagger UI (`/swagger-ui.html`) | 자동 생성 API 문서 |
-| 변경 이력 | `CHANGELOG.md` | 버전별 변경 사항 |
+| 폴더 | 설명 |
+|------|------|
+| `documents/design/` | 아키텍처, 시스템 설계 |
+| `documents/features/` | 도메인별 기능 명세 |
+| `documents/guidelines/` | 개발 가이드라인 |
+| `documents/infra/` | 배포, 모니터링 등 인프라 |
+| `documents/setup/` | 환경 설정, 초기 구성 |
+
+| 문서 | 설명 |
+|------|------|
+| `documents/DEVELOPMENT_CONVENTION.md` | 코딩 규칙, 아키텍처 패턴 |
+| `CHANGELOG.md` | 변경 이력 (주간 회고용) |
+| Swagger UI (`/swagger-ui.html`) | 자동 생성 API 문서 |
 
 ### 문서 업데이트 원칙
 코드 변경 시 관련 문서도 함께 업데이트합니다.
@@ -278,6 +286,8 @@ docs: DEVELOPMENT_CONVENTION 문서 관리 섹션 추가
 *   더 이상 유효하지 않은 내용은 즉시 삭제 또는 수정
 
 ### CHANGELOG 작성 규칙
+커밋 메시지는 간결하게, **상세 내용은 CHANGELOG에 기록**합니다. 주간 회고 시 참고 자료로 활용합니다.
+
 *   **작성 시점**: 당일 작업 완료 후 작성
 *   **헤더 형식**: `## YYYY년 MM월 DD일 (요일)`
 *   **내용 구조**: 기능 단위로 굵은 제목 + 1-2줄 설명
@@ -285,14 +295,13 @@ docs: DEVELOPMENT_CONVENTION 문서 관리 섹션 추가
     ## 2025년 12월 18일 (목)
 
     *   **VenueSeatCapacity CRUD 구현:**
-        *   `VenueService`, `VenueController`에 등급별 좌석 용량 API 추가 (조회, 단건등록, 일괄설정, 삭제)
+        *   `VenueService`, `VenueController`에 등급별 좌석 용량 API 추가
         *   `VenueSeatCapacity.create()` 팩토리 메서드 추가
     *   **DDD 리팩토링 - DTO toEntity() 제거:**
         *   `PerformanceSchedule.create()` 팩토리 메서드 구현
-        *   `CreatePerformanceScheduleRequest.toEntity()` 제거, Service에서 팩토리 메서드 사용
     ```
 *   **작성 원칙**:
-    *   너무 상세하지 않게, 너무 간략하지 않게 (타이틀 + 핵심 내용 1-2줄)
+    *   타이틀 + 핵심 내용 1-2줄
     *   코드 변경의 "무엇을" 했는지 명확하게 기술
     *   관련 클래스/메서드명은 백틱(\`)으로 감싸서 표기
 
