@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025년 12월 19일 (금)
+
+*   **DDD Rich Domain Model 적용 및 버그 수정:**
+    *   `Venue` 엔티티를 풍부한 도메인 모델(Aggregate Root)로 리팩토링하여 `VenueSeatCapacity`의 생명주기를 직접 관리하도록 개선했습니다.
+    *   `Venue.updateSeatingChart` 메서드 내에 변경 감지(Dirty Checking) 로직을 구현하여, 무조건적인 삭제 후 재등록(Delete-Insert)으로 인한 Unique Constraint 위반 문제를 해결했습니다.
+    *   `VenueService`에서 불필요한 Repository 의존성(`VenueSeatCapacityRepository`)을 제거하고, 도메인 엔티티에 비즈니스 로직을 위임하도록 수정했습니다.
+    *   `VenueSeatCapacity` 엔티티에서 사용하지 않는 `updateCapacity` 메서드를 제거했습니다.
+
 ## 2025년 12월 18일 (목)
 
 *   **좌석 배치도 API 통합 및 개선:**

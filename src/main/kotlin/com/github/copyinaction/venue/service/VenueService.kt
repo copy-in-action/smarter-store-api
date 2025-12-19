@@ -11,7 +11,6 @@ import com.github.copyinaction.venue.dto.VenueSeatCapacityResponse
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.venue.repository.VenueRepository
-import com.github.copyinaction.venue.repository.VenueSeatCapacityRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class VenueService(
     private val venueRepository: VenueRepository,
-    private val venueSeatCapacityRepository: VenueSeatCapacityRepository,
     private val objectMapper: ObjectMapper
 ) {
 
@@ -65,13 +63,13 @@ class VenueService(
 
     fun getSeatingChart(venueId: Long): SeatingChartResponse {
         val venue = findVenueById(venueId)
-        val capacities = venueSeatCapacityRepository.findByVenueId(venueId)
-            .map { VenueSeatCapacityResponse.from(it) }
 
         // DB의 JSON 문자열을 객체로 역직렬화
         val seatingChartObject = venue.seatingChart?.let {
             objectMapper.readValue(it, Any::class.java)
         }
+
+        val capacities = venue.seatCapacities.map { VenueSeatCapacityResponse.from(it) }
 
         return SeatingChartResponse(
             venueId = venue.id,
@@ -84,28 +82,28 @@ class VenueService(
     fun updateSeatingChart(venueId: Long, request: SeatingChartRequest): SeatingChartResponse {
         val venue = findVenueById(venueId)
 
-        // 객체를 JSON 문자열로 직렬화해서 DB에 저장
+        // 객체를 JSON 문자열로 직렬화
         val seatingChartJson = objectMapper.writeValueAsString(request.seatingChart)
-        venue.updateSeatingChart(seatingChartJson)
 
-        // 좌석 수가 함께 전달된 경우 일괄 저장
-        val savedCapacities = request.seatCapacities?.let { capacities ->
-            venueSeatCapacityRepository.deleteByVenueId(venueId)
-            val seatCapacities = capacities.map { req ->
-                VenueSeatCapacity.create(
-                    venue = venue,
-                    seatGrade = req.seatGrade,
-                    capacity = req.capacity
-                )
-            }
-            venueSeatCapacityRepository.saveAll(seatCapacities)
-                .map { VenueSeatCapacityResponse.from(it) }
+        // 새로운 좌석 정보 객체 생성 (Venue 객체를 전달)
+        val newCapacities = request.seatCapacities?.map { req ->
+            VenueSeatCapacity.create(
+                venue = venue,
+                seatGrade = req.seatGrade,
+                capacity = req.capacity
+            )
         }
+
+        // 도메인 엔티티에게 업데이트 위임 (Aggregate Root를 통한 관리)
+        venue.updateSeatingChart(seatingChartJson, newCapacities)
+        
+        // 주의: flush()는 트랜잭션 커밋 시점에 자동으로 발생하며,
+        // Venue의 orphanRemoval=true 설정으로 인해 기존 컬렉션 요소 삭제 후 새 요소가 삽입됨.
 
         return SeatingChartResponse(
             venueId = venue.id,
-            seatingChart = request.seatingChart,  // 요청 객체 그대로 반환
-            seatCapacities = savedCapacities
+            seatingChart = request.seatingChart,
+            seatCapacities = venue.seatCapacities.map { VenueSeatCapacityResponse.from(it) }.ifEmpty { null }
         )
     }
 

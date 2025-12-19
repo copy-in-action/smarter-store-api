@@ -36,11 +36,6 @@ class VenueSeatCapacity(
 
 ) : BaseEntity() {
 
-    fun updateCapacity(capacity: Int) {
-        require(capacity >= 0) { "좌석 수는 0 이상이어야 합니다." }
-        this.capacity = capacity
-    }
-
     companion object {
         fun create(venue: Venue, seatGrade: SeatGrade, capacity: Int): VenueSeatCapacity {
             require(capacity >= 0) { "좌석 수는 0 이상이어야 합니다." }
