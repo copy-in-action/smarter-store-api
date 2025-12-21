@@ -1,5 +1,22 @@
 # Changelog
 
+## 2025년 12월 21일 (일)
+
+*   **공연장 삭제 시 검증 로직 추가:**
+    *   공연이 등록된 공연장 삭제 시 409 Conflict 에러 반환
+    *   `ErrorCode.VENUE_HAS_PERFORMANCES` 추가: "등록된 공연이 있는 공연장은 삭제할 수 없습니다."
+    *   `PerformanceRepository.existsByVenueId()` 메서드 추가
+    *   `VenueService.deleteVenue()`에 검증 로직 추가
+*   **Swagger UI 정렬 설정:**
+    *   태그(API 그룹) 및 API 경로 알파벳순 정렬 (`application.yml`에 `springdoc.swagger-ui.tags-sorter`, `operations-sorter` 설정)
+    *   Schemas 알파벳순 정렬 (`OpenApiConfig`에 `OpenApiCustomizer` 추가)
+*   **공연 회차 날짜 검증 완화:**
+    *   `CreatePerformanceScheduleRequest`, `UpdatePerformanceScheduleRequest`에서 `@Future` 어노테이션 제거
+    *   과거 날짜로도 공연 회차 등록/수정 가능
+*   **Company 용어 통일:**
+    *   "기획사/판매자" → "판매자"로 주석 및 메시지 통일
+    *   변경 파일: `CompanyController`, `Company`, `CompanyDto`, `ErrorCode`
+
 ## 2025년 12월 19일 (금)
 
 *   **DDD Rich Domain Model 적용 및 버그 수정:**

@@ -4,7 +4,7 @@ import com.github.copyinaction.performance.domain.Company
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 
-@Schema(description = "기획사/판매자 정보 응답 DTO")
+@Schema(description = "판매자 정보 응답 DTO")
 data class CompanyResponse(
     @Schema(description = "회사 ID", example = "1")
     val id: Long,
@@ -46,7 +46,7 @@ data class CompanyResponse(
     }
 }
 
-@Schema(description = "기획사/판매자 생성/수정 요청 DTO")
+@Schema(description = "판매자 생성/수정 요청 DTO")
 data class CompanyRequest(
     @field:NotBlank
     @Schema(description = "상호", example = "미쓰잭슨 주식회사", required = true)

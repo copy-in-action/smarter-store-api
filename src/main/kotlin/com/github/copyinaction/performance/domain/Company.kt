@@ -6,7 +6,7 @@ import org.hibernate.annotations.Comment
 
 @Entity
 @Table(name = "company")
-@Comment("기획사/판매자 정보")
+@Comment("판매자 정보")
 class Company(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

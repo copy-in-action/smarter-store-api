@@ -10,6 +10,7 @@ import com.github.copyinaction.venue.dto.VenueResponse
 import com.github.copyinaction.venue.dto.VenueSeatCapacityResponse
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
+import com.github.copyinaction.performance.repository.PerformanceRepository
 import com.github.copyinaction.venue.repository.VenueRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class VenueService(
     private val venueRepository: VenueRepository,
+    private val performanceRepository: PerformanceRepository,
     private val objectMapper: ObjectMapper
 ) {
 
@@ -56,6 +58,9 @@ class VenueService(
     @Transactional
     fun deleteVenue(id: Long) {
         val venue = findVenueById(id)
+        if (performanceRepository.existsByVenueId(id)) {
+            throw CustomException(ErrorCode.VENUE_HAS_PERFORMANCES)
+        }
         venueRepository.delete(venue)
     }
 

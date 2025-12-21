@@ -4,7 +4,6 @@ import com.github.copyinaction.performance.domain.PerformanceSchedule
 import com.github.copyinaction.performance.domain.TicketOption
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Future
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime
@@ -12,12 +11,10 @@ import java.time.LocalDateTime
 @Schema(description = "공연 회차 생성 요청 DTO")
 data class CreatePerformanceScheduleRequest(
     @field:NotNull
-    @field:Future
     @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00", required = true)
     val showDateTime: LocalDateTime,
 
     @field:NotNull
-    @field:Future
     @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00", required = true)
     val saleStartDateTime: LocalDateTime,
 
@@ -68,12 +65,10 @@ data class UpdatePerformanceScheduleRequest(
     val performanceId: Long,
 
     @field:NotNull
-    @field:Future
     @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00", required = true)
     val showDateTime: LocalDateTime,
 
     @field:NotNull
-    @field:Future
     @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00", required = true)
     val saleStartDateTime: LocalDateTime,
 

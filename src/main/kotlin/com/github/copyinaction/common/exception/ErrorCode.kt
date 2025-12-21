@@ -19,6 +19,7 @@ enum class ErrorCode(
 
     // Venue
     VENUE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연장을 찾을 수 없습니다."),
+    VENUE_HAS_PERFORMANCES(HttpStatus.CONFLICT, "등록된 공연이 있는 공연장은 삭제할 수 없습니다."),
     SEAT_CAPACITY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 수 정보를 찾을 수 없습니다."),
     SEAT_CAPACITY_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 등급의 좌석 수가 이미 존재합니다."),
 
@@ -26,7 +27,7 @@ enum class ErrorCode(
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
 
     // Company
-    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 기획사를 찾을 수 없습니다."),
+    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 판매자를 찾을 수 없습니다."),
     COMPANY_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 사업자등록번호입니다."),
 
     // Auth

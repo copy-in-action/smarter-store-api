@@ -45,3 +45,8 @@ management:
 app:
   cookie:
     domain: .devhong.cc
+
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: alpha
