@@ -15,7 +15,15 @@ enum class ErrorCode(
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "입력 값이 올바르지 않습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 요청입니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+
+    // Booking
+    BOOKING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예매를 찾을 수 없습니다."),
+    BOOKING_EXPIRED(HttpStatus.GONE, "예매 시간이 만료되었습니다."),
+    BOOKING_INVALID_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 예매 상태입니다."),
+    PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "요청된 가격이 서버 정보와 일치하지 않습니다."),
 
     // Venue
     VENUE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연장을 찾을 수 없습니다."),
@@ -57,11 +65,6 @@ enum class ErrorCode(
     SCHEDULE_TICKET_STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 재고 정보를 찾을 수 없습니다."),
     SCHEDULE_TICKET_STOCK_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 회차/좌석등급의 재고가 이미 존재합니다."),
     NOT_ENOUGH_SEATS(HttpStatus.BAD_REQUEST, "잔여 좌석이 부족합니다."),
-
-    // Reservation
-    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예매를 찾을 수 없습니다."),
-    RESERVATION_ALREADY_CANCELLED(HttpStatus.BAD_REQUEST, "이미 취소된 예매입니다."),
-    RESERVATION_CANNOT_CONFIRM(HttpStatus.BAD_REQUEST, "확정할 수 없는 예매 상태입니다."),
 
     // Seat
     SEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석을 찾을 수 없습니다."),

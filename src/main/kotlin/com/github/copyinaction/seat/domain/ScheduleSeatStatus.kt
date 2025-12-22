@@ -44,7 +44,7 @@ class ScheduleSeatStatus(
     val colNum: Int,
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "seat_status", nullable = false, length = 20)
     @Comment("좌석 상태 (PENDING: 점유 중, RESERVED: 예약 완료)")
     var status: SeatStatus,
 

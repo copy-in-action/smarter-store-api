@@ -5,5 +5,6 @@ package com.github.copyinaction.common.exception
  * @param errorCode 미리 정의된 에러 코드
  */
 class CustomException(
-    val errorCode: ErrorCode
-) : RuntimeException(errorCode.message)
+    val errorCode: ErrorCode,
+    message: String? = null
+) : RuntimeException(message ?: errorCode.message)

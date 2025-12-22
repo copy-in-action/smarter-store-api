@@ -1,5 +1,31 @@
 # Changelog
 
+## 2025년 12월 22일 (일)
+
+*   **5분 타이머 기반 좌석 예매 시스템 구현:**
+    *   Booking 도메인 추가 (`Booking`, `BookingSeat`, `BookingStatus`, `SeatLock`)
+    *   UUID 기반 예매 ID, 5분 타이머 서버 측 관리
+    *   `SeatLock` 테이블의 Unique 제약조건으로 좌석 동시 선택 방지
+    *   예매 API 구현 (`/api/bookings`)
+        *   `POST /start`: 예매 시작 (5분 타이머 가동)
+        *   `POST /{id}/seats`: 좌석 선택 (점유)
+        *   `DELETE /{id}/seats`: 좌석 선택 취소
+        *   `GET /{id}/time`: 남은 시간 조회
+        *   `POST /{id}/confirm`: 예매 확정
+        *   `DELETE /{id}`: 예매 취소
+    *   DTO 추가: `StartBookingRequest`, `SeatRequest`, `BookingResponse`, `BookingSeatResponse`, `BookingTimeResponse`
+    *   Repository 추가: `BookingRepository`, `BookingSeatRepository`, `SeatLockRepository`
+*   **만료 예매 자동 정리 스케줄러 추가:**
+    *   `BookingCleanupScheduler`: 1분마다 만료된 PENDING 예매를 EXPIRED로 변경
+    *   `@EnableScheduling` 어노테이션 추가 (`SmarterStoreApiApplication`)
+*   **ErrorCode 업데이트:**
+    *   Booking 관련 에러코드 추가: `BOOKING_NOT_FOUND`, `BOOKING_EXPIRED`, `BOOKING_INVALID_STATUS`, `PRICE_MISMATCH`
+    *   공통 에러코드 추가: `FORBIDDEN`, `INVALID_REQUEST`
+    *   미사용 Reservation 에러코드 제거: `RESERVATION_NOT_FOUND`, `RESERVATION_ALREADY_CANCELLED`, `RESERVATION_CANNOT_CONFIRM`
+*   **문서 추가:**
+    *   `좌석_예매_테스트_워크플로우.md`: FE/BE 통합 테스트 가이드 (API 요청/응답 예시, 에러 케이스, 엣지 케이스, cURL 테스트 스크립트 포함)
+    *   `좌석_예매_시스템.md` v2.0 업데이트: 5분 타이머 기반 재설계 반영
+
 ## 2025년 12월 21일 (일)
 
 *   **공연장 삭제 시 검증 로직 추가:**
