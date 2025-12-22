@@ -53,9 +53,9 @@ class BookingService(
 
         val bookingNumber = generateBookingNumber()
         val newBooking = Booking.create(user, schedule, bookingNumber)
-        bookingRepository.save(newBooking)
+        val savedBooking = bookingRepository.saveAndFlush(newBooking)
 
-        return BookingResponse.from(newBooking)
+        return BookingResponse.from(savedBooking)
     }
 
     @Transactional
@@ -78,7 +78,7 @@ class BookingService(
             seatRequest.rowName.toIntOrNull() ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 열입니다."),
             seatRequest.seatNumber
         )
-        if (scheduleSeat != null && scheduleSeat.status == SeatStatus.RESERVED) {
+        if (scheduleSeat != null && scheduleSeat.seatStatus == SeatStatus.RESERVED) {
             throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "이미 판매된 좌석입니다.")
         }
         
@@ -165,22 +165,32 @@ class BookingService(
 
         // 예매 확정 시 영구 점유 처리
         booking.bookingSeats.forEach { bookingSeat ->
-            val scheduleSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
+            val rowNum = bookingSeat.rowName.toIntOrNull()
+                ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 열입니다.")
+
+            val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
                 booking.schedule.id,
-                bookingSeat.rowName.toIntOrNull() ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 열입니다."),
+                rowNum,
                 bookingSeat.seatNumber
-            ) ?: ScheduleSeatStatus( // ScheduleSeatStatus가 없다면 새로 생성 (예: 공연장 좌석 정보 미등록 상태)
-                schedule = booking.schedule,
-                rowNum = bookingSeat.rowName.toIntOrNull() ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 열입니다."),
-                colNum = bookingSeat.seatNumber,
-                status = SeatStatus.RESERVED // 생성 시 바로 RESERVED 상태로
             )
 
-            if (scheduleSeat.status == SeatStatus.RESERVED) {
-                throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "결제 도중 이미 판매 완료된 좌석이 발생했습니다.")
+            if (existingSeat != null) {
+                // 기존 좌석이 이미 RESERVED면 에러
+                if (existingSeat.seatStatus == SeatStatus.RESERVED) {
+                    throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "결제 도중 이미 판매 완료된 좌석이 발생했습니다.")
+                }
+                existingSeat.seatStatus = SeatStatus.RESERVED
+                scheduleSeatStatusRepository.save(existingSeat)
+            } else {
+                // 새로 생성
+                val newSeat = ScheduleSeatStatus(
+                    schedule = booking.schedule,
+                    rowNum = rowNum,
+                    colNum = bookingSeat.seatNumber,
+                    seatStatus = SeatStatus.RESERVED
+                )
+                scheduleSeatStatusRepository.save(newSeat)
             }
-            scheduleSeat.status = SeatStatus.RESERVED // RESERVED 상태로 변경
-            scheduleSeatStatusRepository.save(scheduleSeat)
         }
 
         booking.confirm() // Booking 엔티티의 confirm() 호출

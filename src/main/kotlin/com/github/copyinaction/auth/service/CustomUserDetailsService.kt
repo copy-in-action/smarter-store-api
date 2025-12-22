@@ -16,10 +16,11 @@ class CustomUserDetailsService(
         val user = userRepository.findByEmail(username)
             .orElseThrow { UsernameNotFoundException("User not found with email: $username") }
 
-        return org.springframework.security.core.userdetails.User(
-            user.email,
-            user.passwordHash,
-            listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+        return CustomUserDetails(
+            id = user.id,
+            username = user.email,
+            password = user.passwordHash,
+            authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
         )
     }
 }

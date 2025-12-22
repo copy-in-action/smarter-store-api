@@ -25,9 +25,14 @@ class JwtAuthenticationFilter(
             logger.debug("JwtAuthenticationFilter - token valid: $isValid")
 
             if (isValid) {
-                val authentication = jwtTokenProvider.getAuthentication(token)
-                SecurityContextHolder.getContext().authentication = authentication
-                logger.debug("JwtAuthenticationFilter - authentication set: ${authentication.name}")
+                try {
+                    val authentication = jwtTokenProvider.getAuthentication(token)
+                    SecurityContextHolder.getContext().authentication = authentication
+                    logger.debug("JwtAuthenticationFilter - authentication set: ${authentication.name}")
+                } catch (e: Exception) {
+                    // 기존 토큰에 userId 클레임이 없는 경우 등 - 재로그인 필요
+                    logger.warn("JwtAuthenticationFilter - failed to get authentication: ${e.message}")
+                }
             }
         }
         filterChain.doFilter(request, response)

@@ -4,6 +4,7 @@ import com.github.copyinaction.config.jwt.JwtTokenProvider
 import com.github.copyinaction.admin.domain.Admin
 import com.github.copyinaction.admin.dto.AdminLoginRequest
 import com.github.copyinaction.admin.dto.AdminSignupRequest
+import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.admin.repository.AdminRepository
@@ -46,7 +47,8 @@ class AdminAuthService(
         admin.validatePassword(request.password, passwordEncoder)
 
         val authorities = listOf(SimpleGrantedAuthority("ROLE_ADMIN"))
-        val authentication = UsernamePasswordAuthenticationToken(admin.loginId, null, authorities)
+        val principal = CustomUserDetails(admin.id, admin.loginId, "", authorities)
+        val authentication = UsernamePasswordAuthenticationToken(principal, null, authorities)
         val accessToken = jwtTokenProvider.createAccessToken(authentication)
 
         return AuthTokenInfo(

@@ -19,7 +19,7 @@ data class BookingTimeResponse(
         fun from(booking: Booking): BookingTimeResponse {
             val remainingSeconds = booking.getRemainingSeconds()
             return BookingTimeResponse(
-                bookingId = booking.id,
+                bookingId = booking.id!!,
                 remainingSeconds = remainingSeconds,
                 expired = remainingSeconds <= 0
             )

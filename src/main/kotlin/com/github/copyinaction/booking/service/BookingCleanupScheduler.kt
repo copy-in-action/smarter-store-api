@@ -34,7 +34,7 @@ class BookingCleanupScheduler(
                 log.info("예매 ID {} 상태 EXPIRED로 변경.", booking.id)
 
                 // 3. 해당 Booking의 모든 SeatLock 삭제
-                seatLockRepository.deleteAllByBooking_Id(booking.id)
+                seatLockRepository.deleteAllByBooking_Id(booking.id!!)
                 log.info("예매 ID {}에 연결된 SeatLock 삭제 완료.", booking.id)
             }
             bookingRepository.saveAll(expiredBookings) // 변경된 상태 저장

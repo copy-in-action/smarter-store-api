@@ -44,7 +44,7 @@ data class SeatStatusResponse(
             return SeatStatusResponse(
                 row = seatStatus.rowNum,
                 col = seatStatus.colNum,
-                status = seatStatus.status
+                status = seatStatus.seatStatus
             )
         }
     }

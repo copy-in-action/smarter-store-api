@@ -1,5 +1,6 @@
 package com.github.copyinaction.seat.controller
 
+import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.seat.dto.ScheduleSeatStatusResponse
 import com.github.copyinaction.seat.dto.SeatHoldRequest
@@ -17,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "seat", description = "좌석 API - 좌석 상태 조회 및 점유/예약 처리")
@@ -77,9 +77,9 @@ class SeatController(
         @Parameter(description = "회차 ID", required = true, example = "1")
         @PathVariable scheduleId: Long,
         @RequestBody request: SeatHoldRequest,
-        @AuthenticationPrincipal userDetails: UserDetails
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<SeatHoldResponse> {
-        val userId = userDetails.username.toLong()
+        val userId = user.id
         val response = seatService.holdSeats(scheduleId, userId, request.seats)
         return ResponseEntity.ok(response)
     }
@@ -102,9 +102,9 @@ class SeatController(
     fun releaseSeats(
         @Parameter(description = "회차 ID", required = true, example = "1")
         @PathVariable scheduleId: Long,
-        @AuthenticationPrincipal userDetails: UserDetails
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<Unit> {
-        val userId = userDetails.username.toLong()
+        val userId = user.id
         seatService.releaseSeats(scheduleId, userId)
         return ResponseEntity.noContent().build()
     }
@@ -132,9 +132,9 @@ class SeatController(
     fun reserveSeats(
         @Parameter(description = "회차 ID", required = true, example = "1")
         @PathVariable scheduleId: Long,
-        @AuthenticationPrincipal userDetails: UserDetails
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<List<SeatStatusResponse>> {
-        val userId = userDetails.username.toLong()
+        val userId = user.id
         val reservedSeats = seatService.reserveSeats(scheduleId, userId)
         return ResponseEntity.ok(reservedSeats)
     }

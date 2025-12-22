@@ -1,5 +1,6 @@
 package com.github.copyinaction.booking.controller
 
+import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.dto.BookingTimeResponse
 import com.github.copyinaction.booking.dto.SeatRequest
@@ -41,9 +42,9 @@ class BookingController(
     @PostMapping("/start")
     fun startBooking(
         @Valid @RequestBody request: StartBookingRequest,
-        @AuthenticationPrincipal userId: Long
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.startBooking(request.scheduleId, userId)
+        val response = bookingService.startBooking(request.scheduleId, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -71,9 +72,9 @@ class BookingController(
     fun selectSeat(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
         @Valid @RequestBody request: SeatRequest,
-        @AuthenticationPrincipal userId: Long
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.selectSeat(bookingId, request, userId)
+        val response = bookingService.selectSeat(bookingId, request, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -89,9 +90,9 @@ class BookingController(
     fun deselectSeat(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
         @Valid @RequestBody request: SeatRequest,
-        @AuthenticationPrincipal userId: Long
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.deselectSeat(bookingId, request, userId)
+        val response = bookingService.deselectSeat(bookingId, request, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -106,9 +107,9 @@ class BookingController(
     @GetMapping("/{bookingId}/time")
     fun getRemainingTime(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
-        @AuthenticationPrincipal userId: Long
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingTimeResponse> {
-        val response = bookingService.getRemainingTime(bookingId, userId)
+        val response = bookingService.getRemainingTime(bookingId, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -127,9 +128,9 @@ class BookingController(
     @PostMapping("/{bookingId}/confirm")
     fun confirmBooking(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
-        @AuthenticationPrincipal userId: Long
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.confirmBooking(bookingId, userId)
+        val response = bookingService.confirmBooking(bookingId, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -144,9 +145,9 @@ class BookingController(
     @DeleteMapping("/{bookingId}")
     fun cancelBooking(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
-        @AuthenticationPrincipal userId: Long
+        @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.cancelBooking(bookingId, userId)
+        val response = bookingService.cancelBooking(bookingId, user.id)
         return ResponseEntity.ok(response)
     }
 }

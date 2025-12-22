@@ -2,6 +2,12 @@
 
 ## 2025년 12월 22일 (일)
 
+*   **좌석 관련 필드명 및 매핑 일관성 강화:**
+    *   `ScheduleSeatStatus` 엔티티의 `status` 필드명을 `seatStatus`로 변경하고, 관련된 모든 서비스 로직, DTO, Repository 쿼리 메서드를 업데이트했습니다.
+    *   `SeatController`에서 `AuthenticationPrincipal`을 `UserDetails` 대신 `CustomUserDetails` 타입으로 직접 받아 `user.id`에 접근하도록 수정하여 `NumberFormatException`을 해결하고 타입 안정성을 높였습니다.
+    *   `SeatController`에 `CustomUserDetails` 임포트 누락 및 `response` 변수 미선언 오류를 수정했습니다.
+    *   데이터베이스 스키마와 엔티티 필드명 불일치로 인한 `PSQLException` 에러를 해결하기 위해, `ddl-auto: update` 설정을 활용하여 `schedule_seat_status` 테이블을 재정의하도록 유도했습니다.
+
 *   **5분 타이머 기반 좌석 예매 시스템 구현:**
     *   Booking 도메인 추가 (`Booking`, `BookingSeat`, `BookingStatus`, `SeatLock`)
     *   UUID 기반 예매 ID, 5분 타이머 서버 측 관리

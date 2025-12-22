@@ -101,7 +101,8 @@ class AuthService(
         userRepository.save(user)
 
         val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
-        val authentication = UsernamePasswordAuthenticationToken(user.email, null, authorities)
+        val principal = CustomUserDetails(user.id, user.email, "", authorities)
+        val authentication = UsernamePasswordAuthenticationToken(principal, null, authorities)
         val newAccessToken = jwtTokenProvider.createAccessToken(authentication)
 
         return AuthTokenInfo(

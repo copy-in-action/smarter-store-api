@@ -17,5 +17,19 @@ data class ErrorResponse(
                 message = code.message
             )
         }
+
+        fun of(code: ErrorCode, message: String): ErrorResponse {
+            return ErrorResponse(
+                errorCode = code.name,
+                message = message
+            )
+        }
+
+        fun of(exception: CustomException): ErrorResponse {
+            return ErrorResponse(
+                errorCode = exception.errorCode.name,
+                message = exception.message ?: exception.errorCode.message
+            )
+        }
     }
 }

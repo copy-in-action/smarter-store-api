@@ -31,7 +31,7 @@ class SeatLock(
     @Comment("공연 회차 ID")
     val schedule: PerformanceSchedule,
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "booking_id")
     @Comment("예매 ID")
     val booking: Booking,

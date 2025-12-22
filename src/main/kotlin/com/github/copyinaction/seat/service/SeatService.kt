@@ -62,7 +62,7 @@ class SeatService(
             .orElseThrow { CustomException(ErrorCode.SCHEDULE_NOT_FOUND) }
 
         // 기존 점유 좌석 삭제 (같은 유저가 다시 점유 시도하는 경우)
-        seatStatusRepository.deleteByScheduleIdAndHeldByAndStatus(scheduleId, userId, SeatStatus.PENDING)
+        seatStatusRepository.deleteByScheduleIdAndHeldByAndSeatStatus(scheduleId, userId, SeatStatus.PENDING)
 
         // 좌석별 점유 가능 여부 확인 및 점유
         val heldSeats = mutableListOf<ScheduleSeatStatus>()
@@ -112,7 +112,7 @@ class SeatService(
             throw CustomException(ErrorCode.SCHEDULE_NOT_FOUND)
         }
 
-        seatStatusRepository.deleteByScheduleIdAndHeldByAndStatus(scheduleId, userId, SeatStatus.PENDING)
+        seatStatusRepository.deleteByScheduleIdAndHeldByAndSeatStatus(scheduleId, userId, SeatStatus.PENDING)
     }
 
     /**
@@ -126,7 +126,7 @@ class SeatService(
         }
 
         // 유저가 점유 중인 좌석 조회
-        val pendingSeats = seatStatusRepository.findByScheduleIdAndHeldByAndStatus(
+        val pendingSeats = seatStatusRepository.findByScheduleIdAndHeldByAndSeatStatus(
             scheduleId, userId, SeatStatus.PENDING
         )
 

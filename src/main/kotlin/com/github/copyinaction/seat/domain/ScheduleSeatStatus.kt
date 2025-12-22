@@ -44,9 +44,9 @@ class ScheduleSeatStatus(
     val colNum: Int,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "seat_status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     @Comment("좌석 상태 (PENDING: 점유 중, RESERVED: 예약 완료)")
-    var status: SeatStatus,
+    var seatStatus: SeatStatus,
 
     @Column(name = "held_by")
     @Comment("점유 유저 ID")
@@ -74,7 +74,7 @@ class ScheduleSeatStatus(
                 schedule = schedule,
                 rowNum = rowNum,
                 colNum = colNum,
-                status = SeatStatus.PENDING,
+                seatStatus = SeatStatus.PENDING,
                 heldBy = userId,
                 heldUntil = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES)
             )
@@ -85,7 +85,7 @@ class ScheduleSeatStatus(
      * 점유가 만료되었는지 확인
      */
     fun isExpired(): Boolean {
-        return status == SeatStatus.PENDING &&
+        return seatStatus == SeatStatus.PENDING &&
                heldUntil != null &&
                LocalDateTime.now().isAfter(heldUntil)
     }
@@ -94,7 +94,7 @@ class ScheduleSeatStatus(
      * 예약 확정 (결제 완료)
      */
     fun reserve() {
-        this.status = SeatStatus.RESERVED
+        this.seatStatus = SeatStatus.RESERVED
         this.heldUntil = null
     }
 
@@ -102,7 +102,7 @@ class ScheduleSeatStatus(
      * 점유 연장
      */
     fun extendHold() {
-        if (status == SeatStatus.PENDING) {
+        if (seatStatus == SeatStatus.PENDING) {
             this.heldUntil = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES)
         }
     }

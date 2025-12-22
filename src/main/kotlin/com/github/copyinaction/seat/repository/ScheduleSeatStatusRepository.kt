@@ -18,7 +18,7 @@ interface ScheduleSeatStatusRepository : JpaRepository<ScheduleSeatStatus, Long>
     /**
      * 회차별 특정 상태의 좌석 조회
      */
-    fun findByScheduleIdAndStatus(scheduleId: Long, status: SeatStatus): List<ScheduleSeatStatus>
+    fun findByScheduleIdAndSeatStatus(scheduleId: Long, seatStatus: SeatStatus): List<ScheduleSeatStatus>
 
     /**
      * 특정 좌석 조회
@@ -45,10 +45,10 @@ interface ScheduleSeatStatusRepository : JpaRepository<ScheduleSeatStatus, Long>
     /**
      * 유저가 점유 중인 좌석 조회
      */
-    fun findByScheduleIdAndHeldByAndStatus(
+    fun findByScheduleIdAndHeldByAndSeatStatus(
         scheduleId: Long,
         heldBy: Long,
-        status: SeatStatus
+        seatStatus: SeatStatus
     ): List<ScheduleSeatStatus>
 
     /**
@@ -57,7 +57,7 @@ interface ScheduleSeatStatusRepository : JpaRepository<ScheduleSeatStatus, Long>
     @Modifying
     @Query("""
         DELETE FROM ScheduleSeatStatus s
-        WHERE s.status = 'PENDING'
+        WHERE s.seatStatus = 'PENDING'
         AND s.heldUntil < :now
     """)
     fun deleteExpiredHolds(@Param("now") now: LocalDateTime): Int
@@ -81,9 +81,9 @@ interface ScheduleSeatStatusRepository : JpaRepository<ScheduleSeatStatus, Long>
      * 유저의 점유 좌석 삭제
      */
     @Modifying
-    fun deleteByScheduleIdAndHeldByAndStatus(
+    fun deleteByScheduleIdAndHeldByAndSeatStatus(
         scheduleId: Long,
         heldBy: Long,
-        status: SeatStatus
+        seatStatus: SeatStatus
     ): Int
 }

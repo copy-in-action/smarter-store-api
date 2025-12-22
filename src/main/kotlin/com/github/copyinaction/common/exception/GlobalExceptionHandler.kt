@@ -29,7 +29,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(CustomException::class)
     protected fun handleCustomException(e: CustomException): ResponseEntity<ErrorResponse> {
         logger.error("handleCustomException", e)
-        val response = ErrorResponse.of(e.errorCode)
+        val response = ErrorResponse.of(e)
         return ResponseEntity.status(e.errorCode.status).body(response)
     }
 

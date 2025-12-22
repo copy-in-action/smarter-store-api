@@ -1,5 +1,6 @@
 package com.github.copyinaction.config.jwt
 
+import com.github.copyinaction.auth.service.CustomUserDetails
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.Base64
@@ -30,12 +30,14 @@ class JwtTokenProvider(
      * 인증 정보를 기반으로 JWT Access Token 생성
      */
     fun createAccessToken(authentication: Authentication): String {
+        val principal = authentication.principal as CustomUserDetails
         val authorities = authentication.authorities.joinToString(",") { it.authority }
         val now = Date()
         val validity = Date(now.time + accessTokenValidityInSeconds * 1000)
 
         return Jwts.builder()
-            .subject(authentication.name)
+            .subject(principal.username)
+            .claim("userId", principal.id)
             .claim("auth", authorities)
             .signWith(secretKey)
             .issuedAt(now)
@@ -54,9 +56,11 @@ class JwtTokenProvider(
             .payload
 
         val authorities = claims["auth"].toString().split(",").map(::SimpleGrantedAuthority)
+        val userId = (claims["userId"] as? Number)?.toLong()
+            ?: throw RuntimeException("userId 클레임을 찾을 수 없습니다. 재로그인이 필요합니다.")
 
-        // @AuthenticationPrincipal UserDetails가 동작하도록 UserDetails 객체 생성
-        val principal = User(claims.subject, "", authorities)
+        // @AuthenticationPrincipal CustomUserDetails가 동작하도록 CustomUserDetails 객체 생성
+        val principal = CustomUserDetails(userId, claims.subject, "", authorities)
 
         return UsernamePasswordAuthenticationToken(principal, token, authorities)
     }

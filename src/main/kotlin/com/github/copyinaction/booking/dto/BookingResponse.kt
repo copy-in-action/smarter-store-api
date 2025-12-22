@@ -32,7 +32,7 @@ data class BookingResponse(
     companion object {
         fun from(booking: Booking): BookingResponse {
             return BookingResponse(
-                bookingId = booking.id,
+                bookingId = booking.id!!,
                 bookingNumber = booking.bookingNumber,
                 expiresAt = booking.expiresAt,
                 remainingSeconds = booking.getRemainingSeconds(),
