@@ -16,3 +16,6 @@ cors:
 
 app:
   frontend-url: ${FRONTEND_URL:https://ticket.devhong.cc}
+
+slack: # prod에만 설정
+  webhook-url: ${SLACK_WEBHOOK_URL:http://localhost}

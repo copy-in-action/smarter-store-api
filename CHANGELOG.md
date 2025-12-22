@@ -1,7 +1,12 @@
 # Changelog
 
-## 2025년 12월 22일 (일)
+## 2025년 12월 22일 (월)
 
+*   **Slack 에러 알림 기능 추가:**
+    *   `logback-slack-appender`를 통한 실시간 에러 로그 Slack 전송 기능 구현.
+    *   `prod` 프로파일에서만 Slack 알림이 활성화되도록 Logback 설정 (`<springProfile>`) 추가.
+    *   환경 변수(`SLACK_WEBHOOK_URL`) 미설정 시 구동 에러 방지를 위한 기본값 처리.
+    *   `application.yml`의 `mail` 설정 위치가 잘못되었던 구조적 결함 수정.
 *   **좌석 관련 필드명 및 매핑 일관성 강화:**
     *   `ScheduleSeatStatus` 엔티티의 `status` 필드명을 `seatStatus`로 변경하고, 관련된 모든 서비스 로직, DTO, Repository 쿼리 메서드를 업데이트했습니다.
     *   `SeatController`에서 `AuthenticationPrincipal`을 `UserDetails` 대신 `CustomUserDetails` 타입으로 직접 받아 `user.id`에 접근하도록 수정하여 `NumberFormatException`을 해결하고 타입 안정성을 높였습니다.

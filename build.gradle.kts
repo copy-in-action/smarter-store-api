@@ -30,6 +30,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux") // SSE 지원
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    // Logging (Slack Appender)
+    implementation("com.github.maricn:logback-slack-appender:1.4.0")
+
     // API Documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 

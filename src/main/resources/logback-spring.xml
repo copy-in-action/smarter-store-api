@@ -3,6 +3,9 @@
     <!-- Spring Boot 기본 설정을 불러와서 사용합니다 -->
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
+    <!-- Spring 환경 변수로부터 Slack Webhook URL을 가져옵니다 -->
+    <springProperty scope="context" name="SLACK_WEBHOOK_URL" source="slack.webhook-url"/>
+
     <!-- 로그 파일이 저장될 경로 -->
     <property name="LOG_PATH" value="logs"/>
 
@@ -16,27 +19,45 @@
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--
-              롤오버된 파일 이름 패턴:
-              'logs/smarter-store-2025-12-15.1.log' 처럼 날짜와 순번이 함께 기록됩니다.
-              현재 로그는 항상 'smarter-store.log'에 기록됩니다.
-            -->
             <fileNamePattern>${LOG_PATH}/smarter-store-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- 30일 분량의 로그 파일만 보관 -->
             <maxHistory>30</maxHistory>
-            <!-- 한 파일의 최대 용량 -->
             <maxFileSize>10MB</maxFileSize>
-            <!-- 모든 로그 파일의 총 용량 제한 (선택 사항, 예: 10GB) -->
             <totalSizeCap>10GB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
+    <!-- Slack Appender 정의 -->
+    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+        <webhookUri>${SLACK_WEBHOOK_URL}</webhookUri>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+        <username>SmarterStore-Error-Bot</username>
+        <iconEmoji>:ghost:</iconEmoji>
+        <colorTheme>BRIGHT</colorTheme>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- 비동기 Slack Appender 정의 -->
+    <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SLACK"/>
+        <queueSize>500</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <maxFlushTime>1000</maxFlushTime>
+    </appender>
+
     <!-- 루트 로거 설정 -->
     <root level="INFO">
-        <!-- 기본 콘솔 로거는 그대로 사용 -->
         <appender-ref ref="CONSOLE"/>
-        <!-- 파일 로거는 우리가 방금 정의한 ROLLING_FILE Appender를 사용 -->
         <appender-ref ref="ROLLING_FILE"/>
+        
+        <!-- prod 프로파일에서만 Slack 알림 활성화 -->
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_SLACK"/>
+        </springProfile>
     </root>
 
     <!-- 우리 프로젝트의 로그 레벨은 DEBUG로 설정 -->
