@@ -3,7 +3,6 @@ package com.github.copyinaction.performance.dto
 import com.github.copyinaction.performance.domain.Performance
 import com.github.copyinaction.venue.dto.VenueResponse
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.FutureOrPresent
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
@@ -146,12 +145,10 @@ data class CreatePerformanceRequest(
     val venueId: Long?,
 
     @field:NotNull
-    @field:FutureOrPresent
     @Schema(description = "생성할 공연 시작일", example = "2025-12-20", required = true)
     val startDate: LocalDate,
 
     @field:NotNull
-    @field:FutureOrPresent
     @Schema(description = "생성할 공연 종료일", example = "2025-12-31", required = true)
     val endDate: LocalDate,
 
@@ -223,12 +220,10 @@ data class UpdatePerformanceRequest(
     val venueId: Long?,
 
     @field:NotNull
-    @field:FutureOrPresent
     @Schema(description = "수정할 공연 시작일", example = "2025-12-20", required = true)
     val startDate: LocalDate,
 
     @field:NotNull
-    @field:FutureOrPresent
     @Schema(description = "수정할 공연 종료일", example = "2025-12-31", required = true)
     val endDate: LocalDate,
 
