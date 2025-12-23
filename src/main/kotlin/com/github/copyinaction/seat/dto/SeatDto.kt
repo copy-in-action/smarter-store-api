@@ -76,3 +76,35 @@ data class SeatHoldResponse(
     @Schema(description = "점유 만료 시간", example = "2025-01-15T14:30:00")
     val expiresAt: String
 )
+
+/**
+ * SSE 이벤트 액션 타입
+ */
+enum class SeatEventAction {
+    OCCUPIED,   // 좌석 점유됨
+    RELEASED,   // 좌석 해제됨
+    CONFIRMED   // 좌석 확정됨
+}
+
+/**
+ * SSE 이벤트용 좌석 위치
+ */
+data class SeatPosition(
+    val row: Int,
+    val col: Int
+)
+
+/**
+ * SSE 이벤트 메시지
+ * - 좌석 상태 변경 시 구독자에게 전송되는 메시지
+ */
+data class SeatEventMessage(
+    val action: SeatEventAction,
+    val seats: List<SeatPosition>
+) {
+    companion object {
+        fun occupied(seats: List<SeatPosition>) = SeatEventMessage(SeatEventAction.OCCUPIED, seats)
+        fun released(seats: List<SeatPosition>) = SeatEventMessage(SeatEventAction.RELEASED, seats)
+        fun confirmed(seats: List<SeatPosition>) = SeatEventMessage(SeatEventAction.CONFIRMED, seats)
+    }
+}

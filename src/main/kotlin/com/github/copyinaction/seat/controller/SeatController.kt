@@ -1,30 +1,27 @@
 package com.github.copyinaction.seat.controller
 
-import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.seat.dto.ScheduleSeatStatusResponse
-import com.github.copyinaction.seat.dto.SeatHoldRequest
-import com.github.copyinaction.seat.dto.SeatHoldResponse
-import com.github.copyinaction.seat.dto.SeatStatusResponse
 import com.github.copyinaction.seat.service.SeatService
+import com.github.copyinaction.seat.service.SseService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 
-@Tag(name = "seat", description = "좌석 API - 좌석 상태 조회 및 점유/예약 처리")
+@Tag(name = "seat", description = "좌석 API - 좌석 상태 조회 및 실시간 구독")
 @RestController
 @RequestMapping("/api/schedules/{scheduleId}")
 class SeatController(
-    private val seatService: SeatService
+    private val seatService: SeatService,
+    private val sseService: SseService
 ) {
 
     @Operation(
@@ -49,93 +46,26 @@ class SeatController(
     }
 
     @Operation(
-        summary = "좌석 점유",
-        description = "좌석을 점유합니다. 점유 시간은 10분이며, 최대 4석까지 선택 가능합니다.\n\n**권한: USER, ADMIN**"
-    )
-    @SecurityRequirement(name = "bearerAuth")
-    @ApiResponses(
-        ApiResponse(responseCode = "200", description = "좌석 점유 성공"),
-        ApiResponse(
-            responseCode = "400",
-            description = "최대 좌석 수 초과 또는 잘못된 요청",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        ),
-        ApiResponse(
-            responseCode = "404",
-            description = "회차를 찾을 수 없음",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        ),
-        ApiResponse(
-            responseCode = "409",
-            description = "이미 점유/예약된 좌석",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        )
-    )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PostMapping("/seats/hold")
-    fun holdSeats(
-        @Parameter(description = "회차 ID", required = true, example = "1")
-        @PathVariable scheduleId: Long,
-        @RequestBody request: SeatHoldRequest,
-        @AuthenticationPrincipal user: CustomUserDetails
-    ): ResponseEntity<SeatHoldResponse> {
-        val userId = user.id
-        val response = seatService.holdSeats(scheduleId, userId, request.seats)
-        return ResponseEntity.ok(response)
-    }
+        summary = "좌석 상태 실시간 구독 (SSE)",
+        description = """
+            SSE(Server-Sent Events)를 통해 좌석 상태 변경을 실시간으로 수신합니다.
 
-    @Operation(
-        summary = "좌석 점유 해제",
-        description = "점유 중인 좌석을 해제합니다.\n\n**권한: USER, ADMIN**"
-    )
-    @SecurityRequirement(name = "bearerAuth")
-    @ApiResponses(
-        ApiResponse(responseCode = "204", description = "좌석 점유 해제 성공"),
-        ApiResponse(
-            responseCode = "404",
-            description = "회차를 찾을 수 없음",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        )
-    )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @DeleteMapping("/seats/hold")
-    fun releaseSeats(
-        @Parameter(description = "회차 ID", required = true, example = "1")
-        @PathVariable scheduleId: Long,
-        @AuthenticationPrincipal user: CustomUserDetails
-    ): ResponseEntity<Unit> {
-        val userId = user.id
-        seatService.releaseSeats(scheduleId, userId)
-        return ResponseEntity.noContent().build()
-    }
+            **이벤트 타입:**
+            - `connect`: 연결 성공
+            - `seat-update`: 좌석 상태 변경 (OCCUPIED/RELEASED/CONFIRMED)
+            - `heartbeat`: 연결 유지 (45초마다)
 
-    @Operation(
-        summary = "좌석 예약 확정",
-        description = "점유 중인 좌석을 예약 확정합니다. (결제 완료 후 호출)\n\n**권한: USER, ADMIN**"
+            **권한: 인증 불필요**
+        """
     )
-    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "좌석 예약 확정 성공"),
-        ApiResponse(
-            responseCode = "400",
-            description = "예약할 좌석이 없거나 점유 시간 만료",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        ),
-        ApiResponse(
-            responseCode = "404",
-            description = "회차를 찾을 수 없음",
-            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
-        )
+        ApiResponse(responseCode = "200", description = "SSE 스트림 연결 성공")
     )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PostMapping("/seats/reserve")
-    fun reserveSeats(
+    @GetMapping("/seats/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun subscribeSeatEvents(
         @Parameter(description = "회차 ID", required = true, example = "1")
-        @PathVariable scheduleId: Long,
-        @AuthenticationPrincipal user: CustomUserDetails
-    ): ResponseEntity<List<SeatStatusResponse>> {
-        val userId = user.id
-        val reservedSeats = seatService.reserveSeats(scheduleId, userId)
-        return ResponseEntity.ok(reservedSeats)
+        @PathVariable scheduleId: Long
+    ): SseEmitter {
+        return sseService.subscribe(scheduleId)
     }
 }

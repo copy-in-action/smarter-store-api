@@ -1,5 +1,31 @@
 # Changelog
 
+## 2025년 12월 23일 (화)
+
+*   **좌석 일괄 점유 및 SSE 실시간 동기화 시스템 구현:**
+    *   **Phase 1 - SSE 인프라 구축:**
+        *   `SeatEventMessage`, `SeatPosition`, `SeatEventAction` SSE 이벤트 DTO 정의 (`SeatDto.kt`)
+        *   `SseService` 개발: `ConcurrentHashMap` 기반 Emitter 관리, 45초 Heartbeat, 이벤트 전송 인터페이스
+        *   `SeatController`에 SSE 구독 엔드포인트 추가 (`GET /api/schedules/{id}/seats/stream`)
+        *   `SecurityConfig` 업데이트: SSE 및 좌석 상태 조회 경로 permitAll 설정
+    *   **Phase 2 - BookingService 리팩토링 (일괄 점유 적용):**
+        *   `startBooking` API 수정: 좌석 목록(`List<SeatPositionRequest>`)을 인자로 받아 일괄 점유 처리
+        *   DB Unique 제약 조건을 활용한 동시성 제어 및 `DataIntegrityViolationException` 예외 처리
+        *   점유 성공 시 `SseService`를 통해 `OCCUPIED` 이벤트 발행
+        *   기존 개별 좌석 선택(`selectSeat`) 및 해제(`deselectSeat`) API 제거 (BookingController, BookingService)
+        *   `SeatController`의 `holdSeats`, `releaseSeats`, `reserveSeats` API 제거 (중복 기능)
+        *   `SeatService`의 불필요한 메서드 정리
+    *   **Phase 3 - 라이프사이클 관리:**
+        *   `confirmBooking` 시 `CONFIRMED` SSE 이벤트 발행 로직 추가
+        *   `cancelBooking` 및 `BookingCleanupScheduler` 만료 처리 시 좌석 해제 및 `RELEASED` 이벤트 발행
+*   **동일 사용자 좌석 재선택 시 불필요한 이벤트 발행 버그 수정:**
+    *   기존: 좌석 재선택 시 모든 좌석에 대해 RELEASED → OCCUPIED 이벤트 발행
+    *   수정: 차등 좌석 처리 로직 구현 (`keptSeats`, `releasedSeats`, `addedSeats`)
+        *   `keptSeats` (교집합): 만료시간만 연장, SSE 이벤트 없음
+        *   `releasedSeats` (기존 - 신규): DB 삭제, RELEASED 이벤트 발행
+        *   `addedSeats` (신규 - 기존): DB 생성, OCCUPIED 이벤트 발행
+    *   Race condition 방지를 위해 유지될 좌석은 삭제/재생성 없이 `extendHold()` 호출
+
 ## 2025년 12월 22일 (월)
 
 *   **Slack 에러 알림 기능 추가:**

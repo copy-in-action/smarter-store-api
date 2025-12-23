@@ -1,25 +1,25 @@
 package com.github.copyinaction.booking.service
 
-import com.github.copyinaction.auth.domain.User
 import com.github.copyinaction.auth.repository.UserRepository
 import com.github.copyinaction.booking.domain.Booking
 import com.github.copyinaction.booking.domain.BookingSeat
 import com.github.copyinaction.booking.domain.BookingStatus
-import com.github.copyinaction.booking.domain.SeatLock
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.dto.BookingTimeResponse
-import com.github.copyinaction.booking.dto.SeatRequest
+import com.github.copyinaction.booking.dto.SeatPositionRequest
 import com.github.copyinaction.booking.repository.BookingRepository
 import com.github.copyinaction.booking.repository.BookingSeatRepository
-import com.github.copyinaction.booking.repository.SeatLockRepository
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
-import com.github.copyinaction.performance.domain.PerformanceSchedule
 import com.github.copyinaction.performance.repository.PerformanceScheduleRepository
 import com.github.copyinaction.performance.repository.TicketOptionRepository
 import com.github.copyinaction.seat.domain.ScheduleSeatStatus
 import com.github.copyinaction.seat.domain.SeatStatus
+import com.github.copyinaction.seat.dto.SeatPosition
 import com.github.copyinaction.seat.repository.ScheduleSeatStatusRepository
+import com.github.copyinaction.seat.service.SseService
+import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,117 +32,126 @@ import kotlin.random.Random
 class BookingService(
     private val bookingRepository: BookingRepository,
     private val bookingSeatRepository: BookingSeatRepository,
-    private val seatLockRepository: SeatLockRepository,
     private val userRepository: UserRepository,
     private val performanceScheduleRepository: PerformanceScheduleRepository,
     private val ticketOptionRepository: TicketOptionRepository,
-    private val scheduleSeatStatusRepository: ScheduleSeatStatusRepository
+    private val scheduleSeatStatusRepository: ScheduleSeatStatusRepository,
+    private val sseService: SseService
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * 예매 시작 - 좌석 일괄 점유
+     * 결제 진입 시점에 선택한 좌석들을 한꺼번에 점유합니다.
+     */
     @Transactional
-    fun startBooking(scheduleId: Long, userId: Long): BookingResponse {
+    fun startBooking(scheduleId: Long, seats: List<SeatPositionRequest>, userId: Long): BookingResponse {
         val user = userRepository.findByIdOrNull(userId) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
         val schedule = performanceScheduleRepository.findByIdOrNull(scheduleId)
             ?: throw CustomException(ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND)
 
-        // 이미 PENDING 상태의 예매가 있는지 확인
+        val newSeatSet = seats.map { SeatPosition(it.row, it.col) }.toSet()
+
+        // 1. 기존 PENDING 상태의 예매 확인 및 차이 계산
         val existingBooking = bookingRepository.findByUser_IdAndSchedule_IdAndStatus(userId, scheduleId, BookingStatus.PENDING)
-        if (existingBooking != null && !existingBooking.isExpired()) {
-            return BookingResponse.from(existingBooking)
+        val oldSeatSet: Set<SeatPosition> = existingBooking?.bookingSeats?.map {
+            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+        }?.toSet() ?: emptySet()
+
+        val keptSeats = oldSeatSet.intersect(newSeatSet)     // 유지될 좌석
+        val releasedSeats = oldSeatSet - newSeatSet          // 해제될 좌석
+        val addedSeats = newSeatSet - oldSeatSet             // 새로 추가될 좌석
+
+        // 2. 기존 예매 취소 (Booking 상태만 변경, 좌석은 차등 처리)
+        if (existingBooking != null) {
+            existingBooking.cancel()
+            bookingRepository.save(existingBooking)
         }
 
+        // 3. 좌석 처리
+        try {
+            // 3-1. 해제될 좌석 삭제
+            for (seat in releasedSeats) {
+                val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
+                    scheduleId, seat.row, seat.col
+                )
+                if (existingSeat != null && existingSeat.heldBy == userId) {
+                    scheduleSeatStatusRepository.delete(existingSeat)
+                }
+            }
+
+            // 3-2. 유지될 좌석 만료시간 연장
+            for (seat in keptSeats) {
+                val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
+                    scheduleId, seat.row, seat.col
+                )
+                existingSeat?.extendHold()
+            }
+
+            // 3-3. 새로 추가될 좌석 점유
+            for (seat in addedSeats) {
+                val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
+                    scheduleId, seat.row, seat.col
+                )
+
+                if (existingSeat != null) {
+                    if (existingSeat.isExpired()) {
+                        scheduleSeatStatusRepository.delete(existingSeat)
+                        scheduleSeatStatusRepository.flush()
+                    } else {
+                        throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "좌석(${seat.row}, ${seat.col})이 이미 점유되어 있습니다.")
+                    }
+                }
+
+                val seatStatus = ScheduleSeatStatus.hold(
+                    schedule = schedule,
+                    rowNum = seat.row,
+                    colNum = seat.col,
+                    userId = userId
+                )
+                scheduleSeatStatusRepository.save(seatStatus)
+            }
+            scheduleSeatStatusRepository.flush()
+        } catch (e: DataIntegrityViolationException) {
+            log.warn("좌석 점유 충돌 - scheduleId: {}, userId: {}", scheduleId, userId)
+            throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "선택한 좌석 중 일부가 다른 사용자에게 점유되었습니다.")
+        }
+
+        // 4. Booking 생성
         val bookingNumber = generateBookingNumber()
         val newBooking = Booking.create(user, schedule, bookingNumber)
+
+        // 5. BookingSeat 추가 (가격 정보는 TicketOption에서 조회)
+        val defaultTicketOption = ticketOptionRepository.findByPerformanceScheduleId(scheduleId).firstOrNull()
+        val seatGrade = defaultTicketOption?.seatGrade ?: com.github.copyinaction.venue.domain.SeatGrade.R
+        val seatPrice = defaultTicketOption?.price ?: 0
+
+        for (seat in seats) {
+            val bookingSeat = BookingSeat(
+                booking = newBooking,
+                section = "GENERAL",
+                rowName = seat.row.toString(),
+                seatNumber = seat.col,
+                grade = seatGrade,
+                price = seatPrice
+            )
+            newBooking.addSeat(bookingSeat)
+        }
+
         val savedBooking = bookingRepository.saveAndFlush(newBooking)
 
+        // 6. SSE 이벤트 발행 (차이분만)
+        if (releasedSeats.isNotEmpty()) {
+            sseService.sendReleased(scheduleId, releasedSeats.toList())
+        }
+        if (addedSeats.isNotEmpty()) {
+            sseService.sendOccupied(scheduleId, addedSeats.toList())
+        }
+
+        log.info("예매 시작 - bookingId: {}, scheduleId: {}, 유지: {}, 추가: {}, 해제: {}",
+            savedBooking.id, scheduleId, keptSeats.size, addedSeats.size, releasedSeats.size)
+
         return BookingResponse.from(savedBooking)
-    }
-
-    @Transactional
-    fun selectSeat(bookingId: UUID, seatRequest: SeatRequest, userId: Long): BookingResponse {
-        val booking = bookingRepository.findByIdOrNull(bookingId) ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
-        validateBookingOwner(booking, userId)
-        booking.validateBookingIsMutable() // 풍부한 도메인 모델의 유효성 검증
-
-        // 1. 가격 검증 및 좌석 등급 정보 획득
-        val ticketOption = ticketOptionRepository.findByPerformanceScheduleId(booking.schedule.id)
-            .find { it.seatGrade.name == seatRequest.section } // TODO: section -> seatGrade 매핑 필요
-            ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 구역입니다.")
-
-        val seatPrice = ticketOption.price // 서버 기준 가격
-
-        // 2. ScheduleSeatStatus에서 좌석이 판매 완료되었는지 확인
-        // TODO: rowNum, colNum과 section, rowName, seatNumber 매핑 로직 필요
-        val scheduleSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
-            booking.schedule.id,
-            seatRequest.rowName.toIntOrNull() ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 열입니다."),
-            seatRequest.seatNumber
-        )
-        if (scheduleSeat != null && scheduleSeat.seatStatus == SeatStatus.RESERVED) {
-            throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "이미 판매된 좌석입니다.")
-        }
-        
-        // 3. SeatLock 시도 (동시성 제어)
-        // BookingSeat에 이미 이 좌석이 추가되어 있는지 확인 (중복 선택 방지)
-        if (booking.bookingSeats.any { it.section == seatRequest.section && it.rowName == seatRequest.rowName && it.seatNumber == seatRequest.seatNumber }) {
-            throw CustomException(ErrorCode.INVALID_REQUEST, "이미 선택된 좌석입니다.")
-        }
-
-        try {
-            val seatLock = SeatLock.create(
-                booking.schedule,
-                booking,
-                seatRequest.section,
-                seatRequest.rowName,
-                seatRequest.seatNumber
-            )
-            seatLockRepository.save(seatLock)
-        } catch (e: Exception) {
-            // Unique Constraint Violation 등의 예외 처리
-            throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "다른 사용자가 이미 선점한 좌석입니다.")
-        }
-
-        // 4. BookingSeat 추가 (Booking 엔티티 내부에서 4석 제한 검증 및 totalPrice 업데이트)
-        val bookingSeat = BookingSeat(
-            booking = booking,
-            section = seatRequest.section,
-            rowName = seatRequest.rowName,
-            seatNumber = seatRequest.seatNumber,
-            grade = ticketOption.seatGrade, // TODO: SeatGrade 매핑
-            price = seatPrice
-        )
-        booking.addSeat(bookingSeat) // Booking 엔티티 내에서 addSeat 호출 (price, count 업데이트)
-        bookingSeatRepository.save(bookingSeat) // cascade persist 되어도 명시적 save 권장
-
-        bookingRepository.save(booking) // bookingSeats 변경 및 totalPrice 변경 사항 반영
-
-        return BookingResponse.from(booking)
-    }
-
-    @Transactional
-    fun deselectSeat(bookingId: UUID, seatRequest: SeatRequest, userId: Long): BookingResponse {
-        val booking = bookingRepository.findByIdOrNull(bookingId) ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
-        validateBookingOwner(booking, userId)
-        booking.validateBookingIsMutable()
-
-        // 1. BookingSeat 삭제
-        val seatToRemove = booking.bookingSeats.find {
-            it.section == seatRequest.section && it.rowName == seatRequest.rowName && it.seatNumber == seatRequest.seatNumber
-        } ?: throw CustomException(ErrorCode.INVALID_REQUEST, "예매에 포함되지 않은 좌석입니다.")
-
-        booking.removeSeat(seatToRemove)
-        bookingSeatRepository.delete(seatToRemove)
-
-        // 2. SeatLock 삭제
-        seatLockRepository.deleteAllByBooking_Id(bookingId) // 해당 Booking이 보유한 모든 SeatLock을 삭제
-        // TODO: 특정 좌석 하나만 삭제하는 로직으로 수정 필요
-        // val seatLockToRemove = seatLockRepository.findByBookingIdAnd... (custom query 필요)
-        // seatLockRepository.delete(seatLockToRemove)
-
-
-        bookingRepository.save(booking) // totalPrice 변경 사항 반영
-
-        return BookingResponse.from(booking)
     }
 
     @Transactional(readOnly = true)
@@ -194,11 +203,15 @@ class BookingService(
         }
 
         booking.confirm() // Booking 엔티티의 confirm() 호출
-        
-        // 해당 Booking의 모든 SeatLock 삭제
-        seatLockRepository.deleteAllByBooking_Id(bookingId)
-
         bookingRepository.save(booking)
+
+        // SSE CONFIRMED 이벤트 발행
+        val seatPositions = booking.bookingSeats.map {
+            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+        }
+        sseService.sendConfirmed(booking.schedule.id, seatPositions)
+
+        log.info("예매 확정 - bookingId: {}, scheduleId: {}", bookingId, booking.schedule.id)
 
         return BookingResponse.from(booking)
     }
@@ -208,15 +221,27 @@ class BookingService(
         val booking = bookingRepository.findByIdOrNull(bookingId) ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
         validateBookingOwner(booking, userId)
 
+        val scheduleId = booking.schedule.id
+        val seatPositions = booking.bookingSeats.map {
+            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+        }
+
+        // PENDING 상태인 경우 좌석 점유 해제
+        if (booking.status == BookingStatus.PENDING) {
+            scheduleSeatStatusRepository.deleteByScheduleIdAndHeldByAndSeatStatus(
+                scheduleId, booking.user.id, SeatStatus.PENDING
+            )
+        }
+
         booking.cancel() // Booking 엔티티의 cancel() 호출
-
-        // 해당 Booking의 모든 SeatLock 삭제
-        seatLockRepository.deleteAllByBooking_Id(bookingId)
-
-        // TODO: 만약 예약이 CONFIRMED 상태였다면, ScheduleSeatStatus에서 'SOLD' 상태를 다시 'AVAILABLE'로 되돌려야 함.
-        // 현재는 PENDING 상태의 취소만 고려됨.
-        
         bookingRepository.save(booking)
+
+        // SSE RELEASED 이벤트 발행
+        if (seatPositions.isNotEmpty()) {
+            sseService.sendReleased(scheduleId, seatPositions)
+        }
+
+        log.info("예매 취소 - bookingId: {}, scheduleId: {}", bookingId, scheduleId)
 
         return BookingResponse.from(booking)
     }

@@ -70,6 +70,9 @@ class SecurityConfig(
                 it.requestMatchers("/api/auth/me").authenticated()
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/venues", "/api/venues/**").permitAll()
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/performances", "/api/performances/**").permitAll()
+                // 좌석 상태 조회 및 SSE 구독 (인증 불필요)
+                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/*/seat-status").permitAll()
+                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/*/seats/stream").permitAll()
                 // 그 외 모든 경로는 인증 필요
                 .anyRequest().authenticated()
             }
