@@ -74,3 +74,39 @@ data class UpdatePerformanceScheduleRequest(
     val ticketOptions: List<TicketOptionRequest>
 )
 
+// === 사용자용 회차 조회 DTO ===
+
+@Schema(description = "예매 가능 회차 응답 DTO (잔여석 포함)")
+data class AvailableScheduleResponse(
+    @Schema(description = "회차 ID", example = "18")
+    val id: Long,
+
+    @Schema(description = "공연 날짜 및 시간", example = "2025-12-26T09:39:00")
+    val showDateTime: LocalDateTime,
+
+    @Schema(description = "등급별 잔여석 정보")
+    val ticketOptions: List<TicketOptionWithRemainingSeatsResponse>
+) {
+    companion object {
+        fun from(
+            schedule: PerformanceSchedule,
+            ticketOptionsWithSeats: List<TicketOptionWithRemainingSeatsResponse>
+        ): AvailableScheduleResponse {
+            return AvailableScheduleResponse(
+                id = schedule.id,
+                showDateTime = schedule.showDateTime,
+                ticketOptions = ticketOptionsWithSeats
+            )
+        }
+    }
+}
+
+@Schema(description = "등급별 잔여석 정보 DTO")
+data class TicketOptionWithRemainingSeatsResponse(
+    @Schema(description = "좌석 등급", example = "R")
+    val seatGrade: String,
+
+    @Schema(description = "잔여석 수", example = "10")
+    val remainingSeats: Int
+)
+

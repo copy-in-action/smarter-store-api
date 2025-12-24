@@ -1,9 +1,11 @@
 package com.github.copyinaction.performance.controller
 
+import com.github.copyinaction.common.exception.ErrorResponse
+import com.github.copyinaction.performance.dto.AvailableScheduleResponse
 import com.github.copyinaction.performance.dto.CreatePerformanceRequest
 import com.github.copyinaction.performance.dto.PerformanceResponse
 import com.github.copyinaction.performance.dto.UpdatePerformanceRequest
-import com.github.copyinaction.common.exception.ErrorResponse
+import com.github.copyinaction.performance.service.PerformanceScheduleService
 import com.github.copyinaction.performance.service.PerformanceService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,14 +26,18 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Tag(name = "performance", description = "공연 API - 공연 관련 CRUD를 처리하는 API")
 @RestController
 @RequestMapping("/api/performances")
 class PerformanceController(
-    private val performanceService: PerformanceService
+    private val performanceService: PerformanceService,
+    private val performanceScheduleService: PerformanceScheduleService
 ) {
     @Operation(summary = "공연 생성", description = "새로운 공연 정보를 생성합니다.\n\n**권한: ADMIN**")
     @SecurityRequirement(name = "bearerAuth")
@@ -130,5 +137,54 @@ class PerformanceController(
     fun deletePerformance(@Parameter(description = "삭제할 공연의 ID", required = true, example = "1") @PathVariable id: Long): ResponseEntity<Unit> {
         performanceService.deletePerformance(id)
         return ResponseEntity.noContent().build()
+    }
+
+    // === 사용자용 회차 조회 API ===
+
+    @Operation(
+        summary = "예매 가능 회차 날짜 목록 조회",
+        description = "해당 공연의 예매 가능한 회차 날짜 목록을 조회합니다.\n\n" +
+            "- 티켓 판매가 시작되고 공연이 아직 시작하지 않은 회차만 반환\n\n" +
+            "**권한: 누구나**"
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "조회 성공"),
+        ApiResponse(
+            responseCode = "404",
+            description = "공연을 찾을 수 없음",
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+        )
+    )
+    @GetMapping("/{id}/schedules/dates")
+    fun getAvailableScheduleDates(
+        @Parameter(description = "공연 ID", required = true, example = "1") @PathVariable id: Long
+    ): ResponseEntity<List<LocalDateTime>> {
+        val dates = performanceScheduleService.getAvailableDates(id)
+        return ResponseEntity.ok(dates)
+    }
+
+    @Operation(
+        summary = "특정 날짜의 예매 가능 회차 목록 조회",
+        description = "해당 공연의 특정 날짜에 예매 가능한 회차 목록을 조회합니다.\n\n" +
+            "- 공연시간 내림차순 정렬\n" +
+            "- 각 좌석 등급의 잔여석 수 포함\n\n" +
+            "**권한: 누구나**"
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "조회 성공"),
+        ApiResponse(
+            responseCode = "404",
+            description = "공연을 찾을 수 없음",
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+        )
+    )
+    @GetMapping("/{id}/schedules")
+    fun getAvailableSchedulesByDate(
+        @Parameter(description = "공연 ID", required = true, example = "1") @PathVariable id: Long,
+        @Parameter(description = "조회할 날짜 (yyyy-MM-dd)", required = true, example = "2025-12-26")
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
+    ): ResponseEntity<List<AvailableScheduleResponse>> {
+        val schedules = performanceScheduleService.getAvailableSchedulesByDate(id, date)
+        return ResponseEntity.ok(schedules)
     }
 }

@@ -4,9 +4,12 @@ spring:
     username: ${PROD_DB_USERNAME}
     password: ${PROD_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-  logging:
-    file:
-      path: /home/cic/logs/smarter-store/
+
+logging:
+  file:
+    path: /home/cic/logs/smarter-store/
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE
 
 jwt:
   secret: ${JWT_SECRET_PROD} # Production secret, should be from env variable

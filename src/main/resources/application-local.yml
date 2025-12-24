@@ -4,9 +4,12 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-  logging:
-    file:
-      path: ./logs/smarter-store-local/ # Local logs can be relative to project root
+logging:
+  file:
+    path: ./logs/smarter-store-local/
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE
+
 jwt:
   secret: ${JWT_SECRET_LOCAL} # A simpler secret for local development
 cors:
