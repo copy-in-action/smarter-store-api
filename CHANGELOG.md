@@ -1,5 +1,15 @@
 # Changelog
 
+## 2025년 12월 24일 (수)
+
+*   **사용자용 공연 일정 조회 API 구현:**
+    *   **예매 가능 날짜 목록 조회 API 추가 (`GET /api/performances/{id}/schedules/dates`):** 티켓 판매가 시작되고 아직 공연 전인 회차들의 날짜 목록을 반환하는 기능.
+    *   **특정 날짜의 예매 가능 회차 조회 API 추가 (`GET /api/performances/{id}/schedules`):** 선택한 날짜의 회차 정보와 각 좌석 등급별 잔여석 수를 실시간으로 계산하여 반환하는 기능.
+*   **도메인 이전(`ticket-api.devhong.cc`) 영향도 분석:**
+    *   `CookieService`의 쿠키 도메인 설정(`.devhong.cc`) 검토 및 세션 유지 정상 작동 확인.
+    *   SSL 인증서 신규 발급 및 프론트엔드 API Base URL 업데이트 체크리스트 도출.
+    *   CORS_ALLOWED_ORIGINS 업데이트 `api.ticket.devhong.cc` -> `ticket-api.devhong.cc`
+
 ## 2025년 12월 23일 (화)
 
 *   **좌석 일괄 점유 및 SSE 실시간 동기화 시스템 구현:**
