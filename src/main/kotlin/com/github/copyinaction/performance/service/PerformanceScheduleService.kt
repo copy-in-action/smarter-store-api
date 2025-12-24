@@ -67,13 +67,6 @@ class PerformanceScheduleService(
     @Transactional
     fun updateSchedule(scheduleId: Long, request: UpdatePerformanceScheduleRequest): PerformanceScheduleResponse {
         val schedule = findScheduleById(scheduleId)
-        val performance = performanceRepository.findById(request.performanceId)
-            .orElseThrow { CustomException(ErrorCode.PERFORMANCE_NOT_FOUND) }
-
-        // 공연 정보는 변경 불가 (회차는 특정 공연에 귀속)
-        if (schedule.performance.id != performance.id) {
-            throw CustomException(ErrorCode.PERFORMANCE_SCHEDULE_PERFORMANCE_CANNOT_CHANGE)
-        }
 
         schedule.update(
             showDateTime = request.showDateTime,
