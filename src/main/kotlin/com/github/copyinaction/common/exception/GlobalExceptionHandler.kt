@@ -1,7 +1,9 @@
 package com.github.copyinaction.common.exception
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -12,6 +14,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    /**
+     * JSON 파싱 실패 또는 Enum 타입 불일치 등으로 인한 메시지 읽기 오류 처리
+     */
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    protected fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
+        logger.error("handleHttpMessageNotReadableException", e)
+        
+        val cause = e.cause
+        if (cause is InvalidFormatException && cause.targetType.isEnum) {
+            val invalidValue = cause.value
+            val allowedValues = cause.targetType.enumConstants.joinToString(", ")
+            val errorMessage = "입력된 값 '${invalidValue}'은(는) 유효하지 않습니다. 허용된 값: [$allowedValues]"
+            val response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, errorMessage)
+            return ResponseEntity.badRequest().body(response)
+        }
+
+        val response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE)
+        return ResponseEntity.badRequest().body(response)
+    }
 
     /**
      * @Valid 어노테이션을 통한 유효성 검증에 실패했을 때 처리하는 핸들러

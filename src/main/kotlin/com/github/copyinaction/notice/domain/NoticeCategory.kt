@@ -1,10 +1,10 @@
 package com.github.copyinaction.notice.domain
 
+import io.swagger.v3.oas.annotations.media.Schema
+
+@Schema(description = "공지사항 카테고리 (SYSTEM: 시스템 점검, BOOKING_NOTICE: 예매 유의사항, EVENT: 이벤트)")
 enum class NoticeCategory(val description: String) {
+    SYSTEM("시스템 점검"),
     BOOKING_NOTICE("예매 유의사항"),
-    BANK_TRANSFER("무통장입금 시 주의사항"),
-    TICKET_PICKUP("티켓수령안내"),
-    MOBILE_TICKET("모바일티켓 안내"),
-    REFUND("환불 안내"),
-    CANCELLATION("취소 및 환불 유의사항")
+    EVENT("이벤트")
 }

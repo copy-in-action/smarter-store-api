@@ -46,10 +46,10 @@
 | 노출여부 | BOOLEAN | O | 기본값: 미노출 |
 
 ### 등급별 가격 테이블 (TicketOption)
-- 공연 ID
-- 티켓 옵션명 (VIP석, R석, S석 등)
+- 공연 회차 ID (PerformanceSchedule FK)
+- 좌석 등급 (VIP, R, S 등)
 - 가격
-- 총 수량
+- 해당 등급 총 좌석 수 (`totalQuantity`)
 
 ---
 
@@ -62,14 +62,6 @@
 | 공연 ID | FK | O | |
 | 공연 일시 | DATETIME | O | 실제 공연 시작 시간 |
 | 판매 시작일 | DATETIME | | 예매 오픈 시간 |
-
-### 회차별 좌석 재고 (ScheduleTicketStock)
-- 회차 ID
-- 티켓 옵션 ID
-- 총 수량
-- 잔여 수량
-
-> **검토 필요**: 좌석 재고와 예매 기능 연동 방식 추가 검토 필요
 
 ---
 

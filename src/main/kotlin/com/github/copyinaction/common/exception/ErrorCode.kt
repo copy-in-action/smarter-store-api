@@ -62,11 +62,6 @@ enum class ErrorCode(
     TICKET_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 등급을 찾을 수 없습니다."),
     SEAT_GRADE_NOT_FOUND_IN_VENUE(HttpStatus.BAD_REQUEST, "공연장에 존재하지 않는 좌석 등급이 포함되어 있습니다."),
 
-    // Schedule Ticket Stock
-    SCHEDULE_TICKET_STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 재고 정보를 찾을 수 없습니다."),
-    SCHEDULE_TICKET_STOCK_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 회차/좌석등급의 재고가 이미 존재합니다."),
-    NOT_ENOUGH_SEATS(HttpStatus.BAD_REQUEST, "잔여 좌석이 부족합니다."),
-
     // Seat
     SEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석을 찾을 수 없습니다."),
     SEAT_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 좌석이 이미 존재합니다."),
@@ -84,6 +79,6 @@ enum class ErrorCode(
     NO_SEATS_TO_RESERVE(HttpStatus.BAD_REQUEST, "예약할 좌석이 없습니다. 먼저 좌석을 선택해주세요."),
     SCHEDULE_SEATS_ALREADY_INITIALIZED(HttpStatus.CONFLICT, "이미 좌석이 초기화된 회차입니다."),
 
-    // Ticketing Notice
-    TICKETING_NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예매 안내사항을 찾을 수 없습니다."),
+    // Notice
+    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공지사항을 찾을 수 없습니다."),
 }

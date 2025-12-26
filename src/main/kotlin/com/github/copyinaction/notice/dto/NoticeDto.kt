@@ -1,15 +1,15 @@
 package com.github.copyinaction.notice.dto
 
 import com.github.copyinaction.notice.domain.NoticeCategory
-import com.github.copyinaction.notice.domain.TicketingNotice
+import com.github.copyinaction.notice.domain.Notice
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 
-@Schema(description = "예매 안내사항 생성 요청")
-data class CreateTicketingNoticeRequest(
+@Schema(description = "공지사항 생성 요청")
+data class CreateNoticeRequest(
     @field:NotNull(message = "카테고리는 필수입니다")
     @Schema(description = "카테고리", example = "BOOKING_NOTICE")
     val category: NoticeCategory,
@@ -30,8 +30,8 @@ data class CreateTicketingNoticeRequest(
     val isActive: Boolean = true
 )
 
-@Schema(description = "예매 안내사항 수정 요청")
-data class UpdateTicketingNoticeRequest(
+@Schema(description = "공지사항 수정 요청")
+data class UpdateNoticeRequest(
     @field:NotNull(message = "카테고리는 필수입니다")
     @Schema(description = "카테고리", example = "BOOKING_NOTICE")
     val category: NoticeCategory,
@@ -52,9 +52,9 @@ data class UpdateTicketingNoticeRequest(
     val isActive: Boolean
 )
 
-@Schema(description = "예매 안내사항 응답")
-data class TicketingNoticeResponse(
-    @Schema(description = "안내사항 ID", example = "1")
+@Schema(description = "공지사항 응답")
+data class NoticeResponse(
+    @Schema(description = "공지사항 ID", example = "1")
     val id: Long,
 
     @Schema(description = "카테고리", example = "BOOKING_NOTICE")
@@ -82,8 +82,8 @@ data class TicketingNoticeResponse(
     val updatedAt: LocalDateTime?
 ) {
     companion object {
-        fun from(notice: TicketingNotice): TicketingNoticeResponse {
-            return TicketingNoticeResponse(
+        fun from(notice: Notice): NoticeResponse {
+            return NoticeResponse(
                 id = notice.id,
                 category = notice.category,
                 categoryDescription = notice.category.description,
@@ -98,14 +98,14 @@ data class TicketingNoticeResponse(
     }
 }
 
-@Schema(description = "카테고리별 안내사항 그룹 응답")
-data class TicketingNoticeGroupResponse(
+@Schema(description = "카테고리별 공지사항 그룹 응답")
+data class NoticeGroupResponse(
     @Schema(description = "카테고리", example = "BOOKING_NOTICE")
     val category: NoticeCategory,
 
     @Schema(description = "카테고리 설명", example = "예매 유의사항")
     val categoryDescription: String,
 
-    @Schema(description = "안내사항 목록")
-    val notices: List<TicketingNoticeResponse>
+    @Schema(description = "공지사항 목록")
+    val notices: List<NoticeResponse>
 )

@@ -5,12 +5,12 @@ import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 
 @Entity
-@Table(name = "ticketing_notice")
-@Comment("예매 안내사항")
-class TicketingNotice(
+@Table(name = "notice")
+@Comment("공지사항")
+class Notice(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Comment("안내사항 ID")
+    @Comment("공지사항 ID")
     val id: Long = 0,
 
     @Enumerated(EnumType.STRING)
@@ -43,8 +43,8 @@ class TicketingNotice(
             content: String,
             displayOrder: Int = 0,
             isActive: Boolean = true
-        ): TicketingNotice {
-            return TicketingNotice(
+        ): Notice {
+            return Notice(
                 category = category,
                 title = title,
                 content = content,

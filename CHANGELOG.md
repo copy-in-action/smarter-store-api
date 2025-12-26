@@ -9,15 +9,20 @@
     *   **`SeatingChartParser` 전면 개편:**
         *   실제 공연장 데이터 포맷(`seatTypes` + `position` 기반)에 맞춰 파싱 로직을 완전히 재설계했습니다.
         *   파싱 과정의 투명성을 위해 상세 로깅 시스템을 도입하여 데이터 정합성 확인을 용이하게 했습니다.
-*   **보안 및 검증 로직 강화:**
-    *   **좌석 등급 유효성 검증 추가:** 스케줄 등록/수정 시 공연장에 정의되지 않은 등급이 포함될 경우 차단하는 로직을 추가했습니다.
-    *   **전용 에러 코드 도입:** `SEAT_GRADE_NOT_FOUND_IN_VENUE` (400 Bad Request) 에러 코드를 추가하여 클라이언트에 명확한 오류 정보를 제공합니다.
-    *   **관리자 API 가이드라인 수립:** 모든 관리자 기능을 `/api/admin/**` 경로로 통일하고 패키지를 분리하는 아키텍처 원칙을 `contexts/controller-auth.md`에 명시했습니다.
+*   **공지사항(Notice) 도메인 리팩토링:**
+    *   **명칭 및 경로 간소화:** `TicketingNotice`를 `Notice`로 전면 변경하고, API 경로를 `/api/notices`로 축소하여 가독성과 범용성을 높였습니다.
+    *   **컨트롤러 분리:** 관리자 전용 API를 `AdminNoticeController`로 분리하여 보안 정책(Role-based Access Control)을 강화했습니다.
+*   **프론트엔드 협업 및 DX(Developer Experience) 강화:**
+    *   **Enum Swagger 문서화:** `SeatGrade`, `NoticeCategory`, `BookingStatus` 등 주요 Enum에 `@Schema`와 한글 설명을 추가하여 프론트엔드에서 API 스펙을 쉽게 파악할 수 있도록 개선했습니다.
+    *   **Enum 파싱 에러 메시지 개선:** 잘못된 Enum 값을 요청 본문에 포함할 경우, 500 에러 대신 400 Bad Request와 함께 **"허용된 값 목록"**을 포함한 친절한 상세 메시지를 반환하도록 `GlobalExceptionHandler`를 강화했습니다.
+*   **코드 정리 및 보안:**
+    *   **미사용 코드 제거:** 지정 좌석제 도입으로 불필요해진 `ScheduleTicketStock` 관련 로직과 에러 코드를 모두 삭제했습니다.
+    *   **관리자 API 가이드라인 수립:** `/api/admin/**` 경로 규칙 및 패키지 구조 원칙을 `contexts/controller-auth.md`에 명시했습니다.
 *   **데이터베이스 안정화 및 마이그레이션:**
     *   **DDL 에러 해결:** `ScheduleSeatStatus` 및 `TicketOption` 테이블의 신규 컬럼/인덱스 생성 시 발생하던 데이터 마이그레이션 이슈를 해결했습니다.
     *   **기본값 보장:** `totalQuantity` 컬럼에 `@ColumnDefault("0")`를 적용하여 기존 데이터와의 호환성을 확보했습니다.
 *   **문서화:**
-    *   **좌석 시스템 개선 제안서 작성 (`좌석_시스템_개선_제안.md`):** 변경된 아키텍처의 배경과 기대 효과를 상세히 기술했습니다.
+    *   **좌석 시스템 개선 제안서 작성 (`좌석_시스템_개선_제안.md`):** 아키텍처 변경 배경과 성능 기대 효과를 문서화했습니다.
 
 ## 2025년 12월 24일 (수)
 
