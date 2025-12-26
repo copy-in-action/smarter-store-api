@@ -60,6 +60,7 @@ enum class ErrorCode(
 
     // Ticket Option
     TICKET_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 등급을 찾을 수 없습니다."),
+    SEAT_GRADE_NOT_FOUND_IN_VENUE(HttpStatus.BAD_REQUEST, "공연장에 존재하지 않는 좌석 등급이 포함되어 있습니다."),
 
     // Schedule Ticket Stock
     SCHEDULE_TICKET_STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 재고 정보를 찾을 수 없습니다."),

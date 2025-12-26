@@ -31,6 +31,8 @@ class PerformanceScheduleService(
     private val seatingChartParser: SeatingChartParser
 ) {
 
+    private val log = LoggerFactory.getLogger(javaClass)
+
     @Transactional
     fun createSchedule(
         performanceId: Long,
@@ -38,6 +40,26 @@ class PerformanceScheduleService(
     ): PerformanceScheduleResponse {
         val performance = performanceRepository.findById(performanceId)
             .orElseThrow { CustomException(ErrorCode.PERFORMANCE_NOT_FOUND) }
+
+        // Venue의 좌석배치도에서 등급별 좌석 수 계산 (Write-Time Calculation)
+        val seatingChartJson = performance.venue?.seatingChart
+        val seatsByGrade = seatingChartParser.countSeatsByGrade(seatingChartJson)
+
+        // 요청된 등급이 공연장에 존재하는지 검증
+        val requestedGrades = request.ticketOptions.map { it.seatGrade }.toSet()
+        val availableGrades = seatsByGrade.keys
+        val invalidGrades = requestedGrades - availableGrades
+        if (invalidGrades.isNotEmpty()) {
+            throw CustomException(ErrorCode.SEAT_GRADE_NOT_FOUND_IN_VENUE, 
+                "공연장에 존재하지 않는 좌석 등급이 포함되어 있습니다: ${invalidGrades.joinToString { it.name }}")
+        }
+
+        log.info("Creating schedule for performanceId: {}. Venue ID: {}. JSON Content: {}. Parsed SeatsByGrade: {}",
+            performanceId,
+            performance.venue?.id,
+            seatingChartJson,
+            seatsByGrade
+        )
 
         val performanceSchedule = PerformanceSchedule.create(
             performance = performance,
@@ -47,10 +69,12 @@ class PerformanceScheduleService(
         val savedSchedule = performanceScheduleRepository.save(performanceSchedule)
 
         val ticketOptions = request.ticketOptions.map { ticketOptionRequest ->
+            val totalQuantity = seatsByGrade[ticketOptionRequest.seatGrade] ?: 0
             TicketOption(
                 performanceSchedule = savedSchedule,
                 seatGrade = ticketOptionRequest.seatGrade,
-                price = ticketOptionRequest.price
+                price = ticketOptionRequest.price,
+                totalQuantity = totalQuantity
             )
         }
         val savedTicketOptions = ticketOptionRepository.saveAll(ticketOptions)
@@ -78,6 +102,19 @@ class PerformanceScheduleService(
     fun updateSchedule(scheduleId: Long, request: UpdatePerformanceScheduleRequest): PerformanceScheduleResponse {
         val schedule = findScheduleById(scheduleId)
 
+        // Venue의 좌석배치도에서 등급별 좌석 수 계산 (Write-Time Calculation)
+        val seatingChartJson = schedule.performance.venue?.seatingChart
+        val seatsByGrade = seatingChartParser.countSeatsByGrade(seatingChartJson)
+
+        // 요청된 등급이 공연장에 존재하는지 검증
+        val requestedGrades = request.ticketOptions.map { it.seatGrade }.toSet()
+        val availableGrades = seatsByGrade.keys
+        val invalidGrades = requestedGrades - availableGrades
+        if (invalidGrades.isNotEmpty()) {
+            throw CustomException(ErrorCode.SEAT_GRADE_NOT_FOUND_IN_VENUE, 
+                "공연장에 존재하지 않는 좌석 등급이 포함되어 있습니다: ${invalidGrades.joinToString { it.name }}")
+        }
+
         schedule.update(
             showDateTime = request.showDateTime,
             saleStartDateTime = request.saleStartDateTime
@@ -87,10 +124,12 @@ class PerformanceScheduleService(
         // 기존 티켓 옵션 삭제 후 새로 저장
         ticketOptionRepository.deleteByPerformanceScheduleId(scheduleId)
         val newTicketOptions = request.ticketOptions.map { ticketOptionRequest ->
+            val totalQuantity = seatsByGrade[ticketOptionRequest.seatGrade] ?: 0
             TicketOption(
                 performanceSchedule = updatedSchedule,
                 seatGrade = ticketOptionRequest.seatGrade,
-                price = ticketOptionRequest.price
+                price = ticketOptionRequest.price,
+                totalQuantity = totalQuantity
             )
         }
         val savedTicketOptions = ticketOptionRepository.saveAll(newTicketOptions)
@@ -126,36 +165,30 @@ class PerformanceScheduleService(
      * 특정 날짜의 예매 가능 회차 목록 조회 (잔여석 포함)
      * - 공연시간 내림차순 정렬
      * - 각 좌석 등급의 잔여석 수 포함
+     * - Write-Time Calculation: totalQuantity는 TicketOption에 저장된 값 사용
      */
     fun getAvailableSchedulesByDate(performanceId: Long, date: LocalDate): List<AvailableScheduleResponse> {
-        val performance = performanceRepository.findById(performanceId)
-            .orElseThrow { CustomException(ErrorCode.PERFORMANCE_NOT_FOUND) }
+        if (!performanceRepository.existsById(performanceId)) {
+            throw CustomException(ErrorCode.PERFORMANCE_NOT_FOUND)
+        }
 
         val now = LocalDateTime.now()
         val dateStart = date.atStartOfDay()
         val dateEnd = date.plusDays(1).atStartOfDay()
         val schedules = performanceScheduleRepository.findAvailableSchedulesByDate(performanceId, now, dateStart, dateEnd)
 
-        val venue = performance.venue
-        val seatingChartJson = venue?.seatingChart
-        val seatsByGrade = seatingChartParser.countSeatsByGrade(seatingChartJson)
-
         return schedules.map { schedule ->
             val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
-            val occupiedSeats = scheduleSeatStatusRepository.findByScheduleId(schedule.id)
 
-            // 점유된 좌석들의 등급별 개수 계산
-            val occupiedByGrade = mutableMapOf<SeatGrade, Int>()
-            for (seat in occupiedSeats) {
-                val grade = seatingChartParser.getSeatGrade(seatingChartJson, seat.rowNum, seat.colNum)
-                if (grade != null) {
-                    occupiedByGrade[grade] = (occupiedByGrade[grade] ?: 0) + 1
-                }
+            // 등급별 점유 좌석 수 집계 (DB에서 직접 조회)
+            val occupiedByGradeRaw = scheduleSeatStatusRepository.countByScheduleIdGroupBySeatGrade(schedule.id)
+            val occupiedByGrade = occupiedByGradeRaw.associate {
+                (it[0] as SeatGrade) to (it[1] as Long).toInt()
             }
 
-            // 등급별 잔여석 계산
+            // 등급별 잔여석 계산 (totalQuantity는 TicketOption에 저장된 값 사용)
             val ticketOptionsWithSeats = ticketOptions.map { option ->
-                val totalSeats = seatsByGrade[option.seatGrade] ?: 0
+                val totalSeats = option.totalQuantity
                 val occupied = occupiedByGrade[option.seatGrade] ?: 0
                 val remaining = maxOf(0, totalSeats - occupied)
 

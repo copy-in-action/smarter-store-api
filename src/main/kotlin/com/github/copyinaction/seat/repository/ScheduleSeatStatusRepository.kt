@@ -2,6 +2,7 @@ package com.github.copyinaction.seat.repository
 
 import com.github.copyinaction.seat.domain.ScheduleSeatStatus
 import com.github.copyinaction.seat.domain.SeatStatus
+import com.github.copyinaction.venue.domain.SeatGrade
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -9,6 +10,19 @@ import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 
 interface ScheduleSeatStatusRepository : JpaRepository<ScheduleSeatStatus, Long> {
+
+    /**
+     * 회차별 등급별 점유 좌석 수 집계
+     */
+    @Query("""
+        SELECT s.seatGrade, COUNT(s)
+        FROM ScheduleSeatStatus s
+        WHERE s.schedule.id = :scheduleId
+        GROUP BY s.seatGrade
+    """)
+    fun countByScheduleIdGroupBySeatGrade(
+        @Param("scheduleId") scheduleId: Long
+    ): List<Array<Any>>
 
     /**
      * 회차별 모든 좌석 상태 조회

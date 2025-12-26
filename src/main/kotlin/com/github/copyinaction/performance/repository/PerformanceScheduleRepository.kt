@@ -46,4 +46,18 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
         @Param("dateStart") dateStart: LocalDateTime,
         @Param("dateEnd") dateEnd: LocalDateTime
     ): List<PerformanceSchedule>
+
+    /**
+     * 특정 공연장의 미래 스케줄 조회 (좌석배치도 동기화용)
+     * - 공연이 아직 시작하지 않은 회차만 대상
+     */
+    @Query("""
+        SELECT ps FROM PerformanceSchedule ps
+        WHERE ps.performance.venue.id = :venueId
+        AND ps.showDateTime > :now
+    """)
+    fun findFutureSchedulesByVenueId(
+        @Param("venueId") venueId: Long,
+        @Param("now") now: LocalDateTime
+    ): List<PerformanceSchedule>
 }

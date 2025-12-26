@@ -1,4 +1,4 @@
-package com.github.copyinaction.performance.controller
+package com.github.copyinaction.admin.controller
 
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.performance.dto.CompanyRequest
@@ -14,16 +14,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 
-@Tag(name = "company", description = "판매자 API - 판매자 정보 CRUD를 처리하는 API")
+@Tag(name = "admin-company", description = "관리자용 판매자 API - 판매자 정보 CRUD")
 @RestController
 @RequestMapping("/api/admin/companies")
-@PreAuthorize("hasRole('ADMIN')")
 @SecurityRequirement(name = "bearerAuth")
-class CompanyController(
+class AdminCompanyController(
     private val companyService: CompanyService
 ) {
 

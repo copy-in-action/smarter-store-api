@@ -73,6 +73,8 @@ class SecurityConfig(
                 // 좌석 상태 조회 및 SSE 구독 (인증 불필요)
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/*/seat-status").permitAll()
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/*/seats/stream").permitAll()
+                // 관리자 API는 ADMIN 권한 필수 (경로 기반 보안)
+                it.requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // 그 외 모든 경로는 인증 필요
                 .anyRequest().authenticated()
             }

@@ -26,6 +26,11 @@ class TicketOption(
 
     @Column(nullable = false)
     @Comment("가격")
-    val price: Int
+    val price: Int,
+
+    @Column(nullable = false)
+    @org.hibernate.annotations.ColumnDefault("0")
+    @Comment("해당 등급의 총 좌석 수")
+    var totalQuantity: Int = 0
 
 ) : BaseEntity()

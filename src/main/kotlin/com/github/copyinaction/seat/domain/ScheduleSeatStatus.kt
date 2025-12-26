@@ -2,6 +2,7 @@ package com.github.copyinaction.seat.domain
 
 import com.github.copyinaction.common.domain.BaseEntity
 import com.github.copyinaction.performance.domain.PerformanceSchedule
+import com.github.copyinaction.venue.domain.SeatGrade
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 import java.time.LocalDateTime
@@ -21,7 +22,8 @@ import java.time.LocalDateTime
     ],
     indexes = [
         Index(name = "idx_schedule_seat_status_schedule", columnList = "schedule_id"),
-        Index(name = "idx_schedule_seat_status_held_until", columnList = "held_until")
+        Index(name = "idx_schedule_seat_status_held_until", columnList = "held_until"),
+        Index(name = "idx_schedule_seat_status_grade", columnList = "schedule_id, seat_grade")
     ]
 )
 @Comment("회차별 좌석 상태")
@@ -42,6 +44,11 @@ class ScheduleSeatStatus(
     @Column(name = "col_num", nullable = false)
     @Comment("좌석 열 번호 (0부터 시작)")
     val colNum: Int,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_grade", nullable = false, length = 20)
+    @Comment("좌석 등급")
+    val seatGrade: SeatGrade,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -68,12 +75,14 @@ class ScheduleSeatStatus(
             schedule: PerformanceSchedule,
             rowNum: Int,
             colNum: Int,
+            seatGrade: SeatGrade,
             userId: Long
         ): ScheduleSeatStatus {
             return ScheduleSeatStatus(
                 schedule = schedule,
                 rowNum = rowNum,
                 colNum = colNum,
+                seatGrade = seatGrade,
                 seatStatus = SeatStatus.PENDING,
                 heldBy = userId,
                 heldUntil = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES)

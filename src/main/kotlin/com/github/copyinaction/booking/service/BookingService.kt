@@ -18,6 +18,8 @@ import com.github.copyinaction.seat.domain.SeatStatus
 import com.github.copyinaction.seat.dto.SeatPosition
 import com.github.copyinaction.seat.repository.ScheduleSeatStatusRepository
 import com.github.copyinaction.seat.service.SseService
+import com.github.copyinaction.venue.domain.SeatGrade
+import com.github.copyinaction.venue.util.SeatingChartParser
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
@@ -36,7 +38,8 @@ class BookingService(
     private val performanceScheduleRepository: PerformanceScheduleRepository,
     private val ticketOptionRepository: TicketOptionRepository,
     private val scheduleSeatStatusRepository: ScheduleSeatStatusRepository,
-    private val sseService: SseService
+    private val sseService: SseService,
+    private val seatingChartParser: SeatingChartParser
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -89,6 +92,7 @@ class BookingService(
             }
 
             // 3-3. 새로 추가될 좌석 점유
+            val seatingChartJson = schedule.performance.venue?.seatingChart
             for (seat in addedSeats) {
                 val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
                     scheduleId, seat.row, seat.col
@@ -103,10 +107,14 @@ class BookingService(
                     }
                 }
 
+                val seatGrade = seatingChartParser.getSeatGrade(seatingChartJson, seat.row, seat.col)
+                    ?: SeatGrade.R // 등급 조회 실패 시 기본값
+
                 val seatStatus = ScheduleSeatStatus.hold(
                     schedule = schedule,
                     rowNum = seat.row,
                     colNum = seat.col,
+                    seatGrade = seatGrade,
                     userId = userId
                 )
                 scheduleSeatStatusRepository.save(seatStatus)
@@ -191,11 +199,12 @@ class BookingService(
                 existingSeat.seatStatus = SeatStatus.RESERVED
                 scheduleSeatStatusRepository.save(existingSeat)
             } else {
-                // 새로 생성
+                // 새로 생성 (seatGrade는 BookingSeat에서 조회)
                 val newSeat = ScheduleSeatStatus(
                     schedule = booking.schedule,
                     rowNum = rowNum,
                     colNum = bookingSeat.seatNumber,
+                    seatGrade = bookingSeat.grade,
                     seatStatus = SeatStatus.RESERVED
                 )
                 scheduleSeatStatusRepository.save(newSeat)
