@@ -10,6 +10,10 @@ import java.time.LocalDateTime
 interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Long> {
     fun findByPerformanceId(performanceId: Long): List<PerformanceSchedule>
 
+    fun existsByPerformanceIdAndShowDateTime(performanceId: Long, showDateTime: LocalDateTime): Boolean
+
+    fun existsByPerformanceIdAndShowDateTimeAndIdNot(performanceId: Long, showDateTime: LocalDateTime, id: Long): Boolean
+
     /**
      * 예매 가능한 회차 조회
      * - 티켓 판매가 시작되었고 (saleStartDateTime <= now)

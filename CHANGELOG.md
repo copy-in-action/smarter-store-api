@@ -2,6 +2,13 @@
 
 ## 2025년 12월 26일 (금)
 
+*   **공연 회차 관리 개선:**
+    *   **중복 스케줄 생성 방지:** `PerformanceScheduleService` 및 `PerformanceScheduleRepository`에 중복된 공연 회차 생성/수정을 방지하는 로직을 추가하여 데이터 무결성을 강화했습니다.
+    *   **API 날짜 포맷 표준화:** 회차 관련 API(`PerformanceScheduleDto`)의 `showDateTime`, `saleStartDateTime` 필드 형식을 `yyyy-MM-dd HH:mm`으로 통일하고 Swagger 문서에도 이를 반영하여 프론트엔드 연동성을 개선했습니다.
+    *   **에러 처리 강화:** `ErrorCode.DUPLICATE_SCHEDULE`을 추가하여 중복 스케줄 발생 시 명확한 에러 메시지를 반환하도록 했습니다.
+*   **문서 업데이트:**
+    *   `contexts/actorsBySchedule.md` 업데이트: 공연별 및 회차별 출연진 관리 구조 설계를 보완하고, 효율적인 배우별 조회 전략을 제시했습니다.
+
 *   **좌석 시스템 성능 개선 및 아키텍처 리팩토링:**
     *   **잔여 좌석 계산 방식 최적화 (Read-time → Write-time):**
         *   `TicketOption` 엔티티에 `totalQuantity` 필드를 추가하여 회차 생성 시 등급별 총 좌석 수를 미리 계산하여 저장하도록 개선했습니다.

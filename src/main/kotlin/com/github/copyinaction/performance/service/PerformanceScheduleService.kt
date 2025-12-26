@@ -45,6 +45,11 @@ class PerformanceScheduleService(
         val seatingChartJson = performance.venue?.seatingChart
         val seatsByGrade = seatingChartParser.countSeatsByGrade(seatingChartJson)
 
+        // 중복 회차 검증
+        if (performanceScheduleRepository.existsByPerformanceIdAndShowDateTime(performanceId, request.showDateTime)) {
+            throw CustomException(ErrorCode.DUPLICATE_SCHEDULE)
+        }
+
         // 요청된 등급이 공연장에 존재하는지 검증
         val requestedGrades = request.ticketOptions.map { it.seatGrade }.toSet()
         val availableGrades = seatsByGrade.keys
@@ -101,6 +106,16 @@ class PerformanceScheduleService(
     @Transactional
     fun updateSchedule(scheduleId: Long, request: UpdatePerformanceScheduleRequest): PerformanceScheduleResponse {
         val schedule = findScheduleById(scheduleId)
+
+        // 중복 회차 검증 (자기 자신 제외)
+        if (performanceScheduleRepository.existsByPerformanceIdAndShowDateTimeAndIdNot(
+                schedule.performance.id,
+                request.showDateTime,
+                scheduleId
+            )
+        ) {
+            throw CustomException(ErrorCode.DUPLICATE_SCHEDULE)
+        }
 
         // Venue의 좌석배치도에서 등급별 좌석 수 계산 (Write-Time Calculation)
         val seatingChartJson = schedule.performance.venue?.seatingChart
