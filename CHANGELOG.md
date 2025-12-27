@@ -1,10 +1,26 @@
 # Changelog
 
+## 2025년 12월 27일 (토)
+
+*   **API 날짜 포맷 원복 (ISO 8601):**
+    *   글로벌 서비스 확장을 고려하여, 이전 커밋에서 변경했던 공연 회차 API(`PerformanceScheduleDto`)의 날짜 포맷(`yyyy-MM-dd HH:mm`)을 제거하고 ISO 8601 표준 포맷을 유지하도록 원복했습니다.
+*   **좌석 상태 조회 응답 구조 개선:**
+    *   `GET /api/schedules/{scheduleId}/seat-status` API의 응답 구조를 변경했습니다.
+    *   `pending` 및 `reserved` 상태별로 좌석 위치(`row,col`) 리스트를 그룹화하여 반환하도록 수정하여 프론트엔드 렌더링 효율성을 개선했습니다.
+*   **공연 시간 데이터 정규화:**
+    *   중복 스케줄 체크의 정확도를 높이고 데이터 일관성을 확보하기 위해, 공연 회차 등록/수정 시 초(second) 및 나노초(nano) 단위를 자동으로 절삭(`00`)하여 저장하도록 개선했습니다.
+*   **예매 존재 시 공연 회차 수정/삭제 제한:**
+    *   데이터 무결성과 운영 안정성을 위해, 이미 예매(`PENDING`, `CONFIRMED`)가 진행된 공연 회차에 대해서는 정보 수정 및 삭제를 제한하는 로직을 추가했습니다. (`PerformanceScheduleService.updateSchedule`, `deleteSchedule`)
+*   **코드 리팩토링 및 DDD 아키텍처 개선:**
+    *   **BookingService 리팩토링:** 비대한 트랜잭션 스크립트 형태의 `startBooking` 메서드를 비즈니스 흐름별(좌석 계산, DB 반영, 예매 생성)로 분리하여 가독성을 높였습니다.
+    *   **Booking 엔티티 강화:** `addSeats` 메서드를 추가하여 `BookingSeat` 생성 로직을 도메인 내부로 캡슐화하고, `section` 하드코딩을 상수로 개선했습니다.
+    *   **PerformanceSchedule Aggregate Root 강화:** 티켓 옵션(`TicketOption`)의 생명주기 관리를 서비스에서 엔티티로 위임(Cascade, OrphanRemoval)하여 데이터 정합성을 높였습니다.
+    *   **도메인 로직 이동:** 서비스 계층에 산재하던 좌석 등급 검증 로직을 `SeatingChartParser`로 통합하여 응집도를 개선했습니다.
+
 ## 2025년 12월 26일 (금)
 
 *   **공연 회차 관리 개선:**
     *   **중복 스케줄 생성 방지:** `PerformanceScheduleService` 및 `PerformanceScheduleRepository`에 중복된 공연 회차 생성/수정을 방지하는 로직을 추가하여 데이터 무결성을 강화했습니다.
-    *   **API 날짜 포맷 표준화:** 회차 관련 API(`PerformanceScheduleDto`)의 `showDateTime`, `saleStartDateTime` 필드 형식을 `yyyy-MM-dd HH:mm`으로 통일하고 Swagger 문서에도 이를 반영하여 프론트엔드 연동성을 개선했습니다.
     *   **에러 처리 강화:** `ErrorCode.DUPLICATE_SCHEDULE`을 추가하여 중복 스케줄 발생 시 명확한 에러 메시지를 반환하도록 했습니다.
 *   **문서 업데이트:**
     *   `contexts/actorsBySchedule.md` 업데이트: 공연별 및 회차별 출연진 관리 구조 설계를 보완하고, 효율적인 배우별 조회 전략을 제시했습니다.

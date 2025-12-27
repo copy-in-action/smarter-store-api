@@ -1,5 +1,7 @@
 package com.github.copyinaction.venue.util
 
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.copyinaction.venue.domain.SeatGrade
@@ -14,6 +16,21 @@ class SeatingChartParser(
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    /**
+     * 요청된 좌석 등급이 사용 가능한 등급 목록에 존재하는지 검증
+     * @throws CustomException(SEAT_GRADE_NOT_FOUND_IN_VENUE)
+     */
+    fun validateSeatGrades(availableGrades: Set<SeatGrade>, requestedGrades: Set<SeatGrade>) {
+        val invalidGrades = requestedGrades - availableGrades
+        
+        if (invalidGrades.isNotEmpty()) {
+            throw CustomException(
+                ErrorCode.SEAT_GRADE_NOT_FOUND_IN_VENUE,
+                "공연장에 존재하지 않는 좌석 등급이 포함되어 있습니다: ${invalidGrades.joinToString { it.name }}"
+            )
+        }
+    }
 
     /**
      * seatingChart JSON에서 특정 좌석(row, col)의 등급을 반환

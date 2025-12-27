@@ -1,5 +1,7 @@
 package com.github.copyinaction.performance.service
 
+import com.github.copyinaction.booking.domain.BookingStatus
+import com.github.copyinaction.booking.repository.BookingRepository
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.domain.PerformanceSchedule
@@ -28,6 +30,7 @@ class PerformanceScheduleService(
     private val performanceScheduleRepository: PerformanceScheduleRepository,
     private val ticketOptionRepository: TicketOptionRepository,
     private val scheduleSeatStatusRepository: ScheduleSeatStatusRepository,
+    private val bookingRepository: BookingRepository,
     private val seatingChartParser: SeatingChartParser
 ) {
 
@@ -45,19 +48,18 @@ class PerformanceScheduleService(
         val seatingChartJson = performance.venue?.seatingChart
         val seatsByGrade = seatingChartParser.countSeatsByGrade(seatingChartJson)
 
+        // 시간 데이터 초 단위 절삭 (중복 체크 및 저장용)
+        val truncatedShowDateTime = request.showDateTime.withSecond(0).withNano(0)
+        val truncatedSaleStartDateTime = request.saleStartDateTime.withSecond(0).withNano(0)
+
         // 중복 회차 검증
-        if (performanceScheduleRepository.existsByPerformanceIdAndShowDateTime(performanceId, request.showDateTime)) {
+        if (performanceScheduleRepository.existsByPerformanceIdAndShowDateTime(performanceId, truncatedShowDateTime)) {
             throw CustomException(ErrorCode.DUPLICATE_SCHEDULE)
         }
 
         // 요청된 등급이 공연장에 존재하는지 검증
         val requestedGrades = request.ticketOptions.map { it.seatGrade }.toSet()
-        val availableGrades = seatsByGrade.keys
-        val invalidGrades = requestedGrades - availableGrades
-        if (invalidGrades.isNotEmpty()) {
-            throw CustomException(ErrorCode.SEAT_GRADE_NOT_FOUND_IN_VENUE, 
-                "공연장에 존재하지 않는 좌석 등급이 포함되어 있습니다: ${invalidGrades.joinToString { it.name }}")
-        }
+        seatingChartParser.validateSeatGrades(seatsByGrade.keys, requestedGrades)
 
         log.info("Creating schedule for performanceId: {}. Venue ID: {}. JSON Content: {}. Parsed SeatsByGrade: {}",
             performanceId,
@@ -68,29 +70,29 @@ class PerformanceScheduleService(
 
         val performanceSchedule = PerformanceSchedule.create(
             performance = performance,
-            showDateTime = request.showDateTime,
-            saleStartDateTime = request.saleStartDateTime
+            showDateTime = truncatedShowDateTime,
+            saleStartDateTime = truncatedSaleStartDateTime
         )
-        val savedSchedule = performanceScheduleRepository.save(performanceSchedule)
 
-        val ticketOptions = request.ticketOptions.map { ticketOptionRequest ->
+        request.ticketOptions.forEach { ticketOptionRequest ->
             val totalQuantity = seatsByGrade[ticketOptionRequest.seatGrade] ?: 0
-            TicketOption(
-                performanceSchedule = savedSchedule,
+            val ticketOption = TicketOption(
+                performanceSchedule = performanceSchedule,
                 seatGrade = ticketOptionRequest.seatGrade,
                 price = ticketOptionRequest.price,
                 totalQuantity = totalQuantity
             )
+            performanceSchedule.addTicketOption(ticketOption)
         }
-        val savedTicketOptions = ticketOptionRepository.saveAll(ticketOptions)
 
-        return PerformanceScheduleResponse.from(savedSchedule, savedTicketOptions)
+        val savedSchedule = performanceScheduleRepository.save(performanceSchedule)
+
+        return PerformanceScheduleResponse.from(savedSchedule, savedSchedule.ticketOptions)
     }
 
     fun getSchedule(scheduleId: Long): PerformanceScheduleResponse {
         val schedule = findScheduleById(scheduleId)
-        val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(scheduleId)
-        return PerformanceScheduleResponse.from(schedule, ticketOptions)
+        return PerformanceScheduleResponse.from(schedule, schedule.ticketOptions)
     }
 
     fun getAllSchedules(performanceId: Long): List<PerformanceScheduleResponse> {
@@ -98,8 +100,7 @@ class PerformanceScheduleService(
             throw CustomException(ErrorCode.PERFORMANCE_NOT_FOUND)
         }
         return performanceScheduleRepository.findByPerformanceId(performanceId).map { schedule ->
-            val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
-            PerformanceScheduleResponse.from(schedule, ticketOptions)
+            PerformanceScheduleResponse.from(schedule, schedule.ticketOptions)
         }
     }
 
@@ -107,10 +108,23 @@ class PerformanceScheduleService(
     fun updateSchedule(scheduleId: Long, request: UpdatePerformanceScheduleRequest): PerformanceScheduleResponse {
         val schedule = findScheduleById(scheduleId)
 
+        // 예매가 진행된 경우 수정 불가 (PENDING, CONFIRMED 상태 체크)
+        if (bookingRepository.existsBySchedule_IdAndStatusIn(
+                scheduleId,
+                listOf(BookingStatus.PENDING, BookingStatus.CONFIRMED)
+            )
+        ) {
+            throw CustomException(ErrorCode.SCHEDULE_ALREADY_BOOKED)
+        }
+
+        // 시간 데이터 초 단위 절삭
+        val truncatedShowDateTime = request.showDateTime.withSecond(0).withNano(0)
+        val truncatedSaleStartDateTime = request.saleStartDateTime.withSecond(0).withNano(0)
+
         // 중복 회차 검증 (자기 자신 제외)
         if (performanceScheduleRepository.existsByPerformanceIdAndShowDateTimeAndIdNot(
                 schedule.performance.id,
-                request.showDateTime,
+                truncatedShowDateTime,
                 scheduleId
             )
         ) {
@@ -123,40 +137,45 @@ class PerformanceScheduleService(
 
         // 요청된 등급이 공연장에 존재하는지 검증
         val requestedGrades = request.ticketOptions.map { it.seatGrade }.toSet()
-        val availableGrades = seatsByGrade.keys
-        val invalidGrades = requestedGrades - availableGrades
-        if (invalidGrades.isNotEmpty()) {
-            throw CustomException(ErrorCode.SEAT_GRADE_NOT_FOUND_IN_VENUE, 
-                "공연장에 존재하지 않는 좌석 등급이 포함되어 있습니다: ${invalidGrades.joinToString { it.name }}")
-        }
+        seatingChartParser.validateSeatGrades(seatsByGrade.keys, requestedGrades)
 
         schedule.update(
-            showDateTime = request.showDateTime,
-            saleStartDateTime = request.saleStartDateTime
+            showDateTime = truncatedShowDateTime,
+            saleStartDateTime = truncatedSaleStartDateTime
         )
-        val updatedSchedule = performanceScheduleRepository.save(schedule)
 
-        // 기존 티켓 옵션 삭제 후 새로 저장
-        ticketOptionRepository.deleteByPerformanceScheduleId(scheduleId)
-        val newTicketOptions = request.ticketOptions.map { ticketOptionRequest ->
+        // 기존 티켓 옵션 삭제 후 새로 추가 (OrphanRemoval + Cascade)
+        schedule.clearTicketOptions()
+        request.ticketOptions.forEach { ticketOptionRequest ->
             val totalQuantity = seatsByGrade[ticketOptionRequest.seatGrade] ?: 0
-            TicketOption(
-                performanceSchedule = updatedSchedule,
+            val ticketOption = TicketOption(
+                performanceSchedule = schedule,
                 seatGrade = ticketOptionRequest.seatGrade,
                 price = ticketOptionRequest.price,
                 totalQuantity = totalQuantity
             )
+            schedule.addTicketOption(ticketOption)
         }
-        val savedTicketOptions = ticketOptionRepository.saveAll(newTicketOptions)
-
-        return PerformanceScheduleResponse.from(updatedSchedule, savedTicketOptions)
+        
+        // 명시적 저장 및 Flush (ID 생성 보장)
+        val updatedSchedule = performanceScheduleRepository.saveAndFlush(schedule)
+        return PerformanceScheduleResponse.from(updatedSchedule, updatedSchedule.ticketOptions)
     }
 
     @Transactional
     fun deleteSchedule(scheduleId: Long) {
         val schedule = findScheduleById(scheduleId)
-        ticketOptionRepository.deleteByPerformanceScheduleId(scheduleId) // 관련 티켓 옵션 먼저 삭제
-        performanceScheduleRepository.delete(schedule)
+
+        // 예매가 진행된 경우 삭제 불가 (PENDING, CONFIRMED 상태 체크)
+        if (bookingRepository.existsBySchedule_IdAndStatusIn(
+                scheduleId,
+                listOf(BookingStatus.PENDING, BookingStatus.CONFIRMED)
+            )
+        ) {
+            throw CustomException(ErrorCode.SCHEDULE_ALREADY_BOOKED)
+        }
+
+        performanceScheduleRepository.delete(schedule) // Cascade 삭제
     }
 
     // === 사용자용 API ===

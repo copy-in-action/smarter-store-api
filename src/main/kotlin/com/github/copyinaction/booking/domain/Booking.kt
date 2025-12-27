@@ -5,6 +5,7 @@ import com.github.copyinaction.common.domain.BaseEntity
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.domain.PerformanceSchedule
+import com.github.copyinaction.venue.domain.SeatGrade
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 import java.time.Duration
@@ -69,6 +70,30 @@ class Booking(
                 bookingNumber = bookingNumber,
                 expiresAt = LocalDateTime.now().plusMinutes(BOOKING_VALIDITY_MINUTES)
             )
+        }
+    }
+
+    /**
+     * 여러 좌석을 한 번에 추가합니다.
+     * @param seatDetails row, col 정보를 담은 Pair 리스트
+     * @param grade 좌석 등급
+     * @param price 좌석 가격
+     */
+    fun addSeats(
+        seatDetails: List<Pair<Int, Int>>,
+        grade: SeatGrade,
+        price: Int
+    ) {
+        seatDetails.forEach { (row, col) ->
+            val bookingSeat = BookingSeat(
+                booking = this,
+                section = BookingSeat.DEFAULT_SECTION,
+                rowName = row.toString(),
+                seatNumber = col,
+                grade = grade,
+                price = price
+            )
+            addSeat(bookingSeat)
         }
     }
 

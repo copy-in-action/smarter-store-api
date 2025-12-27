@@ -12,13 +12,11 @@ import java.time.LocalDateTime
 @Schema(description = "공연 회차 생성 요청 DTO")
 data class CreatePerformanceScheduleRequest(
     @field:NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25 19:30", type = "string", required = true)
+    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00", required = true)
     val showDateTime: LocalDateTime,
 
     @field:NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10 14:00", type = "string", required = true)
+    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00", required = true)
     val saleStartDateTime: LocalDateTime,
 
     @field:NotEmpty
@@ -32,12 +30,10 @@ data class PerformanceScheduleResponse(
     @Schema(description = "회차 ID", example = "1")
     val id: Long,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25 19:30", type = "string")
+    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00")
     val showDateTime: LocalDateTime,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10 14:00", type = "string")
+    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00")
     val saleStartDateTime: LocalDateTime,
 
     @Schema(description = "생성일시")
@@ -66,13 +62,11 @@ data class PerformanceScheduleResponse(
 @Schema(description = "공연 회차 수정 요청 DTO")
 data class UpdatePerformanceScheduleRequest(
     @field:NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25 19:30", type = "string", required = true)
+    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00", required = true)
     val showDateTime: LocalDateTime,
 
     @field:NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10 14:00", type = "string", required = true)
+    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00", required = true)
     val saleStartDateTime: LocalDateTime,
 
     @field:NotEmpty
@@ -88,8 +82,7 @@ data class AvailableScheduleResponse(
     @Schema(description = "회차 ID", example = "18")
     val id: Long,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    @Schema(description = "공연 날짜 및 시간", example = "2025-12-26 09:39", type = "string")
+    @Schema(description = "공연 날짜 및 시간", example = "2025-12-26T09:39:00")
     val showDateTime: LocalDateTime,
 
     @Schema(description = "등급별 잔여석 정보")

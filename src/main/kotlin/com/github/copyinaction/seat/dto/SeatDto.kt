@@ -58,8 +58,11 @@ data class ScheduleSeatStatusResponse(
     @Schema(description = "회차 ID", example = "1")
     val scheduleId: Long,
 
-    @Schema(description = "좌석 상태 목록 (PENDING, RESERVED만 포함)")
-    val seats: List<SeatStatusResponse>
+    @Schema(description = "점유 중인 좌석 목록 (row,col 형식)", example = "[\"1,5\", \"1,7\"]")
+    val pending: List<String>,
+
+    @Schema(description = "예약 완료된 좌석 목록 (row,col 형식)", example = "[\"1,6\", \"4,6\"]")
+    val reserved: List<String>
 )
 
 /**

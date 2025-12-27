@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
+import com.github.copyinaction.seat.domain.SeatStatus
+
 @Service
 @Transactional(readOnly = true)
 class SeatService(
@@ -27,10 +29,12 @@ class SeatService(
         }
 
         val seatStatuses = seatStatusRepository.findByScheduleId(scheduleId)
+        val groupedSeats = seatStatuses.groupBy { it.seatStatus }
 
         return ScheduleSeatStatusResponse(
             scheduleId = scheduleId,
-            seats = seatStatuses.map { SeatStatusResponse.from(it) }
+            pending = groupedSeats[SeatStatus.PENDING]?.map { "${it.rowNum},${it.colNum}" } ?: emptyList(),
+            reserved = groupedSeats[SeatStatus.RESERVED]?.map { "${it.rowNum},${it.colNum}" } ?: emptyList()
         )
     }
 

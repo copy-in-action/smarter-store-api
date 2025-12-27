@@ -58,6 +58,7 @@ enum class ErrorCode(
     PERFORMANCE_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연 회차를 찾을 수 없습니다."),
     PERFORMANCE_SCHEDULE_PERFORMANCE_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "공연 회차의 공연 정보는 변경할 수 없습니다."),
     DUPLICATE_SCHEDULE(HttpStatus.CONFLICT, "해당 시간에 이미 등록된 공연 회차가 있습니다."),
+    SCHEDULE_ALREADY_BOOKED(HttpStatus.BAD_REQUEST, "이미 예매가 진행된 회차는 수정하거나 삭제할 수 없습니다."),
 
     // Ticket Option
     TICKET_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 좌석 등급을 찾을 수 없습니다."),

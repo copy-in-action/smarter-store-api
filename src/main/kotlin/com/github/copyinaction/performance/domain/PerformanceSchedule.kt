@@ -25,7 +25,10 @@ class PerformanceSchedule(
 
     @Column(nullable = false)
     @Comment("티켓 판매 시작 일시")
-    var saleStartDateTime: LocalDateTime
+    var saleStartDateTime: LocalDateTime,
+
+    @OneToMany(mappedBy = "performanceSchedule", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val ticketOptions: MutableList<TicketOption> = mutableListOf()
 
 ) : BaseEntity() {
 
@@ -49,5 +52,13 @@ class PerformanceSchedule(
     ) {
         this.showDateTime = showDateTime
         this.saleStartDateTime = saleStartDateTime
+    }
+
+    fun addTicketOption(ticketOption: TicketOption) {
+        this.ticketOptions.add(ticketOption)
+    }
+
+    fun clearTicketOptions() {
+        this.ticketOptions.clear()
     }
 }

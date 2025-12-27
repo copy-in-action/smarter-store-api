@@ -44,6 +44,8 @@ class BookingSeat(
 ) : BaseEntity() {
 
     companion object {
+        const val DEFAULT_SECTION = "GENERAL"
+
         fun create(
             booking: Booking,
             section: String,

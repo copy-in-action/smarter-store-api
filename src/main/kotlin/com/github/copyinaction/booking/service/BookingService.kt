@@ -55,25 +55,56 @@ class BookingService(
 
         val newSeatSet = seats.map { SeatPosition(it.row, it.col) }.toSet()
 
-        // 1. 기존 PENDING 상태의 예매 확인 및 차이 계산
+        // 1. 기존 PENDING 상태의 예매 확인 및 취소
         val existingBooking = bookingRepository.findByUser_IdAndSchedule_IdAndStatus(userId, scheduleId, BookingStatus.PENDING)
-        val oldSeatSet: Set<SeatPosition> = existingBooking?.bookingSeats?.map {
-            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
-        }?.toSet() ?: emptySet()
+        val oldSeatSet = getOldSeatSet(existingBooking)
 
-        val keptSeats = oldSeatSet.intersect(newSeatSet)     // 유지될 좌석
-        val releasedSeats = oldSeatSet - newSeatSet          // 해제될 좌석
-        val addedSeats = newSeatSet - oldSeatSet             // 새로 추가될 좌석
-
-        // 2. 기존 예매 취소 (Booking 상태만 변경, 좌석은 차등 처리)
         if (existingBooking != null) {
             existingBooking.cancel()
             bookingRepository.save(existingBooking)
         }
 
-        // 3. 좌석 처리
+        // 2. 좌석 변경 사항 계산
+        val (keptSeats, releasedSeats, addedSeats) = calculateSeatChanges(oldSeatSet, newSeatSet)
+
+        // 3. 좌석 상태 DB 반영
+        processSeatChanges(schedule, userId, keptSeats, releasedSeats, addedSeats)
+
+        // 4. Booking 및 BookingSeat 생성
+        val savedBooking = createAndSaveBooking(user, schedule, seats)
+
+        // 5. SSE 이벤트 발행
+        publishSseEvents(scheduleId, releasedSeats, addedSeats)
+
+        log.info("예매 시작 - bookingId: {}, scheduleId: {}, 유지: {}, 추가: {}, 해제: {}",
+            savedBooking.id, scheduleId, keptSeats.size, addedSeats.size, releasedSeats.size)
+
+        return BookingResponse.from(savedBooking)
+    }
+
+    private fun getOldSeatSet(booking: Booking?): Set<SeatPosition> {
+        return booking?.bookingSeats?.map {
+            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+        }?.toSet() ?: emptySet()
+    }
+
+    private fun calculateSeatChanges(oldSet: Set<SeatPosition>, newSet: Set<SeatPosition>): Triple<Set<SeatPosition>, Set<SeatPosition>, Set<SeatPosition>> {
+        val kept = oldSet.intersect(newSet)
+        val released = oldSet - newSet
+        val added = newSet - oldSet
+        return Triple(kept, released, added)
+    }
+
+    private fun processSeatChanges(
+        schedule: com.github.copyinaction.performance.domain.PerformanceSchedule,
+        userId: Long,
+        keptSeats: Set<SeatPosition>,
+        releasedSeats: Set<SeatPosition>,
+        addedSeats: Set<SeatPosition>
+    ) {
+        val scheduleId = schedule.id
         try {
-            // 3-1. 해제될 좌석 삭제
+            // 해제될 좌석 삭제
             for (seat in releasedSeats) {
                 val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
                     scheduleId, seat.row, seat.col
@@ -83,15 +114,14 @@ class BookingService(
                 }
             }
 
-            // 3-2. 유지될 좌석 만료시간 연장
+            // 유지될 좌석 만료시간 연장
             for (seat in keptSeats) {
-                val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
+                scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
                     scheduleId, seat.row, seat.col
-                )
-                existingSeat?.extendHold()
+                )?.extendHold()
             }
 
-            // 3-3. 새로 추가될 좌석 점유
+            // 새로 추가될 좌석 점유
             val seatingChartJson = schedule.performance.venue?.seatingChart
             for (seat in addedSeats) {
                 val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
@@ -108,7 +138,7 @@ class BookingService(
                 }
 
                 val seatGrade = seatingChartParser.getSeatGrade(seatingChartJson, seat.row, seat.col)
-                    ?: SeatGrade.R // 등급 조회 실패 시 기본값
+                    ?: SeatGrade.R
 
                 val seatStatus = ScheduleSeatStatus.hold(
                     schedule = schedule,
@@ -124,42 +154,37 @@ class BookingService(
             log.warn("좌석 점유 충돌 - scheduleId: {}, userId: {}", scheduleId, userId)
             throw CustomException(ErrorCode.SEAT_ALREADY_OCCUPIED, "선택한 좌석 중 일부가 다른 사용자에게 점유되었습니다.")
         }
+    }
 
-        // 4. Booking 생성
+    private fun createAndSaveBooking(
+        user: com.github.copyinaction.auth.domain.User,
+        schedule: com.github.copyinaction.performance.domain.PerformanceSchedule,
+        seats: List<SeatPositionRequest>
+    ): Booking {
         val bookingNumber = generateBookingNumber()
         val newBooking = Booking.create(user, schedule, bookingNumber)
 
-        // 5. BookingSeat 추가 (가격 정보는 TicketOption에서 조회)
-        val defaultTicketOption = ticketOptionRepository.findByPerformanceScheduleId(scheduleId).firstOrNull()
+        val defaultTicketOption = ticketOptionRepository.findByPerformanceScheduleId(schedule.id).firstOrNull()
         val seatGrade = defaultTicketOption?.seatGrade ?: com.github.copyinaction.venue.domain.SeatGrade.R
         val seatPrice = defaultTicketOption?.price ?: 0
 
-        for (seat in seats) {
-            val bookingSeat = BookingSeat(
-                booking = newBooking,
-                section = "GENERAL",
-                rowName = seat.row.toString(),
-                seatNumber = seat.col,
-                grade = seatGrade,
-                price = seatPrice
-            )
-            newBooking.addSeat(bookingSeat)
-        }
+        val seatDetails = seats.map { it.row to it.col }
+        newBooking.addSeats(seatDetails, seatGrade, seatPrice)
 
-        val savedBooking = bookingRepository.saveAndFlush(newBooking)
+        return bookingRepository.saveAndFlush(newBooking)
+    }
 
-        // 6. SSE 이벤트 발행 (차이분만)
+    private fun publishSseEvents(
+        scheduleId: Long,
+        releasedSeats: Set<SeatPosition>,
+        addedSeats: Set<SeatPosition>
+    ) {
         if (releasedSeats.isNotEmpty()) {
             sseService.sendReleased(scheduleId, releasedSeats.toList())
         }
         if (addedSeats.isNotEmpty()) {
             sseService.sendOccupied(scheduleId, addedSeats.toList())
         }
-
-        log.info("예매 시작 - bookingId: {}, scheduleId: {}, 유지: {}, 추가: {}, 해제: {}",
-            savedBooking.id, scheduleId, keptSeats.size, addedSeats.size, releasedSeats.size)
-
-        return BookingResponse.from(savedBooking)
     }
 
     @Transactional(readOnly = true)

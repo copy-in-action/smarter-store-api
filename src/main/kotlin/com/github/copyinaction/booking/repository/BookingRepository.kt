@@ -26,4 +26,9 @@ interface BookingRepository : JpaRepository<Booking, UUID> {
      * @return List<Booking>
      */
     fun findAllByStatusAndExpiresAtBefore(status: BookingStatus, expiresAt: LocalDateTime): List<Booking>
+
+    /**
+     * 특정 회차에 특정 상태 목록에 포함되는 예매가 존재하는지 확인합니다.
+     */
+    fun existsBySchedule_IdAndStatusIn(scheduleId: Long, statuses: Collection<BookingStatus>): Boolean
 }
