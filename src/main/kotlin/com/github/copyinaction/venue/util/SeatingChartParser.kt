@@ -107,11 +107,11 @@ class SeatingChartParser(
                     val position = node.get("position")?.asText() ?: continue
                     val row = parseRowFromPosition(position)
                     
-                    if (row < 0) continue
+                    if (row < 1) continue
 
-                    // 해당 행(row)의 유효 좌석 수 계산
+                    // 해당 행(row)의 유효 좌석 수 계산 (1-based)
                     var count = 0
-                    for (col in 0 until columns) {
+                    for (col in 1..columns) {
                         if (!disabledSeats.contains(Pair(row, col))) {
                             count++
                         }
@@ -148,12 +148,11 @@ class SeatingChartParser(
         return map
     }
 
-    // Helper: "1:" -> 0 (0-based index 변환)
+    // Helper: "1:" -> 1 (1-based 그대로 유지)
     private fun parseRowFromPosition(position: String): Int {
         return try {
-            // "1:" -> 1 -> return 0
             val numStr = position.replace(":", "").trim()
-            numStr.toInt() - 1
+            numStr.toInt()
         } catch (e: NumberFormatException) {
             -1
         }

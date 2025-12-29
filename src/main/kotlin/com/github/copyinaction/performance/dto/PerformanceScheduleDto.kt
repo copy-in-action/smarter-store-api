@@ -102,10 +102,13 @@ data class AvailableScheduleResponse(
     }
 }
 
-@Schema(description = "등급별 잔여석 정보 DTO")
+@Schema(description = "등급별 잔여석 및 가격 정보 DTO")
 data class TicketOptionWithRemainingSeatsResponse(
     @Schema(description = "좌석 등급", example = "R")
     val seatGrade: String,
+
+    @Schema(description = "가격", example = "150000")
+    val price: Int,
 
     @Schema(description = "잔여석 수", example = "10")
     val remainingSeats: Int

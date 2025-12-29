@@ -9,10 +9,10 @@ import io.swagger.v3.oas.annotations.media.Schema
  */
 @Schema(description = "좌석 위치")
 data class SeatPositionRequest(
-    @Schema(description = "행 번호 (0부터 시작)", example = "3")
+    @Schema(description = "행 번호 (1부터 시작)", example = "1")
     val row: Int,
 
-    @Schema(description = "열 번호 (0부터 시작)", example = "5")
+    @Schema(description = "열 번호 (1부터 시작)", example = "1")
     val col: Int
 )
 

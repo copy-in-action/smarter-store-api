@@ -228,6 +228,7 @@ class PerformanceScheduleService(
 
                 TicketOptionWithRemainingSeatsResponse(
                     seatGrade = option.seatGrade.name,
+                    price = option.price,
                     remainingSeats = remaining
                 )
             }

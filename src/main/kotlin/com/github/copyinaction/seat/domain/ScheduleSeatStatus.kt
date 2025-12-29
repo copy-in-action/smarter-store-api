@@ -38,11 +38,11 @@ class ScheduleSeatStatus(
     val schedule: PerformanceSchedule,
 
     @Column(name = "row_num", nullable = false)
-    @Comment("좌석 행 번호 (0부터 시작)")
+    @Comment("좌석 행 번호 (1부터 시작)")
     val rowNum: Int,
 
     @Column(name = "col_num", nullable = false)
-    @Comment("좌석 열 번호 (0부터 시작)")
+    @Comment("좌석 열 번호 (1부터 시작)")
     val colNum: Int,
 
     @Enumerated(EnumType.STRING)

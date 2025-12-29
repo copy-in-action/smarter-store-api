@@ -2,6 +2,7 @@ package com.github.copyinaction.booking.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
@@ -12,11 +13,13 @@ import jakarta.validation.constraints.Size
 @Schema(description = "좌석 위치")
 data class SeatPositionRequest(
     @field:NotNull(message = "행 번호는 필수입니다.")
-    @Schema(description = "행 번호 (0부터 시작)", example = "3")
+    @field:Min(value = 1, message = "행 번호는 1 이상이어야 합니다.")
+    @Schema(description = "행 번호 (1부터 시작)", example = "1")
     val row: Int,
 
     @field:NotNull(message = "열 번호는 필수입니다.")
-    @Schema(description = "열 번호 (0부터 시작)", example = "5")
+    @field:Min(value = 1, message = "열 번호는 1 이상이어야 합니다.")
+    @Schema(description = "열 번호 (1부터 시작)", example = "1")
     val col: Int
 )
 

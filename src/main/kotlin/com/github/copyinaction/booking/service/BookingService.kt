@@ -241,7 +241,7 @@ class BookingService(
 
         // SSE CONFIRMED 이벤트 발행
         val seatPositions = booking.bookingSeats.map {
-            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+            SeatPosition(it.rowName.toIntOrNull() ?: 1, it.seatNumber)
         }
         sseService.sendConfirmed(booking.schedule.id, seatPositions)
 
@@ -257,7 +257,7 @@ class BookingService(
 
         val scheduleId = booking.schedule.id
         val seatPositions = booking.bookingSeats.map {
-            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+            SeatPosition(it.rowName.toIntOrNull() ?: 1, it.seatNumber)
         }
 
         // PENDING 상태인 경우 좌석 점유 해제
