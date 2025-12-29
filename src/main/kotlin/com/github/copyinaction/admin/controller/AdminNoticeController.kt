@@ -1,5 +1,8 @@
 package com.github.copyinaction.admin.controller
 
+import com.github.copyinaction.audit.annotation.Auditable
+import com.github.copyinaction.audit.domain.AuditAction
+import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.notice.dto.CreateNoticeRequest
 import com.github.copyinaction.notice.dto.NoticeResponse
 import com.github.copyinaction.notice.dto.UpdateNoticeRequest
@@ -39,7 +42,12 @@ class AdminNoticeController(
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "[관리자] 공지사항 생성", description = "새로운 공지사항을 생성합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "[관리자] 공지사항 생성", description = "새로운 공지사항을 생성합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
+    @Auditable(
+        action = AuditAction.NOTICE_CREATE,
+        targetType = AuditTargetType.NOTICE,
+        includeRequestBody = true
+    )
     fun createNotice(
         @Valid @RequestBody request: CreateNoticeRequest
     ): ResponseEntity<NoticeResponse> {
@@ -50,7 +58,13 @@ class AdminNoticeController(
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "[관리자] 공지사항 수정", description = "기존 공지사항을 수정합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "[관리자] 공지사항 수정", description = "기존 공지사항을 수정합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
+    @Auditable(
+        action = AuditAction.NOTICE_UPDATE,
+        targetType = AuditTargetType.NOTICE,
+        targetIdParam = "id",
+        includeRequestBody = true
+    )
     fun updateNotice(
         @PathVariable id: Long,
         @Valid @RequestBody request: UpdateNoticeRequest
@@ -61,7 +75,12 @@ class AdminNoticeController(
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "[관리자] 공지사항 삭제", description = "공지사항을 삭제합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "[관리자] 공지사항 삭제", description = "공지사항을 삭제합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
+    @Auditable(
+        action = AuditAction.NOTICE_DELETE,
+        targetType = AuditTargetType.NOTICE,
+        targetIdParam = "id"
+    )
     fun deleteNotice(@PathVariable id: Long): ResponseEntity<Void> {
         noticeService.deleteNotice(id)
         return ResponseEntity.noContent().build()

@@ -1,5 +1,8 @@
 package com.github.copyinaction.booking.controller
 
+import com.github.copyinaction.audit.annotation.Auditable
+import com.github.copyinaction.audit.domain.AuditAction
+import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.dto.BookingTimeResponse
@@ -39,6 +42,8 @@ class BookingController(
             - 점유 시간은 5분 (만료 시 자동 해제)
             - 기존 진행 중인 예매가 있으면 자동 취소 후 새 예매 생성
             - 동시에 같은 좌석을 선택한 경우 먼저 요청한 사용자만 성공 (409 Conflict)
+
+            **[Audit Log]** 이 작업은 감사 로그에 기록됩니다.
         """
     )
     @ApiResponses(
@@ -53,6 +58,11 @@ class BookingController(
         )
     )
     @PostMapping("/start")
+    @Auditable(
+        action = AuditAction.BOOKING_START,
+        targetType = AuditTargetType.SCHEDULE,
+        includeRequestBody = true
+    )
     fun startBooking(
         @Valid @RequestBody request: StartBookingRequest,
         @AuthenticationPrincipal user: CustomUserDetails
@@ -78,7 +88,7 @@ class BookingController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "예매 확정", description = "결제를 완료하고 예매를 최종 확정합니다.")
+    @Operation(summary = "예매 확정", description = "결제를 완료하고 예매를 최종 확정합니다.\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "예매 확정 성공"),
         ApiResponse(
@@ -91,6 +101,11 @@ class BookingController(
         )
     )
     @PostMapping("/{bookingId}/confirm")
+    @Auditable(
+        action = AuditAction.BOOKING_CONFIRM,
+        targetType = AuditTargetType.BOOKING,
+        targetIdParam = "bookingId"
+    )
     fun confirmBooking(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
         @AuthenticationPrincipal user: CustomUserDetails
@@ -99,7 +114,7 @@ class BookingController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "예매 취소 (전체)", description = "진행 중인 예매 건 전체를 취소합니다.")
+    @Operation(summary = "예매 취소 (전체)", description = "진행 중인 예매 건 전체를 취소합니다.\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "예매 취소 성공"),
         ApiResponse(
@@ -108,6 +123,11 @@ class BookingController(
         )
     )
     @DeleteMapping("/{bookingId}")
+    @Auditable(
+        action = AuditAction.BOOKING_CANCEL,
+        targetType = AuditTargetType.BOOKING,
+        targetIdParam = "bookingId"
+    )
     fun cancelBooking(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
         @AuthenticationPrincipal user: CustomUserDetails

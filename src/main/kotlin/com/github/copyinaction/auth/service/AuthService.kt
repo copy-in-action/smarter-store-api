@@ -1,5 +1,7 @@
 package com.github.copyinaction.auth.service
 
+import com.github.copyinaction.audit.domain.AuditAction
+import com.github.copyinaction.audit.service.AuditLogService
 import com.github.copyinaction.auth.domain.EmailVerificationToken
 import com.github.copyinaction.auth.dto.AuthTokenInfo
 import com.github.copyinaction.auth.dto.LoginRequest
@@ -29,7 +31,8 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val authenticationManagerBuilder: AuthenticationManagerBuilder,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val emailService: EmailService
+    private val emailService: EmailService,
+    private val auditLogService: AuditLogService
 ) {
 
     @Transactional
@@ -39,53 +42,87 @@ class AuthService(
         }
 
         val confirmedToken = emailVerificationTokenRepository.findByEmailAndIsConfirmed(request.email, true)
-            .orElseThrow { CustomException(ErrorCode.EMAIL_NOT_VERIFIED) } // Or a more specific error like OTP_NOT_CONFIRMED
+            .orElseThrow { CustomException(ErrorCode.EMAIL_NOT_VERIFIED) }
 
         if (confirmedToken.isExpired()) {
             throw CustomException(ErrorCode.EXPIRED_EMAIL_VERIFICATION_TOKEN)
         }
 
-        emailVerificationTokenRepository.delete(confirmedToken) // Consume the token after successful signup
-
-        val sanitizedPhoneNumber = request.phoneNumber.replace("-", "")
+        emailVerificationTokenRepository.delete(confirmedToken)
 
         val user = User.create(
             email = request.email,
             username = request.username,
             rawPassword = request.password,
             passwordEncoder = passwordEncoder,
-            phoneNumber = sanitizedPhoneNumber,
+            phoneNumber = request.phoneNumber.replace("-", ""),
             isEmailVerified = true
         )
-        return userRepository.save(user)
+        val savedUser = userRepository.save(user)
+
+        auditLogService.saveAuthEvent(
+            action = AuditAction.SIGNUP,
+            email = request.email,
+            success = true,
+            userId = savedUser.id,
+            userRole = savedUser.role
+        )
+
+        return savedUser
     }
 
     @Transactional
     fun login(request: LoginRequest): LoginResponse {
-        val user = userRepository.findByEmail(request.email)
-            .orElseThrow { CustomException(ErrorCode.LOGIN_FAILED) }
+        val user = authenticateUser(request)
+        val tokenInfo = issueTokens(user)
 
-        if (!user.isEmailVerified) {
-            throw CustomException(ErrorCode.EMAIL_NOT_VERIFIED)
+        auditLogService.saveAuthEvent(
+            action = AuditAction.LOGIN,
+            email = request.email,
+            success = true,
+            userId = user.id,
+            userRole = user.role
+        )
+
+        return LoginResponse(token = tokenInfo, user = UserResponse.from(user))
+    }
+
+    private fun authenticateUser(request: LoginRequest): User {
+        try {
+            val user = userRepository.findByEmail(request.email)
+                .orElseThrow { CustomException(ErrorCode.LOGIN_FAILED) }
+
+            if (!user.isEmailVerified) {
+                throw CustomException(ErrorCode.EMAIL_NOT_VERIFIED)
+            }
+
+            val authToken = UsernamePasswordAuthenticationToken(request.email, request.password)
+            authenticationManagerBuilder.`object`.authenticate(authToken)
+
+            return user
+        } catch (e: Exception) {
+            auditLogService.saveAuthEvent(
+                action = AuditAction.LOGIN_FAILED,
+                email = request.email,
+                success = false
+            )
+            throw e
         }
+    }
 
-        val authenticationToken = UsernamePasswordAuthenticationToken(request.email, request.password)
-        val authentication = authenticationManagerBuilder.`object`.authenticate(authenticationToken)
+    private fun issueTokens(user: User): AuthTokenInfo {
+        val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+        val principal = CustomUserDetails(user.id, user.email, "", authorities)
+        val authentication = UsernamePasswordAuthenticationToken(principal, null, authorities)
+
         val accessToken = jwtTokenProvider.createAccessToken(authentication)
-
-        // User(Aggregate Root)가 RefreshToken 발급 관리
         val refreshToken = user.issueRefreshToken(jwtTokenProvider)
         userRepository.save(user)
 
-        val tokenInfo = AuthTokenInfo(
+        return AuthTokenInfo(
             accessToken = accessToken,
             refreshToken = refreshToken.token,
             accessTokenExpiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds()
-        )
-
-        return LoginResponse(
-            token = tokenInfo,
-            user = UserResponse.from(user)
         )
     }
 
@@ -95,8 +132,6 @@ class AuthService(
             .orElseThrow { CustomException(ErrorCode.INVALID_REFRESH_TOKEN) }
 
         val user = refreshToken.user
-
-        // User(Aggregate Root)가 토큰 갱신 관리
         val newRefreshToken = user.rotateRefreshToken(refreshToken, jwtTokenProvider)
         userRepository.save(user)
 
@@ -118,7 +153,6 @@ class AuthService(
             throw CustomException(ErrorCode.EMAIL_ALREADY_EXISTS)
         }
 
-        // 기존 토큰 삭제 후 flush하여 unique 제약 충돌 방지
         emailVerificationTokenRepository.deleteByEmail(email)
         emailVerificationTokenRepository.flush()
 
@@ -133,8 +167,8 @@ class AuthService(
         val verificationToken = emailVerificationTokenRepository.findByEmailAndToken(email, otp)
             .orElseThrow { CustomException(ErrorCode.INVALID_EMAIL_VERIFICATION_TOKEN) }
 
-        verificationToken.validate(email, otp) // Validate for expiry, email, and if already confirmed
-        verificationToken.confirm() // Mark as confirmed
+        verificationToken.validate(email, otp)
+        verificationToken.confirm()
         emailVerificationTokenRepository.save(verificationToken)
     }
 

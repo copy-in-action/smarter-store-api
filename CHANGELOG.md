@@ -7,6 +7,16 @@
     *   **데이터 매핑 로직 적용:** API 요청으로 들어온 1-based 인덱스를 서버 내부에서 기존의 0-based 데이터(좌석 배치도, DB 상태 등)와 정확히 매핑되도록 처리하여 데이터 정합성 문제를 방지했습니다.
 *   **공연 회차 조회 API 기능 강화:**
     *   **좌석 등급별 가격 정보 제공:** 예매 프로세스에서 필요한 가격 정보를 클라이언트가 쉽게 확인할 수 있도록, 특정 날짜의 회차 목록 조회 API(`/api/performances/{id}/schedules`) 응답에 등급별 **가격(`price`)** 필드를 추가했습니다. (`TicketOptionWithRemainingSeatsResponse`)
+*   **Audit 로그 시스템 구현:**
+    *   **AOP 기반 자동 감사 로그:** `@Auditable` 어노테이션을 사용하여 API 호출 시 자동으로 감사 로그를 기록하는 시스템을 구현했습니다.
+        *   `AuditAspect`: `@Around` advice로 메서드 실행 전후 로깅
+        *   `AuditLogService`: 비동기(`@Async`) 로그 저장, 민감정보 마스킹(password, cardNumber 등)
+        *   `AuditLog` 엔티티: userId, action, category, targetType, targetId, requestPath, ipAddress 등 기록
+    *   **Enum 정의:** `AuditCategory`, `AuditAction` (30개), `AuditTargetType`
+    *   **적용된 API:** 예매, 인증, 관리자용 공연/회차/공연장/공지사항 CRUD
+    *   **관리자 조회/통계 API 구현:** 필터 기반 목록 조회, 상세 조회, 사용자별 조회, 기간별 통계
+    *   **API 문서화 강화 (Swagger):** `@Auditable`이 적용된 모든 API의 설명에 **"[Audit Log] 이 작업은 감사 로그에 기록됩니다."** 문구를 추가하여 보안 감사 대상임을 명확히 안내했습니다.
+    *   **설계 문서:** `documents/design/Audit_로그_설계.md` 작성 및 구현 현황 업데이트
 
 ## 2025년 12월 27일 (토)
 

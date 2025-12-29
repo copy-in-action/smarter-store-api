@@ -1,5 +1,8 @@
 package com.github.copyinaction.admin.controller
 
+import com.github.copyinaction.audit.annotation.Auditable
+import com.github.copyinaction.audit.domain.AuditAction
+import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.venue.dto.CreateVenueRequest
 import com.github.copyinaction.venue.dto.SeatingChartRequest
@@ -34,7 +37,7 @@ class AdminVenueController(
     private val venueService: VenueService
 ) {
 
-    @Operation(summary = "공연장 생성", description = "새로운 공연장 정보를 생성합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "공연장 생성", description = "새로운 공연장 정보를 생성합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "공연장 생성 성공"),
         ApiResponse(
@@ -49,13 +52,18 @@ class AdminVenueController(
         )
     )
     @PostMapping
+    @Auditable(
+        action = AuditAction.VENUE_CREATE,
+        targetType = AuditTargetType.VENUE,
+        includeRequestBody = true
+    )
     fun createVenue(@Valid @RequestBody request: CreateVenueRequest): ResponseEntity<VenueResponse> {
         val venue = venueService.createVenue(request)
         val location = URI.create("/api/admin/venues/${venue.id}")
         return ResponseEntity.created(location).body(venue)
     }
 
-    @Operation(summary = "공연장 정보 수정", description = "특정 공연장의 정보를 수정합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "공연장 정보 수정", description = "특정 공연장의 정보를 수정합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "공연장 정보 수정 성공"),
         ApiResponse(
@@ -75,6 +83,12 @@ class AdminVenueController(
         )
     )
     @PutMapping("/{id}")
+    @Auditable(
+        action = AuditAction.VENUE_UPDATE,
+        targetType = AuditTargetType.VENUE,
+        targetIdParam = "id",
+        includeRequestBody = true
+    )
     fun updateVenue(
         @Parameter(description = "수정할 공연장의 ID", required = true, example = "1") @PathVariable id: Long,
         @Valid @RequestBody request: UpdateVenueRequest
@@ -83,7 +97,7 @@ class AdminVenueController(
         return ResponseEntity.ok(venue)
     }
 
-    @Operation(summary = "공연장 삭제", description = "특정 공연장을 삭제합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "공연장 삭제", description = "특정 공연장을 삭제합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "204", description = "공연장 삭제 성공"),
         ApiResponse(
@@ -98,6 +112,11 @@ class AdminVenueController(
         )
     )
     @DeleteMapping("/{id}")
+    @Auditable(
+        action = AuditAction.VENUE_DELETE,
+        targetType = AuditTargetType.VENUE,
+        targetIdParam = "id"
+    )
     fun deleteVenue(@Parameter(description = "삭제할 공연장의 ID", required = true, example = "1") @PathVariable id: Long): ResponseEntity<Unit> {
         venueService.deleteVenue(id)
         return ResponseEntity.noContent().build()
@@ -108,7 +127,7 @@ class AdminVenueController(
     @Operation(
         summary = "좌석 배치도 저장/수정",
         description = "공연장의 좌석 배치도 JSON과 등급별 좌석 수를 함께 저장하거나 수정합니다.\n\n" +
-            "seatCapacities가 전달되면 기존 좌석 수를 삭제하고 새로 저장합니다.\n\n**권한: ADMIN**"
+            "seatCapacities가 전달되면 기존 좌석 수를 삭제하고 새로 저장합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다."
     )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "좌석 배치도 저장 성공"),
@@ -124,6 +143,12 @@ class AdminVenueController(
         )
     )
     @PutMapping("/{id}/seating-chart")
+    @Auditable(
+        action = AuditAction.VENUE_SEATING_CHART_UPDATE,
+        targetType = AuditTargetType.VENUE,
+        targetIdParam = "id",
+        includeRequestBody = true
+    )
     fun updateSeatingChart(
         @Parameter(description = "공연장 ID", required = true, example = "1") @PathVariable id: Long,
         @Valid @RequestBody request: SeatingChartRequest

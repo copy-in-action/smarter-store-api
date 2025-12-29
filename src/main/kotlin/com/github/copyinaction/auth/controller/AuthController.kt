@@ -1,12 +1,14 @@
 package com.github.copyinaction.auth.controller
 
+import com.github.copyinaction.audit.annotation.Auditable
+import com.github.copyinaction.audit.domain.AuditAction
 import com.github.copyinaction.auth.dto.LoginRequest
 import com.github.copyinaction.auth.dto.LoginResponse
 import com.github.copyinaction.auth.dto.RefreshTokenRequest
 import com.github.copyinaction.auth.dto.SignupRequest
 import com.github.copyinaction.auth.dto.UserResponse
 import com.github.copyinaction.auth.dto.EmailVerificationRequest
-import com.github.copyinaction.auth.dto.OtpConfirmationRequest // Import the new DTO
+import com.github.copyinaction.auth.dto.OtpConfirmationRequest
 import org.springframework.http.HttpStatus
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.auth.service.AuthService
@@ -131,11 +133,12 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "로그아웃", description = "사용자 세션을 종료하고 인증 쿠키를 삭제합니다.\n\n**권한: 누구나**")
+    @Operation(summary = "로그아웃", description = "사용자 세션을 종료하고 인증 쿠키를 삭제합니다.\n\n**권한: 누구나**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "로그아웃 성공")
     )
     @PostMapping("/logout")
+    @Auditable(action = AuditAction.LOGOUT)
     fun logout(
         @RequestHeader(value = "Origin", required = false) origin: String?,
         @RequestHeader(value = "Host", required = false) host: String?,

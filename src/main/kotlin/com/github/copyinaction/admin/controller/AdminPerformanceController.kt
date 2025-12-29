@@ -1,5 +1,8 @@
 package com.github.copyinaction.admin.controller
 
+import com.github.copyinaction.audit.annotation.Auditable
+import com.github.copyinaction.audit.domain.AuditAction
+import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.performance.dto.CreatePerformanceRequest
 import com.github.copyinaction.performance.dto.PerformanceResponse
@@ -31,7 +34,7 @@ import java.net.URI
 class AdminPerformanceController(
     private val performanceService: PerformanceService
 ) {
-    @Operation(summary = "공연 생성", description = "새로운 공연 정보를 생성합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "공연 생성", description = "새로운 공연 정보를 생성합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "공연 생성 성공"),
         ApiResponse(
@@ -46,13 +49,18 @@ class AdminPerformanceController(
         )
     )
     @PostMapping
+    @Auditable(
+        action = AuditAction.PERFORMANCE_CREATE,
+        targetType = AuditTargetType.PERFORMANCE,
+        includeRequestBody = true
+    )
     fun createPerformance(@Valid @RequestBody request: CreatePerformanceRequest): ResponseEntity<PerformanceResponse> {
         val performance = performanceService.createPerformance(request)
         val location = URI.create("/api/admin/performances/${performance.id}")
         return ResponseEntity.created(location).body(performance)
     }
 
-    @Operation(summary = "공연 정보 수정", description = "특정 공연의 정보를 수정합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "공연 정보 수정", description = "특정 공연의 정보를 수정합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "공연 정보 수정 성공"),
         ApiResponse(
@@ -72,6 +80,12 @@ class AdminPerformanceController(
         )
     )
     @PutMapping("/{id}")
+    @Auditable(
+        action = AuditAction.PERFORMANCE_UPDATE,
+        targetType = AuditTargetType.PERFORMANCE,
+        targetIdParam = "id",
+        includeRequestBody = true
+    )
     fun updatePerformance(
         @Parameter(description = "수정할 공연의 ID", required = true, example = "1") @PathVariable id: Long,
         @Valid @RequestBody request: UpdatePerformanceRequest
@@ -80,7 +94,7 @@ class AdminPerformanceController(
         return ResponseEntity.ok(performance)
     }
 
-    @Operation(summary = "공연 삭제", description = "특정 공연을 삭제합니다.\n\n**권한: ADMIN**")
+    @Operation(summary = "공연 삭제", description = "특정 공연을 삭제합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "204", description = "공연 삭제 성공"),
         ApiResponse(
@@ -95,6 +109,11 @@ class AdminPerformanceController(
         )
     )
     @DeleteMapping("/{id}")
+    @Auditable(
+        action = AuditAction.PERFORMANCE_DELETE,
+        targetType = AuditTargetType.PERFORMANCE,
+        targetIdParam = "id"
+    )
     fun deletePerformance(@Parameter(description = "삭제할 공연의 ID", required = true, example = "1") @PathVariable id: Long): ResponseEntity<Unit> {
         performanceService.deletePerformance(id)
         return ResponseEntity.noContent().build()

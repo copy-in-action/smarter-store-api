@@ -26,3 +26,14 @@ Kotlin + Spring Boot 3.3.0 기반 DDD 아키텍처. 상세 내용은 README.md �
 - 새 기능은 TDD 방식으로 개발
 - 커스텀 예외는 `ErrorCode` enum에 추가 후 `CustomException` 사용
 - API 생성시 OpenAPI(Swagger) Orval naming convention rule 적용하여 작성.
+
+## 문서 작성 규칙
+
+- `documents/` 하위에 문서 작성 시 **문서 상단에 개정이력 필수 작성**
+- 개정이력 형식:
+  ```markdown
+  ## 개정이력
+  | 버전 | 일자 | 작성자 | 내용 |
+  |------|------|--------|------|
+  | 1.0 | 2025-01-15 | Claude | 최초 작성 |
+  ```

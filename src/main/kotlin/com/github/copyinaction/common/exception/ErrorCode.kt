@@ -83,4 +83,7 @@ enum class ErrorCode(
 
     // Notice
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공지사항을 찾을 수 없습니다."),
+
+    // Audit
+    AUDIT_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 감사 로그를 찾을 수 없습니다."),
 }
