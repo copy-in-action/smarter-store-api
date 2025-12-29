@@ -49,6 +49,9 @@ data class AuditLogResponse(
     @Schema(description = "응답 상태 코드")
     val responseStatus: Int?,
 
+    @Schema(description = "응답 상태 설명 (관리자용)", example = "성공")
+    val responseStatusDescription: String?,
+
     @Schema(description = "IP 주소")
     val ipAddress: String?,
 
@@ -71,6 +74,7 @@ data class AuditLogResponse(
                 requestPath = auditLog.requestPath,
                 requestMethod = auditLog.requestMethod,
                 responseStatus = auditLog.responseStatus,
+                responseStatusDescription = getStatusDescription(auditLog.responseStatus),
                 ipAddress = auditLog.ipAddress,
                 createdAt = auditLog.createdAt
             )
@@ -122,6 +126,9 @@ data class AuditLogDetailResponse(
     @Schema(description = "응답 상태 코드")
     val responseStatus: Int?,
 
+    @Schema(description = "응답 상태 설명 (관리자용)", example = "성공")
+    val responseStatusDescription: String?,
+
     @Schema(description = "IP 주소")
     val ipAddress: String?,
 
@@ -148,11 +155,28 @@ data class AuditLogDetailResponse(
                 requestMethod = auditLog.requestMethod,
                 requestBody = auditLog.requestBody,
                 responseStatus = auditLog.responseStatus,
+                responseStatusDescription = getStatusDescription(auditLog.responseStatus),
                 ipAddress = auditLog.ipAddress,
                 userAgent = auditLog.userAgent,
                 createdAt = auditLog.createdAt
             )
         }
+    }
+}
+
+private fun getStatusDescription(status: Int?): String {
+    return when (status) {
+        null -> "알 수 없음"
+        in 200..299 -> "성공"
+        400 -> "요청 오류 (Bad Request)"
+        401 -> "인증 실패 (Unauthorized)"
+        403 -> "권한 없음 (Forbidden)"
+        404 -> "대상 없음 (Not Found)"
+        409 -> "충돌 (Conflict)"
+        in 400..499 -> "클라이언트 오류 ($status)"
+        500 -> "서버 내부 오류"
+        in 500..599 -> "서버 오류 ($status)"
+        else -> "기타 ($status)"
     }
 }
 

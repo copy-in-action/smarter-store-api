@@ -7,11 +7,12 @@ import com.github.copyinaction.audit.domain.AuditTargetType
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 
-interface AuditLogRepository : JpaRepository<AuditLog, Long> {
+interface AuditLogRepository : JpaRepository<AuditLog, Long>, JpaSpecificationExecutor<AuditLog> {
 
     fun findByUserId(userId: Long, pageable: Pageable): Page<AuditLog>
 
@@ -22,28 +23,6 @@ interface AuditLogRepository : JpaRepository<AuditLog, Long> {
     fun findByTargetTypeAndTargetId(
         targetType: AuditTargetType,
         targetId: String,
-        pageable: Pageable
-    ): Page<AuditLog>
-
-    @Query("""
-        SELECT a FROM AuditLog a
-        WHERE (:userId IS NULL OR a.userId = :userId)
-        AND (:action IS NULL OR a.action = :action)
-        AND (:category IS NULL OR a.category = :category)
-        AND (:targetType IS NULL OR a.targetType = :targetType)
-        AND (:targetId IS NULL OR a.targetId = :targetId)
-        AND (:from IS NULL OR a.createdAt >= :from)
-        AND (:to IS NULL OR a.createdAt <= :to)
-        ORDER BY a.createdAt DESC
-    """)
-    fun findByFilters(
-        @Param("userId") userId: Long?,
-        @Param("action") action: AuditAction?,
-        @Param("category") category: AuditCategory?,
-        @Param("targetType") targetType: AuditTargetType?,
-        @Param("targetId") targetId: String?,
-        @Param("from") from: LocalDateTime?,
-        @Param("to") to: LocalDateTime?,
         pageable: Pageable
     ): Page<AuditLog>
 

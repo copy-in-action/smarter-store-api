@@ -1,4 +1,12 @@
-# Smarter Store API 개발 컨벤션 (Lite)
+# Smarter Store API 개발 컨벤션
+
+## 개정이력
+
+| 버전 | 일자 | 작성자 | 내용 |
+|------|------|--------|------|
+| 1.0 | 2025-12-29 | Gemini | 초기 컨벤션 수립 및 문서화 |
+
+---
 
 이 문서는 프로젝트의 핵심 코딩 규칙과 아키텍처 원칙을 정의합니다.
 
@@ -48,5 +56,5 @@
 *   **Branch**: `main`(배포용), `develop`(개발용) 2브랜치 전략.
 *   **Commit**: Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `chore`).
 *   **Changelog**: 상세 변경 내역은 `CHANGELOG.md`에 일자별로 기록.
-*   **Docs**: `documents/` 하위 폴더별(`design`, `features` 등) 관리.
+*   **Docs**: `documents/` 하위 폴더별(`01_개발_컨벤션`, `02_시스템_아키텍처` 등) 관리.
 *   **Revision History**: 모든 문서 작성 시 상단에 개정이력 테이블(버전, 날짜, 작성자, 내용)을 포함한다.

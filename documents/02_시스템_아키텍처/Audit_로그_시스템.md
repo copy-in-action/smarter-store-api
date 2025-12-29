@@ -241,8 +241,8 @@ class AuditAspect(
         responseStatus: Int,
         exception: Exception?
     ) {
-        val userId = SecurityContextHolder.getContext()
-            .authentication?.let { (it.principal as? CustomUserDetails)?.id }
+        val userId = SecurityContextHolder.getContext() 
+            .authentication?.let { (it.principal as? CustomUserDetails)?.id } 
             ?: return  // 비인증 사용자는 기록하지 않음
 
         val targetId = extractTargetId(joinPoint, auditable.targetIdParam)
@@ -506,8 +506,8 @@ GET /api/admin/audit-logs/stats
 // 요청 본문에서 민감 정보 마스킹
 fun maskSensitiveData(requestBody: String): String {
     return requestBody
-        .replace(Regex("\"password\"\\s*:\\s*\"[^\"]+\""), "\"password\":\"***\"")
-        .replace(Regex("\"cardNumber\"\\s*:\\s*\"[^\"]+\""), "\"cardNumber\":\"***\"")
+        .replace(Regex("\"password\"\\s*:\\s*\"[^\"]+\"" ), "\"password\":\"***\"")
+        .replace(Regex("\"cardNumber\"\\s*:\\s*\"[^\"]+\"" ), "\"cardNumber\":\"***\"")
 }
 ```
 
@@ -615,3 +615,49 @@ fun maskSensitiveData(requestBody: String): String {
 
 - [ ] 결제 API @Auditable 적용
 - [ ] 보관 정책 배치 (90일 이상 아카이빙)
+
+---
+
+## 10. 트러블슈팅
+
+### 10.1 JPQL 및 PostgreSQL 호환성 문제
+- **현상**: 감사 로그 조회 시 `ERROR: could not determine data type of parameter $11` 및 `Could not resolve attribute 'string'` 에러 발생
+- **원인**: 
+    - PostgreSQL은 JPQL의 `? IS NULL` 조건에서 파라미터 타입이 명확하지 않을 경우 에러를 발생시킴.
+    - Hibernate 6.x에서 Enum 파라미터(`AuditAction` 등)가 NULL일 때 JPQL 파싱 과정에서 Enum 내부 메타데이터(`string` 속성) 참조 오류 발생.
+- **해결**: 복잡한 `@Query` JPQL을 제거하고 **Spring Data JPA Specification(동적 쿼리)** 방식으로 전환하여 타입 안전성과 가독성 확보.
+
+```kotlin
+// AuditLogService.kt (수정 후)
+val spec = Specification<AuditLog> { root, _, cb ->
+    val predicates = mutableListOf<Predicate>()
+    userId?.let { predicates.add(cb.equal(root.get<Long>("userId"), it)) }
+    action?.let { predicates.add(cb.equal(root.get<AuditAction>("action"), it)) }
+    // ...
+    cb.and(*predicates.toTypedArray())
+}
+return auditLogRepository.findAll(spec, pageable)
+```
+
+### 10.2 Swagger Pageable 파라미터 오류
+- **현상**: Swagger UI에서 `Pageable` 객체의 `sort` 파라미터 기본값이 `["string"]`으로 전송되어 서버에서 `PropertyReferenceException` 발생 (No property 'string' found for type 'AuditLog').
+- **해결**: 컨트롤러의 `Pageable` 파라미터에 `@Parameter` 어노테이션을 추가하여 올바른 예시(`createdAt,desc`)를 제공하고 사용자 혼란 방지.
+
+```kotlin
+@Parameter(
+    name = "pageable",
+    description = "페이징 및 정렬 설정 (예: page=0&size=20&sort=createdAt,desc)",
+    example = "{\"page\": 0, \"size\": 20, \"sort\": [\"createdAt,desc\"]}"
+)
+@PageableDefault(...) pageable: Pageable
+```
+
+### 10.3 Spring Data Web Support - JSON 직렬화 경고
+- **현상**: 애플리케이션 실행 시 `For a stable JSON structure, please use Spring Data's PagedModel ...` 경고 로그 발생. Spring Data 3.x 업데이트로 인해 `Page` 인터페이스의 JSON 직렬화 구조가 변경될 수 있음을 안내.
+- **해결**: `SmarterStoreApiApplication.kt`에 설정을 추가하여 안정적인 `PagedModel` 구조(DTO 방식)로 직렬화하도록 고정.
+
+```kotlin
+@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
+@SpringBootApplication
+class SmarterStoreApiApplication
+```

@@ -45,6 +45,11 @@ class AdminAuditLogController(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) from: LocalDateTime?,
         @Parameter(description = "종료 일시 (ISO-8601)") @RequestParam(required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) to: LocalDateTime?,
+        @Parameter(
+            name = "pageable",
+            description = "페이징 및 정렬 설정 (예: page=0&size=20&sort=createdAt,desc)",
+            example = "{\"page\": 0, \"size\": 20, \"sort\": [\"createdAt,desc\"]}"
+        )
         @PageableDefault(size = 20, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<AuditLogResponse>> {
         val result = auditLogService.getAuditLogs(
@@ -78,6 +83,11 @@ class AdminAuditLogController(
     @GetMapping("/users/{userId}")
     fun getAuditLogsByUser(
         @Parameter(description = "사용자 ID") @PathVariable userId: Long,
+        @Parameter(
+            name = "pageable",
+            description = "페이징 및 정렬 설정 (예: page=0&size=20&sort=createdAt,desc)",
+            example = "{\"page\": 0, \"size\": 20, \"sort\": [\"createdAt,desc\"]}"
+        )
         @PageableDefault(size = 20, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<AuditLogResponse>> {
         return ResponseEntity.ok(auditLogService.getAuditLogsByUserId(userId, pageable))

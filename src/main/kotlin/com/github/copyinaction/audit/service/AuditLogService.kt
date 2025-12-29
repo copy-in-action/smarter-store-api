@@ -9,10 +9,12 @@ import com.github.copyinaction.audit.repository.AuditLogRepository
 import com.github.copyinaction.auth.domain.Role
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
+import jakarta.persistence.criteria.Predicate
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
@@ -133,19 +135,25 @@ class AuditLogService(
     private fun maskSensitiveData(requestBody: String?): String? {
         if (requestBody.isNullOrBlank()) return null
 
-        return requestBody
-            .replace(Regex("\"password\"\\s*:\\s*\"[^\"]*\""), "\"password\":\"***\"")
-            .replace(Regex("\"newPassword\"\\s*:\\s*\"[^\"]*\""), "\"newPassword\":\"***\"")
-            .replace(Regex("\"currentPassword\"\\s*:\\s*\"[^\"]*\""), "\"currentPassword\":\"***\"")
-            .replace(Regex("\"cardNumber\"\\s*:\\s*\"[^\"]*\""), "\"cardNumber\":\"***\"")
-            .replace(Regex("\"cvv\"\\s*:\\s*\"[^\"]*\""), "\"cvv\":\"***\"")
-            .replace(Regex("\"securityCode\"\\s*:\\s*\"[^\"]*\""), "\"securityCode\":\"***\"")
+        return SENSITIVE_DATA_REGEX.replace(requestBody) { matchResult ->
+            val key = matchResult.groupValues[1]
+            "\"$key\":\"***\""
+        }
+    }
+
+    companion object {
+        private val SENSITIVE_KEYS = listOf(
+            "password", "newPassword", "currentPassword",
+            "cardNumber", "cvv", "securityCode"
+        ).joinToString("|")
+
+        private val SENSITIVE_DATA_REGEX = Regex("\"($SENSITIVE_KEYS)\"\\s*:\\s*\"[^\"]*\"")
     }
 
     // ==================== 조회 API ====================
 
     /**
-     * 감사 로그 목록 조회 (필터 지원)
+     * 감사 로그 목록 조회 (필터 지원 - Specification 사용)
      */
     @Transactional(readOnly = true)
     fun getAuditLogs(
@@ -158,16 +166,22 @@ class AuditLogService(
         to: LocalDateTime?,
         pageable: Pageable
     ): Page<AuditLogResponse> {
-        return auditLogRepository.findByFilters(
-            userId = userId,
-            action = action,
-            category = category,
-            targetType = targetType,
-            targetId = targetId,
-            from = from,
-            to = to,
-            pageable = pageable
-        ).map { AuditLogResponse.from(it) }
+        val spec = Specification<AuditLog> { root, _, cb ->
+            val predicates = mutableListOf<Predicate>()
+
+            userId?.let { predicates.add(cb.equal(root.get<Long>("userId"), it)) }
+            action?.let { predicates.add(cb.equal(root.get<AuditAction>("action"), it)) }
+            category?.let { predicates.add(cb.equal(root.get<AuditCategory>("category"), it)) }
+            targetType?.let { predicates.add(cb.equal(root.get<AuditTargetType>("targetType"), it)) }
+            targetId?.let { predicates.add(cb.equal(root.get<String>("targetId"), it)) }
+            from?.let { predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), it)) }
+            to?.let { predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), it)) }
+
+            cb.and(*predicates.toTypedArray())
+        }
+
+        return auditLogRepository.findAll(spec, pageable)
+            .map { AuditLogResponse.from(it) }
     }
 
     /**
