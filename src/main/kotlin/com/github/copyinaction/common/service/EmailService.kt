@@ -39,9 +39,9 @@ class EmailService(
             helper.setText(htmlBody, true) // true indicates HTML content
             mailSender.send(mimeMessage)
 
-            logger.info("Verification OTP email sent to $toEmail using template.")
+            logger.debug("인증 이메일 발송 완료")
         } catch (e: Exception) {
-            logger.error("Failed to send verification email to $toEmail", e)
+            logger.error("인증 이메일 발송 실패", e)
         }
     }
 }

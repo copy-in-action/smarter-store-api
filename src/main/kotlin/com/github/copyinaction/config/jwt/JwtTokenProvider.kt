@@ -69,13 +69,12 @@ class JwtTokenProvider(
      * JWT 토큰의 유효성 검증
      */
     fun validateToken(token: String): Boolean {
-        try {
+        return try {
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token)
-            return true
+            true
         } catch (e: Exception) {
-            // TODO: 로그 남기기 (JwtException, SecurityException, MalformedJwtException, ExpiredJwtException, etc.)
+            false
         }
-        return false
     }
 
     /**

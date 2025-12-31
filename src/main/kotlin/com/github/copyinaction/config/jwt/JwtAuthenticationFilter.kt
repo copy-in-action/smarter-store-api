@@ -10,28 +10,18 @@ class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider
 ) : OncePerRequestFilter() {
 
-    private val logger = org.slf4j.LoggerFactory.getLogger(javaClass)
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val token = resolveToken(request)
-        logger.debug("JwtAuthenticationFilter - URI: ${request.requestURI}, token exists: ${token != null}")
-
-        if (token != null) {
-            val isValid = jwtTokenProvider.validateToken(token)
-            logger.debug("JwtAuthenticationFilter - token valid: $isValid")
-
-            if (isValid) {
+        resolveToken(request)?.let { token ->
+            if (jwtTokenProvider.validateToken(token)) {
                 try {
                     val authentication = jwtTokenProvider.getAuthentication(token)
                     SecurityContextHolder.getContext().authentication = authentication
-                    logger.debug("JwtAuthenticationFilter - authentication set: ${authentication.name}")
                 } catch (e: Exception) {
-                    // 기존 토큰에 userId 클레임이 없는 경우 등 - 재로그인 필요
-                    logger.warn("JwtAuthenticationFilter - failed to get authentication: ${e.message}")
+                    logger.warn("인증 처리 실패 - 재로그인 필요: ${e.message}")
                 }
             }
         }
@@ -41,24 +31,11 @@ class JwtAuthenticationFilter(
     private fun resolveToken(request: HttpServletRequest): String? {
         // 1. Authorization 헤더에서 Bearer 토큰 확인 (Swagger, Postman 등)
         val bearerToken = request.getHeader("Authorization")
-        logger.info("resolveToken - Authorization header: ${bearerToken?.take(50) ?: "null"}")
-
         if (!bearerToken.isNullOrBlank() && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7)
         }
 
         // 2. 쿠키에서 accessToken 확인 (브라우저)
-        val cookies = request.cookies
-        val cookieNames = cookies?.map { it.name } ?: emptyList()
-        logger.info("resolveToken - cookies: $cookieNames")
-
-        if (cookies != null) {
-            for (cookie in cookies) {
-                if (cookie.name == "accessToken") {
-                    return cookie.value
-                }
-            }
-        }
-        return null
+        return request.cookies?.find { it.name == "accessToken" }?.value
     }
 }
