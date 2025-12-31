@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 import com.github.copyinaction.common.exception.LogLevel
 
 @RestControllerAdvice
@@ -102,6 +103,18 @@ class GlobalExceptionHandler {
     protected fun handleAsyncRequestTimeoutException(e: AsyncRequestTimeoutException): ResponseEntity<Void> {
         logger.debug("SSE 연결 타임아웃: {}", e.message)
         return ResponseEntity.noContent().build()
+    }
+
+    /**
+     * 정적 리소스 not found 처리 (favicon.ico 등)
+     */
+    @ExceptionHandler(NoResourceFoundException::class)
+    protected fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<ErrorResponse> {
+        logger.debug("정적 리소스 없음: {}", e.resourcePath)
+        val response = ErrorResponse.of(ErrorCode.RESOURCE_NOT_FOUND)
+        return ResponseEntity.status(ErrorCode.RESOURCE_NOT_FOUND.status)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(response)
     }
 
     /**
