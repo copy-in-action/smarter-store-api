@@ -30,6 +30,9 @@
     *   기존 평문 전화번호 마이그레이션 스크립트 (`PhoneNumberMigration`)
     *   감사로그 마스킹 범위 확대 (email, phoneNumber, otp, token 추가)
     *   감사로그 응답 이메일 마스킹 (`u***r@example.com`)
+*   **인증 API 개선:**
+    *   `UserResponse`에 `phoneNumber` 필드 추가
+    *   `/refresh` API 쿠키 기반으로 변경 (`RefreshTokenRequest` DTO 삭제)
 
 ## 2025년 12월 29일 (월)
 

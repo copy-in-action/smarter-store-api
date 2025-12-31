@@ -4,7 +4,8 @@ import com.github.copyinaction.audit.annotation.Auditable
 import com.github.copyinaction.audit.domain.AuditAction
 import com.github.copyinaction.auth.dto.LoginRequest
 import com.github.copyinaction.auth.dto.LoginResponse
-import com.github.copyinaction.auth.dto.RefreshTokenRequest
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.auth.dto.SignupRequest
 import com.github.copyinaction.auth.dto.UserResponse
 import com.github.copyinaction.auth.dto.EmailVerificationRequest
@@ -84,7 +85,7 @@ class AuthController(
         return ResponseEntity.ok(loginResponse.user)
     }
 
-    @Operation(summary = "토큰 갱신", description = "리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.\n\n**권한: 누구나**")
+    @Operation(summary = "토큰 갱신", description = "쿠키의 리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다.\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "토큰 갱신 성공 (새로운 Access Token 및 Refresh Token 쿠키로 발급)",
             headers = [
@@ -98,12 +99,15 @@ class AuthController(
     )
     @PostMapping("/refresh")
     fun refresh(
-        @Valid @RequestBody request: RefreshTokenRequest,
+        @CookieValue(value = "refreshToken", required = false) refreshToken: String?,
         @RequestHeader(value = "Origin", required = false) origin: String?,
         @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
     ): ResponseEntity<Void> {
-        val authTokenInfo = authService.refresh(request.refreshToken)
+        if (refreshToken.isNullOrBlank()) {
+            throw CustomException(ErrorCode.INVALID_REFRESH_TOKEN)
+        }
+        val authTokenInfo = authService.refresh(refreshToken)
         cookieService.addAuthCookies(response, authTokenInfo, origin, host)
         return ResponseEntity.ok().build()
     }

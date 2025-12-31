@@ -52,13 +52,6 @@ data class OtpConfirmationRequest(
 
 
 
-@Schema(description = "토큰 갱신 요청 DTO")
-data class RefreshTokenRequest(
-    @field:NotBlank
-    @Schema(description = "리프레시 토큰", example = "2f0d2570-49ff-4343-96a6-ccba...")
-    val refreshToken: String
-)
-
 @Schema(description = "인증 토큰 정보")
 data class AuthTokenInfo(
     @Schema(description = "액세스 토큰", example = "eyJhbGciOiJIUzUxMiJ9...")
