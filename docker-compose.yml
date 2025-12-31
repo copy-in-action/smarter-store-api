@@ -1,6 +1,27 @@
-version: '3.8'
-
+#local
 services:
+  # ===== 데이터베이스 =====
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-local
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=smarter_store_local
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - TZ=Asia/Seoul
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - local-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   smarter-store-api:
     image: smarter-store-api:latest
     container_name: smarter-store-api-local
@@ -8,7 +29,105 @@ services:
       - "8080:8080"
     volumes:
       - ./logs:/app/logs
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE=local
-      - JWT_SECRET_LOCAL=${JWT_SECRET_LOCAL} # 호스트 환경 변수를 참조
+      - DB_URL=jdbc:postgresql://postgres:5432/smarter_store_local
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
     restart: always
+    networks:
+      - local-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ===== 모니터링 스택 =====
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-local
+    ports:
+      - "9090:9090"
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./monitoring-local/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - local-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-local
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=Asia/Seoul
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring-local/grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    networks:
+      - local-network
+    depends_on:
+      - prometheus
+      - loki
+
+  # ===== 로그 스택 =====
+  loki:
+    image: grafana/loki:latest
+    container_name: loki-local
+    ports:
+      - "3100:3100"
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./monitoring-local/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+    networks:
+      - local-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail-local
+    ports:
+      - "9080:9080"
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./monitoring-local/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./logs:/app/logs:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped
+    networks:
+      - local-network
+    depends_on:
+      - loki
+
+volumes:
+  postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+
+networks:
+  local-network:
+    driver: bridge

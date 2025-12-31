@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus 자체 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Spring Boot 애플리케이션 (로컬)
+  - job_name: 'smarter-store-api'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['smarter-store-api-local:8080']

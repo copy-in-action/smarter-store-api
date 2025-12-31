@@ -1,0 +1,150 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-myapp}
+      TZ: Asia/Seoul
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql 
+        #- ./init-scripts:/docker-entrypoint-initdb.d  # 초기화 SQL 스크립트 (선택사항)
+    networks:
+      - network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ticket-fe:
+    image: ticket-fe
+    container_name: ticket-fe
+    ports:
+      - "43000:3000"  # 호스트:43000 → 컨테이너:3000
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    restart: unless-stopped
+    networks:
+      - network  # 다른 서비스와 통신 필요시
+
+  ticket-be:
+    image: eclipse-temurin:21-jdk-alpine
+    container_name: ticket-be
+    ports:
+      - "48080:8080"  # 호스트:48080 → 컨테이너:8080
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - TZ=Asia/Seoul  # 이 줄 추가
+    working_dir: /be
+    command: tail -f /dev/null  # 컨테이너 유지
+    restart: unless-stopped
+    networks:
+      - network
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    ports:
+      - "49000:9000"
+      - "49001:9001"
+    environment:
+      - TZ=Asia/Seoul
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    working_dir: /data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    networks:
+      - network
+    volumes:
+      - /home/cic/docker/data/minio:/data  # 호스트의 /data → 컨테이너의 /data
+
+  # ===== 모니터링 스택 =====
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "43001:3000"
+    environment:
+      - TZ=Asia/Seoul
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    networks:
+      - network
+    depends_on:
+      - prometheus
+      - loki
+
+  # ===== 로그 스택 =====
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+    networks:
+      - network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped
+    networks:
+      - network
+    depends_on:
+      - loki
+
+volumes:
+  postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+
+networks:
+  network:
+    driver: bridge

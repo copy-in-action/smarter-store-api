@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus 자체 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Spring Boot 애플리케이션 (ticket-be)
+  # Spring Actuator + Micrometer 설정 필요
+  - job_name: 'ticket-be'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ticket-be:8080']
+
+  # PostgreSQL (postgres_exporter 사용 시)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+
+  # MinIO
+  - job_name: 'minio'
+    metrics_path: '/minio/v2/metrics/cluster'
+    scheme: http
+    static_configs:
+      - targets: ['minio:9000']
