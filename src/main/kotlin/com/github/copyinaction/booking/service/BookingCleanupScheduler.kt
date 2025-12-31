@@ -2,10 +2,9 @@ package com.github.copyinaction.booking.service
 
 import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.booking.repository.BookingRepository
-import com.github.copyinaction.seat.domain.SeatStatus
 import com.github.copyinaction.seat.dto.SeatPosition
 import com.github.copyinaction.seat.repository.ScheduleSeatStatusRepository
-import com.github.copyinaction.seat.service.SseService
+import com.github.copyinaction.seat.service.SeatOccupationService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -16,7 +15,7 @@ import java.time.LocalDateTime
 class BookingCleanupScheduler(
     private val bookingRepository: BookingRepository,
     private val scheduleSeatStatusRepository: ScheduleSeatStatusRepository,
-    private val sseService: SseService
+    private val seatOccupationService: SeatOccupationService
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -42,21 +41,14 @@ class BookingCleanupScheduler(
                 booking.expire()
                 log.info("예매 ID {} 상태 EXPIRED로 변경.", booking.id)
 
-                // 3. 해당 유저의 좌석 점유 해제
-                scheduleSeatStatusRepository.deleteByScheduleIdAndHeldByAndSeatStatus(
-                    scheduleId, booking.user.id, SeatStatus.PENDING
-                )
-
-                // 4. SSE RELEASED 이벤트 발행
-                if (seatPositions.isNotEmpty()) {
-                    sseService.sendReleased(scheduleId, seatPositions)
-                }
+                // 3. 해당 유저의 좌석 점유 해제 및 SSE 이벤트 발행
+                seatOccupationService.releaseUserPendingSeats(scheduleId, booking.user.id, seatPositions)
             }
             bookingRepository.saveAll(expiredBookings)
             log.info("만료된 PENDING 예매 {}건 처리 완료.", expiredBookings.size)
         }
 
-        // 5. 만료된 좌석 점유 정리 (Booking 없이 남아있는 만료된 점유)
+        // 4. 만료된 좌석 점유 정리 (Booking 없이 남아있는 만료된 점유)
         val deletedCount = scheduleSeatStatusRepository.deleteExpiredHolds(now)
         if (deletedCount > 0) {
             log.info("만료된 좌석 점유 {}건 추가 삭제 완료.", deletedCount)

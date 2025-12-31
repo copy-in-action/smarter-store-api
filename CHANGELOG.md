@@ -24,6 +24,25 @@
         *   대시보드/패널 생성 방법
         *   권장 메트릭 (시스템, HTTP, DB, JVM) 및 PromQL 쿼리 예시
         *   알림 설정 가이드 및 트러블슈팅
+*   **DDD 리팩토링 (Service 계층 개선):**
+    *   **PerformanceScheduleService 중복 코드 제거:**
+        *   잔여석 계산 로직 추출: `calculateRemainingSeats()`, `buildScheduleResponseWithRemainingSeats()` 메서드
+        *   중복 40줄 → 공통 메서드 2개로 정리
+    *   **PerformanceScheduleService 시간 절삭 로직 Entity로 이동:**
+        *   `PerformanceSchedule.create()`, `update()` 내부에서 `truncateToMinute()` 처리
+        *   Service에서 원본 값 전달, Entity에서 정규화 (DDD 원칙)
+    *   **AuthService 책임 분리:**
+        *   `TokenService` 분리 - 토큰 발급/갱신 담당
+        *   `EmailVerificationService` 분리 - OTP 발송/검증 담당
+        *   AuthService 7개 → 6개 의존성 감소
+    *   **BookingService에서 SeatOccupationService 분리:**
+        *   좌석 점유/해제/확정 로직을 별도 도메인 서비스로 분리
+        *   BookingService 8개 → 5개 의존성 감소
+        *   `SeatChangeResult` DTO로 좌석 변경 상태 관리 (kept, released, added)
+    *   **VenueService Aggregate 경계 위반 수정:**
+        *   `syncTicketOptionTotalQuantity()` 로직을 `TicketOptionSyncService`로 분리
+        *   Venue Aggregate가 TicketOption(다른 Aggregate) 직접 수정 → Performance 도메인 서비스 위임
+        *   VenueService 6개 → 4개 의존성 감소
 
 ## 2025년 12월 29일 (월)
 

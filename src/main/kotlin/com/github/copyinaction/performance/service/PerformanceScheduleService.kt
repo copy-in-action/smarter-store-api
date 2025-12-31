@@ -48,11 +48,8 @@ class PerformanceScheduleService(
         val seatingChartJson = performance.venue?.seatingChart
         val seatsByGrade = seatingChartParser.countSeatsByGrade(seatingChartJson)
 
-        // 시간 데이터 초 단위 절삭 (중복 체크 및 저장용)
+        // 중복 회차 검증 (Entity에서 초 단위 절삭 처리)
         val truncatedShowDateTime = request.showDateTime.withSecond(0).withNano(0)
-        val truncatedSaleStartDateTime = request.saleStartDateTime.withSecond(0).withNano(0)
-
-        // 중복 회차 검증
         if (performanceScheduleRepository.existsByPerformanceIdAndShowDateTime(performanceId, truncatedShowDateTime)) {
             throw CustomException(ErrorCode.DUPLICATE_SCHEDULE)
         }
@@ -70,8 +67,8 @@ class PerformanceScheduleService(
 
         val performanceSchedule = PerformanceSchedule.create(
             performance = performance,
-            showDateTime = truncatedShowDateTime,
-            saleStartDateTime = truncatedSaleStartDateTime
+            showDateTime = request.showDateTime,
+            saleStartDateTime = request.saleStartDateTime
         )
 
         request.ticketOptions.forEach { ticketOptionRequest ->
@@ -117,11 +114,8 @@ class PerformanceScheduleService(
             throw CustomException(ErrorCode.SCHEDULE_ALREADY_BOOKED)
         }
 
-        // 시간 데이터 초 단위 절삭
+        // 중복 회차 검증 (자기 자신 제외, Entity에서 초 단위 절삭 처리)
         val truncatedShowDateTime = request.showDateTime.withSecond(0).withNano(0)
-        val truncatedSaleStartDateTime = request.saleStartDateTime.withSecond(0).withNano(0)
-
-        // 중복 회차 검증 (자기 자신 제외)
         if (performanceScheduleRepository.existsByPerformanceIdAndShowDateTimeAndIdNot(
                 schedule.performance.id,
                 truncatedShowDateTime,
@@ -140,8 +134,8 @@ class PerformanceScheduleService(
         seatingChartParser.validateSeatGrades(seatsByGrade.keys, requestedGrades)
 
         schedule.update(
-            showDateTime = truncatedShowDateTime,
-            saleStartDateTime = truncatedSaleStartDateTime
+            showDateTime = request.showDateTime,
+            saleStartDateTime = request.saleStartDateTime
         )
 
         // 기존 티켓 옵션 삭제 후 새로 추가 (OrphanRemoval + Cascade)
@@ -199,7 +193,6 @@ class PerformanceScheduleService(
      * 특정 날짜의 예매 가능 회차 목록 조회 (잔여석 포함)
      * - 공연시간 내림차순 정렬
      * - 각 좌석 등급의 잔여석 수 포함
-     * - Write-Time Calculation: totalQuantity는 TicketOption에 저장된 값 사용
      */
     fun getAvailableSchedulesByDate(performanceId: Long, date: LocalDate): List<AvailableScheduleResponse> {
         if (!performanceRepository.existsById(performanceId)) {
@@ -212,28 +205,7 @@ class PerformanceScheduleService(
         val schedules = performanceScheduleRepository.findAvailableSchedulesByDate(performanceId, now, dateStart, dateEnd)
 
         return schedules.map { schedule ->
-            val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
-
-            // 등급별 점유 좌석 수 집계 (DB에서 직접 조회)
-            val occupiedByGradeRaw = scheduleSeatStatusRepository.countByScheduleIdGroupBySeatGrade(schedule.id)
-            val occupiedByGrade = occupiedByGradeRaw.associate {
-                (it[0] as SeatGrade) to (it[1] as Long).toInt()
-            }
-
-            // 등급별 잔여석 계산 (totalQuantity는 TicketOption에 저장된 값 사용)
-            val ticketOptionsWithSeats = ticketOptions.map { option ->
-                val totalSeats = option.totalQuantity
-                val occupied = occupiedByGrade[option.seatGrade] ?: 0
-                val remaining = maxOf(0, totalSeats - occupied)
-
-                TicketOptionWithRemainingSeatsResponse(
-                    seatGrade = option.seatGrade.name,
-                    price = option.price,
-                    remainingSeats = remaining
-                )
-            }
-
-            AvailableScheduleResponse.from(schedule, ticketOptionsWithSeats)
+            buildScheduleResponseWithRemainingSeats(schedule)
         }
     }
 
@@ -242,16 +214,31 @@ class PerformanceScheduleService(
      */
     fun getScheduleWithRemainingSeats(scheduleId: Long): AvailableScheduleResponse {
         val schedule = findScheduleById(scheduleId)
-        val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
+        return buildScheduleResponseWithRemainingSeats(schedule)
+    }
 
-        // 등급별 점유 좌석 수 집계
-        val occupiedByGradeRaw = scheduleSeatStatusRepository.countByScheduleIdGroupBySeatGrade(schedule.id)
+    /**
+     * 회차 응답 DTO 생성 (잔여석 계산 포함)
+     */
+    private fun buildScheduleResponseWithRemainingSeats(schedule: PerformanceSchedule): AvailableScheduleResponse {
+        val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
+        val ticketOptionsWithSeats = calculateRemainingSeats(schedule.id, ticketOptions)
+        return AvailableScheduleResponse.from(schedule, ticketOptionsWithSeats)
+    }
+
+    /**
+     * 등급별 잔여석 계산
+     */
+    private fun calculateRemainingSeats(
+        scheduleId: Long,
+        ticketOptions: List<TicketOption>
+    ): List<TicketOptionWithRemainingSeatsResponse> {
+        val occupiedByGradeRaw = scheduleSeatStatusRepository.countByScheduleIdGroupBySeatGrade(scheduleId)
         val occupiedByGrade = occupiedByGradeRaw.associate {
             (it[0] as SeatGrade) to (it[1] as Long).toInt()
         }
 
-        // 등급별 잔여석 계산
-        val ticketOptionsWithSeats = ticketOptions.map { option ->
+        return ticketOptions.map { option ->
             val totalSeats = option.totalQuantity
             val occupied = occupiedByGrade[option.seatGrade] ?: 0
             val remaining = maxOf(0, totalSeats - occupied)
@@ -262,8 +249,6 @@ class PerformanceScheduleService(
                 remainingSeats = remaining
             )
         }
-
-        return AvailableScheduleResponse.from(schedule, ticketOptionsWithSeats)
     }
 
     private fun findScheduleById(scheduleId: Long): PerformanceSchedule {

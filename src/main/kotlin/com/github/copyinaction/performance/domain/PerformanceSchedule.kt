@@ -40,9 +40,16 @@ class PerformanceSchedule(
         ): PerformanceSchedule {
             return PerformanceSchedule(
                 performance = performance,
-                showDateTime = showDateTime,
-                saleStartDateTime = saleStartDateTime
+                showDateTime = truncateToMinute(showDateTime),
+                saleStartDateTime = truncateToMinute(saleStartDateTime)
             )
+        }
+
+        /**
+         * 초/나노초 절삭 - 중복 체크 정확도 및 데이터 일관성 확보
+         */
+        fun truncateToMinute(dateTime: LocalDateTime): LocalDateTime {
+            return dateTime.withSecond(0).withNano(0)
         }
     }
 
@@ -50,8 +57,8 @@ class PerformanceSchedule(
         showDateTime: LocalDateTime,
         saleStartDateTime: LocalDateTime
     ) {
-        this.showDateTime = showDateTime
-        this.saleStartDateTime = saleStartDateTime
+        this.showDateTime = truncateToMinute(showDateTime)
+        this.saleStartDateTime = truncateToMinute(saleStartDateTime)
     }
 
     fun addTicketOption(ticketOption: TicketOption) {

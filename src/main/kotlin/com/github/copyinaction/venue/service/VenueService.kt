@@ -8,30 +8,23 @@ import com.github.copyinaction.venue.dto.SeatingChartResponse
 import com.github.copyinaction.venue.dto.UpdateVenueRequest
 import com.github.copyinaction.venue.dto.VenueResponse
 import com.github.copyinaction.venue.dto.VenueSeatCapacityResponse
-import com.github.copyinaction.venue.util.SeatingChartParser
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.repository.PerformanceRepository
-import com.github.copyinaction.performance.repository.PerformanceScheduleRepository
-import com.github.copyinaction.performance.repository.TicketOptionRepository
+import com.github.copyinaction.performance.service.TicketOptionSyncService
 import com.github.copyinaction.venue.repository.VenueRepository
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 
 @Service
 @Transactional(readOnly = true)
 class VenueService(
     private val venueRepository: VenueRepository,
     private val performanceRepository: PerformanceRepository,
-    private val performanceScheduleRepository: PerformanceScheduleRepository,
-    private val ticketOptionRepository: TicketOptionRepository,
-    private val objectMapper: ObjectMapper,
-    private val seatingChartParser: SeatingChartParser
+    private val ticketOptionSyncService: TicketOptionSyncService,
+    private val objectMapper: ObjectMapper
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
 
     @Transactional
     fun createVenue(request: CreateVenueRequest): VenueResponse {
@@ -111,45 +104,14 @@ class VenueService(
         // 도메인 엔티티에게 업데이트 위임 (Aggregate Root를 통한 관리)
         venue.updateSeatingChart(seatingChartJson, newCapacities)
 
-        // 좌석배치도 변경 시 관련 스케줄의 TicketOption.totalQuantity 동기화
-        syncTicketOptionTotalQuantity(venueId, seatingChartJson)
+        // 좌석배치도 변경 시 관련 스케줄의 TicketOption.totalQuantity 동기화 (Aggregate 경계 존중)
+        ticketOptionSyncService.syncTotalQuantityByVenue(venueId, seatingChartJson)
 
         return SeatingChartResponse(
             venueId = venue.id,
             seatingChart = request.seatingChart,
             seatCapacities = venue.seatCapacities.map { VenueSeatCapacityResponse.from(it) }.ifEmpty { null }
         )
-    }
-
-    /**
-     * 좌석배치도 변경 시 관련 스케줄의 TicketOption.totalQuantity 동기화
-     * - 미래 스케줄(공연 시작 전)만 대상
-     */
-    private fun syncTicketOptionTotalQuantity(venueId: Long, seatingChartJson: String) {
-        val now = LocalDateTime.now()
-        val futureSchedules = performanceScheduleRepository.findFutureSchedulesByVenueId(venueId, now)
-
-        if (futureSchedules.isEmpty()) {
-            log.info("Venue {} 좌석배치도 변경: 동기화할 미래 스케줄 없음", venueId)
-            return
-        }
-
-        val seatsByGrade = seatingChartParser.countSeatsByGrade(seatingChartJson)
-
-        var updatedCount = 0
-        for (schedule in futureSchedules) {
-            val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
-            for (option in ticketOptions) {
-                val newTotalQuantity = seatsByGrade[option.seatGrade] ?: 0
-                if (option.totalQuantity != newTotalQuantity) {
-                    option.totalQuantity = newTotalQuantity
-                    updatedCount++
-                }
-            }
-        }
-
-        log.info("Venue {} 좌석배치도 변경: {} 스케줄, {} TicketOption 동기화 완료",
-            venueId, futureSchedules.size, updatedCount)
     }
 
     private fun findVenueById(id: Long): Venue {
