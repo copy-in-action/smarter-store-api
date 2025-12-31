@@ -2,6 +2,16 @@
 
 ## 2025년 12월 31일 (수)
 
+*   **ErrorCode 로그레벨 속성 추가:**
+    *   운영 환경 로그 품질 향상을 위해 ErrorCode에 `logLevel` 속성 추가
+    *   `LogLevel` enum 생성 (`ERROR`, `WARN`, `DEBUG`)
+    *   에러코드별 적절한 로그레벨 분류:
+        *   `ERROR`: `INTERNAL_SERVER_ERROR` (즉시 대응 필요, Slack 알림 대상)
+        *   `DEBUG`: 인증 관련 빈번한 예외 (`LOGIN_FAILED`, `ADMIN_LOGIN_FAILED`, `INVALID_REFRESH_TOKEN`, `EXPIRED_REFRESH_TOKEN`, `EMAIL_NOT_VERIFIED`, `INVALID_EMAIL_VERIFICATION_TOKEN`, `EXPIRED_EMAIL_VERIFICATION_TOKEN`)
+        *   `WARN`: 기본값 (나머지 비즈니스 예외)
+    *   `GlobalExceptionHandler.handleCustomException()`에서 logLevel에 따라 적절한 로그 레벨로 기록
+    *   기대 효과: ERROR 로그 필터링으로 실제 문제 즉시 파악, Slack 알림 정확도 향상, 로그 노이즈 감소
+
 *   **Docker Compose 로컬 환경 구성:**
     *   로컬 개발용 `docker-compose.yml`에 PostgreSQL 컨테이너 추가 (postgres:15-alpine)
     *   Health check 기반 의존성 관리로 앱 시작 전 DB 준비 상태 보장
