@@ -88,6 +88,9 @@ data class UserResponse(
     @Schema(description = "사용자 이름", example = "홍길동")
     val username: String,
 
+    @Schema(description = "핸드폰 번호", example = "01012345678")
+    val phoneNumber: String?,
+
     @Schema(description = "사용자 생성일시")
     val createdAt: java.time.LocalDateTime?
 ) {
@@ -97,6 +100,7 @@ data class UserResponse(
                 id = user.id,
                 email = user.email,
                 username = user.username,
+                phoneNumber = user.phoneNumber,
                 createdAt = user.createdAt
             )
         }

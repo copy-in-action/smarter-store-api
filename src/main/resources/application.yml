@@ -50,3 +50,6 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: alpha
+
+migration:
+  encrypt-phone-number: true  # true로 변경하면 서버 시작 시 기존 전화번호 암호화

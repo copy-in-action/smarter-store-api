@@ -27,6 +27,7 @@
 *   **개인정보 보호 강화:**
     *   로그아웃 시 Refresh Token DB에서 삭제
     *   전화번호 AES-256-GCM 암호화 (`EncryptionUtil`, `EncryptedStringConverter`)
+    *   기존 평문 전화번호 마이그레이션 스크립트 (`PhoneNumberMigration`)
     *   감사로그 마스킹 범위 확대 (email, phoneNumber, otp, token 추가)
     *   감사로그 응답 이메일 마스킹 (`u***r@example.com`)
 
