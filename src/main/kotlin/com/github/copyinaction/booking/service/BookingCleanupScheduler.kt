@@ -30,22 +30,16 @@ class BookingCleanupScheduler(
         val expiredBookings = bookingRepository.findAllByStatusAndExpiresAtBefore(BookingStatus.PENDING, now)
 
         if (expiredBookings.isNotEmpty()) {
-            log.info("만료된 PENDING 예매 {}건 발견.", expiredBookings.size)
             expiredBookings.forEach { booking ->
                 val scheduleId = booking.schedule.id
                 val seatPositions = booking.bookingSeats.map {
                     SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
                 }
-
-                // 2. Booking 상태를 EXPIRED로 변경
                 booking.expire()
-                log.info("예매 ID {} 상태 EXPIRED로 변경.", booking.id)
-
-                // 3. 해당 유저의 좌석 점유 해제 및 SSE 이벤트 발행
                 seatOccupationService.releaseUserPendingSeats(scheduleId, booking.user.id, seatPositions)
             }
             bookingRepository.saveAll(expiredBookings)
-            log.info("만료된 PENDING 예매 {}건 처리 완료.", expiredBookings.size)
+            log.info("만료된 PENDING 예매 {}건 처리 완료", expiredBookings.size)
         }
 
         // 4. 만료된 좌석 점유 정리 (Booking 없이 남아있는 만료된 점유)
