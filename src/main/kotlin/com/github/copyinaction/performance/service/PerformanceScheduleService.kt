@@ -237,6 +237,35 @@ class PerformanceScheduleService(
         }
     }
 
+    /**
+     * 단일 회차 조회 (잔여석 포함) - 사용자용
+     */
+    fun getScheduleWithRemainingSeats(scheduleId: Long): AvailableScheduleResponse {
+        val schedule = findScheduleById(scheduleId)
+        val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
+
+        // 등급별 점유 좌석 수 집계
+        val occupiedByGradeRaw = scheduleSeatStatusRepository.countByScheduleIdGroupBySeatGrade(schedule.id)
+        val occupiedByGrade = occupiedByGradeRaw.associate {
+            (it[0] as SeatGrade) to (it[1] as Long).toInt()
+        }
+
+        // 등급별 잔여석 계산
+        val ticketOptionsWithSeats = ticketOptions.map { option ->
+            val totalSeats = option.totalQuantity
+            val occupied = occupiedByGrade[option.seatGrade] ?: 0
+            val remaining = maxOf(0, totalSeats - occupied)
+
+            TicketOptionWithRemainingSeatsResponse(
+                seatGrade = option.seatGrade.name,
+                price = option.price,
+                remainingSeats = remaining
+            )
+        }
+
+        return AvailableScheduleResponse.from(schedule, ticketOptionsWithSeats)
+    }
+
     private fun findScheduleById(scheduleId: Long): PerformanceSchedule {
         return performanceScheduleRepository.findById(scheduleId)
             .orElseThrow { CustomException(ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND) }

@@ -1,5 +1,30 @@
 # Changelog
 
+## 2025년 12월 31일 (수)
+
+*   **Docker Compose 로컬 환경 구성:**
+    *   로컬 개발용 `docker-compose.yml`에 PostgreSQL 컨테이너 추가 (postgres:15-alpine)
+    *   Health check 기반 의존성 관리로 앱 시작 전 DB 준비 상태 보장
+    *   `depends_on: condition: service_healthy` 적용
+    *   Hibernate Dialect 오류 해결 (DB 연결 실패로 인한 메타데이터 조회 불가 문제)
+*   **모니터링 폴더 구조 정리:**
+    *   `monitoring/` → `monitoring-prod/`로 폴더명 변경하여 환경 구분 명확화
+    *   로컬/운영 모니터링 설정 분리: `monitoring-local/`, `monitoring-prod/`
+*   **사용자용 단일 회차 조회 API 추가:**
+    *   `GET /api/schedules/{scheduleId}` - 특정 회차의 등급별 가격 및 잔여석 조회
+    *   FE 피드백 반영: 예매 시 선택한 회차의 가격 정보 직접 조회 가능
+    *   `PerformanceScheduleService.getScheduleWithRemainingSeats()` 메서드 추가
+*   **컨트롤러 통합 리팩토링:**
+    *   `SeatController` → `ScheduleController`로 통합
+    *   `/api/schedules/{scheduleId}/*` 경로를 단일 컨트롤러에서 관리
+    *   통합된 API: 회차 조회, 좌석 상태 조회, SSE 구독
+*   **문서 추가:**
+    *   `documents/05_인프라_및_배포/Grafana_사용_매뉴얼.md` 작성
+        *   Grafana 접속 정보 및 기본 용어
+        *   대시보드/패널 생성 방법
+        *   권장 메트릭 (시스템, HTTP, DB, JVM) 및 PromQL 쿼리 예시
+        *   알림 설정 가이드 및 트러블슈팅
+
 ## 2025년 12월 29일 (월)
 
 *   **문서 관리 체계 개선 (Documentation Refactoring):**
