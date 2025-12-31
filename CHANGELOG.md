@@ -2,57 +2,23 @@
 
 ## 2025년 12월 31일 (수)
 
-*   **ErrorCode 로그레벨 속성 추가:**
-    *   운영 환경 로그 품질 향상을 위해 ErrorCode에 `logLevel` 속성 추가
-    *   `LogLevel` enum 생성 (`ERROR`, `WARN`, `DEBUG`)
-    *   에러코드별 적절한 로그레벨 분류:
-        *   `ERROR`: `INTERNAL_SERVER_ERROR` (즉시 대응 필요, Slack 알림 대상)
-        *   `DEBUG`: 인증 관련 빈번한 예외 (`LOGIN_FAILED`, `ADMIN_LOGIN_FAILED`, `INVALID_REFRESH_TOKEN`, `EXPIRED_REFRESH_TOKEN`, `EMAIL_NOT_VERIFIED`, `INVALID_EMAIL_VERIFICATION_TOKEN`, `EXPIRED_EMAIL_VERIFICATION_TOKEN`)
-        *   `WARN`: 기본값 (나머지 비즈니스 예외)
-    *   `GlobalExceptionHandler.handleCustomException()`에서 logLevel에 따라 적절한 로그 레벨로 기록
-    *   기대 효과: ERROR 로그 필터링으로 실제 문제 즉시 파악, Slack 알림 정확도 향상, 로그 노이즈 감소
-
-*   **Docker Compose 로컬 환경 구성:**
-    *   로컬 개발용 `docker-compose.yml`에 PostgreSQL 컨테이너 추가 (postgres:15-alpine)
-    *   Health check 기반 의존성 관리로 앱 시작 전 DB 준비 상태 보장
-    *   `depends_on: condition: service_healthy` 적용
-    *   Hibernate Dialect 오류 해결 (DB 연결 실패로 인한 메타데이터 조회 불가 문제)
-*   **모니터링 폴더 구조 정리:**
-    *   `monitoring/` → `monitoring-prod/`로 폴더명 변경하여 환경 구분 명확화
-    *   로컬/운영 모니터링 설정 분리: `monitoring-local/`, `monitoring-prod/`
-*   **사용자용 단일 회차 조회 API 추가:**
-    *   `GET /api/schedules/{scheduleId}` - 특정 회차의 등급별 가격 및 잔여석 조회
-    *   FE 피드백 반영: 예매 시 선택한 회차의 가격 정보 직접 조회 가능
-    *   `PerformanceScheduleService.getScheduleWithRemainingSeats()` 메서드 추가
-*   **컨트롤러 통합 리팩토링:**
-    *   `SeatController` → `ScheduleController`로 통합
+*   **관리자 매출 대시보드:** API 6개 + HTML 페이지 (`/api/admin/dashboard/*`)
+    *   요약, 공연별/회차별 매출, 일별 추이, 최근 예매 내역 조회
+    *   Chart.js 기반 시각화 (라인/도넛 차트)
+*   **ErrorCode 로그레벨:** `logLevel` 속성 추가 (ERROR/WARN/DEBUG)
+    *   인증 관련 빈번한 예외는 DEBUG로 분류하여 로그 노이즈 감소
+*   **Docker Compose:** 로컬용 PostgreSQL 컨테이너 추가
+    *   health check 기반 의존성 관리로 DB 준비 후 앱 시작
+*   **모니터링 폴더 정리:** `monitoring/` → `monitoring-local/`, `monitoring-prod/` 분리
+*   **회차 조회 API:** `GET /api/schedules/{scheduleId}` 추가
+    *   예매 시 선택한 회차의 등급별 가격 및 잔여석 조회
+*   **컨트롤러 통합:** `SeatController` → `ScheduleController` 통합
     *   `/api/schedules/{scheduleId}/*` 경로를 단일 컨트롤러에서 관리
-    *   통합된 API: 회차 조회, 좌석 상태 조회, SSE 구독
-*   **문서 추가:**
-    *   `documents/05_인프라_및_배포/Grafana_사용_매뉴얼.md` 작성
-        *   Grafana 접속 정보 및 기본 용어
-        *   대시보드/패널 생성 방법
-        *   권장 메트릭 (시스템, HTTP, DB, JVM) 및 PromQL 쿼리 예시
-        *   알림 설정 가이드 및 트러블슈팅
-*   **DDD 리팩토링 (Service 계층 개선):**
-    *   **PerformanceScheduleService 중복 코드 제거:**
-        *   잔여석 계산 로직 추출: `calculateRemainingSeats()`, `buildScheduleResponseWithRemainingSeats()` 메서드
-        *   중복 40줄 → 공통 메서드 2개로 정리
-    *   **PerformanceScheduleService 시간 절삭 로직 Entity로 이동:**
-        *   `PerformanceSchedule.create()`, `update()` 내부에서 `truncateToMinute()` 처리
-        *   Service에서 원본 값 전달, Entity에서 정규화 (DDD 원칙)
-    *   **AuthService 책임 분리:**
-        *   `TokenService` 분리 - 토큰 발급/갱신 담당
-        *   `EmailVerificationService` 분리 - OTP 발송/검증 담당
-        *   AuthService 7개 → 6개 의존성 감소
-    *   **BookingService에서 SeatOccupationService 분리:**
-        *   좌석 점유/해제/확정 로직을 별도 도메인 서비스로 분리
-        *   BookingService 8개 → 5개 의존성 감소
-        *   `SeatChangeResult` DTO로 좌석 변경 상태 관리 (kept, released, added)
-    *   **VenueService Aggregate 경계 위반 수정:**
-        *   `syncTicketOptionTotalQuantity()` 로직을 `TicketOptionSyncService`로 분리
-        *   Venue Aggregate가 TicketOption(다른 Aggregate) 직접 수정 → Performance 도메인 서비스 위임
-        *   VenueService 6개 → 4개 의존성 감소
+*   **문서:** Grafana 사용 매뉴얼 작성
+*   **DDD 리팩토링:** Service 책임 분리
+    *   AuthService → TokenService, EmailVerificationService 분리
+    *   BookingService → SeatOccupationService 분리
+    *   VenueService → TicketOptionSyncService 분리 (Aggregate 경계 준수)
 
 ## 2025년 12월 29일 (월)
 

@@ -66,6 +66,7 @@ class SecurityConfig(
                     "/actuator/health",
                     "/actuator/prometheus",
                     "/.well-known/**",  // Chrome DevTools 요청 무시
+                    "/admin/**",  // 관리자 대시보드 정적 파일
                 ).permitAll()
                 it.requestMatchers("/api/auth/me").authenticated()
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/venues", "/api/venues/**").permitAll()
