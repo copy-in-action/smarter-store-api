@@ -63,7 +63,7 @@ data class AuditLogResponse(
             return AuditLogResponse(
                 id = auditLog.id,
                 userId = auditLog.userId,
-                userEmail = auditLog.userEmail,
+                userEmail = maskEmail(auditLog.userEmail),
                 userRole = auditLog.userRole,
                 action = auditLog.action,
                 actionDescription = auditLog.action.description,
@@ -143,7 +143,7 @@ data class AuditLogDetailResponse(
             return AuditLogDetailResponse(
                 id = auditLog.id,
                 userId = auditLog.userId,
-                userEmail = auditLog.userEmail,
+                userEmail = maskEmail(auditLog.userEmail),
                 userRole = auditLog.userRole,
                 action = auditLog.action,
                 actionDescription = auditLog.action.description,
@@ -178,6 +178,22 @@ private fun getStatusDescription(status: Int?): String {
         in 500..599 -> "서버 오류 ($status)"
         else -> "기타 ($status)"
     }
+}
+
+/**
+ * 이메일 마스킹 (예: user@example.com -> u***r@example.com)
+ */
+private fun maskEmail(email: String?): String? {
+    if (email.isNullOrBlank()) return null
+    val parts = email.split("@")
+    if (parts.size != 2) return email
+    val localPart = parts[0]
+    val domain = parts[1]
+    val masked = when {
+        localPart.length <= 2 -> "*".repeat(localPart.length)
+        else -> "${localPart.first()}${"*".repeat(localPart.length - 2)}${localPart.last()}"
+    }
+    return "$masked@$domain"
 }
 
 @Schema(description = "감사 로그 통계 응답")

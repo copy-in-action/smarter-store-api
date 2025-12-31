@@ -143,7 +143,13 @@ class AuditLogService(
 
     companion object {
         private val SENSITIVE_KEYS = listOf(
+            // 인증 정보
             "password", "newPassword", "currentPassword",
+            // 개인정보
+            "email", "phoneNumber",
+            // 인증 토큰
+            "otp", "token", "refreshToken", "accessToken",
+            // 결제 정보
             "cardNumber", "cvv", "securityCode"
         ).joinToString("|")
 

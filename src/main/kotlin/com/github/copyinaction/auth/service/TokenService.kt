@@ -41,6 +41,14 @@ class TokenService(
     }
 
     /**
+     * 로그아웃 시 사용자의 모든 Refresh Token 삭제
+     */
+    @Transactional
+    fun revokeAllTokens(userId: Long) {
+        refreshTokenRepository.deleteByUserId(userId)
+    }
+
+    /**
      * Refresh Token으로 새 토큰 발급
      */
     @Transactional

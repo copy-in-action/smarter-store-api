@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.auth.service.AuthService
 import com.github.copyinaction.auth.service.CookieService
+import com.github.copyinaction.auth.service.CustomUserDetails
+import com.github.copyinaction.auth.service.TokenService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -35,7 +37,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/auth")
 class AuthController(
     private val authService: AuthService,
-    private val cookieService: CookieService
+    private val cookieService: CookieService,
+    private val tokenService: TokenService
 ) {
 
     @Operation(summary = "회원가입", description = "이메일 인증(OTP 확인)이 완료된 후 새로운 사용자를 생성합니다.\n\n**권한: 누구나**")
@@ -133,17 +136,20 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "로그아웃", description = "사용자 세션을 종료하고 인증 쿠키를 삭제합니다.\n\n**권한: 누구나**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
+    @Operation(summary = "로그아웃", description = "사용자 세션을 종료하고 인증 쿠키 및 Refresh Token을 삭제합니다.\n\n**권한: USER, ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "로그아웃 성공")
     )
     @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
     @Auditable(action = AuditAction.LOGOUT)
     fun logout(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @RequestHeader(value = "Origin", required = false) origin: String?,
         @RequestHeader(value = "Host", required = false) host: String?,
         response: HttpServletResponse
     ): ResponseEntity<Void> {
+        tokenService.revokeAllTokens(userDetails.id)
         cookieService.clearAuthCookies(response, origin, host)
         return ResponseEntity.ok().build()
     }

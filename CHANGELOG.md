@@ -19,6 +19,16 @@
     *   AuthService → TokenService, EmailVerificationService 분리
     *   BookingService → SeatOccupationService 분리
     *   VenueService → TicketOptionSyncService 분리 (Aggregate 경계 준수)
+*   **로그 정리:** 프로젝트 전체 로그 검토 및 개선
+    *   불필요한 디버그 로그 삭제 (JwtAuthenticationFilter, CookieService, EmailService)
+    *   NoResourceFoundException 핸들러 추가 (favicon.ico 등 DEBUG 처리)
+    *   BookingCleanupScheduler 중복 로그 제거
+    *   미사용 ErrorCode 17개 삭제
+*   **개인정보 보호 강화:**
+    *   로그아웃 시 Refresh Token DB에서 삭제
+    *   전화번호 AES-256-GCM 암호화 (`EncryptionUtil`, `EncryptedStringConverter`)
+    *   감사로그 마스킹 범위 확대 (email, phoneNumber, otp, token 추가)
+    *   감사로그 응답 이메일 마스킹 (`u***r@example.com`)
 
 ## 2025년 12월 29일 (월)
 

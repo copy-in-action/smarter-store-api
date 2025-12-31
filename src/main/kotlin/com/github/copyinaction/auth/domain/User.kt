@@ -1,6 +1,7 @@
 package com.github.copyinaction.auth.domain
 
 import com.github.copyinaction.common.domain.BaseEntity
+import com.github.copyinaction.common.encryption.EncryptedStringConverter
 import com.github.copyinaction.config.jwt.JwtTokenProvider
 import jakarta.persistence.*
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -21,7 +22,8 @@ class User(
     @Column(nullable = false)
     var passwordHash: String,
 
-    @Column(nullable = true) // Can be nullable
+    @Column(nullable = true)
+    @Convert(converter = EncryptedStringConverter::class)
     var phoneNumber: String? = null,
 
     @Column(nullable = false)
