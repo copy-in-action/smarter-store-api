@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026년 1월 2일 (금)
+
+*   **SSE Broken pipe 에러 처리 개선:**
+    *   `GlobalExceptionHandler`에 `IOException` 전용 핸들러 추가
+    *   클라이언트 연결 끊김(Broken pipe) 시 ERROR 대신 DEBUG 레벨로 로깅
+    *   불필요한 에러 로그 노이즈 감소
+
 ## 2025년 12월 31일 (수)
 
 *   **관리자 매출 대시보드:** API 6개 + HTML 페이지 (`/api/admin/dashboard/*`)
