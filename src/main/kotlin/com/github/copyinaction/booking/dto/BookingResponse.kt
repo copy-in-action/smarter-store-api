@@ -38,7 +38,7 @@ data class BookingResponse(
                 remainingSeconds = booking.getRemainingSeconds(),
                 seats = booking.bookingSeats.map { BookingSeatResponse.from(it) },
                 totalPrice = booking.totalPrice,
-                status = booking.status
+                status = booking.bookingStatus
             )
         }
     }

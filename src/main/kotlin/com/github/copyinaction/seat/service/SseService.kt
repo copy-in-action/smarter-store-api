@@ -2,7 +2,7 @@ package com.github.copyinaction.seat.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.copyinaction.seat.dto.SeatEventMessage
-import com.github.copyinaction.seat.dto.SeatPosition
+import com.github.copyinaction.seat.domain.SeatPosition
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service

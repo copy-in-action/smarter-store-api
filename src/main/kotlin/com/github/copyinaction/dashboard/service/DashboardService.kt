@@ -297,12 +297,12 @@ class DashboardService(
      */
     fun getRecentBookings(
         limit: Int,
-        status: BookingStatus?,
+        bookingStatus: BookingStatus?,
         performanceId: Long?
     ): RecentBookingsResponse {
         val effectiveLimit = limit.coerceIn(1, 50)
         val bookings = dashboardRepository.findRecentBookings(
-            status, performanceId, PageRequest.of(0, effectiveLimit)
+            bookingStatus, performanceId, PageRequest.of(0, effectiveLimit)
         )
 
         return RecentBookingsResponse(
@@ -390,20 +390,20 @@ class DashboardService(
         return dashboardRepository.findRecentBookingsBySchedule(scheduleId, PageRequest.of(0, Int.MAX_VALUE)).size.toLong()
     }
 
-    private fun getScheduleBookingCountByStatus(scheduleId: Long, status: BookingStatus): Long {
+    private fun getScheduleBookingCountByStatus(scheduleId: Long, bookingStatus: BookingStatus): Long {
         return dashboardRepository.findRecentBookingsBySchedule(scheduleId, PageRequest.of(0, Int.MAX_VALUE))
-            .count { it.status == status }.toLong()
+            .count { it.bookingStatus == bookingStatus }.toLong()
     }
 
     private fun Booking.toRecentBookingResponse(): RecentBookingResponse {
         return RecentBookingResponse(
             bookingId = this.id.toString(),
             bookingNumber = this.bookingNumber,
-            status = this.status.name,
+            status = this.bookingStatus.name,
             performanceTitle = this.schedule.performance.title,
             scheduleDate = this.schedule.showDateTime,
-            userName = maskName(this.user.username),
-            userEmail = maskEmail(this.user.email),
+            userName = maskName(this.siteUser.username),
+            userEmail = maskEmail(this.siteUser.email),
             ticketCount = this.bookingSeats.size,
             totalPrice = this.totalPrice,
             createdAt = this.createdAt!!

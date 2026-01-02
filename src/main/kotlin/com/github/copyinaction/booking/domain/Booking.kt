@@ -10,7 +10,9 @@ import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.random.Random
 
 @Entity
 @Table(name = "booking")
@@ -25,7 +27,7 @@ class Booking(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     @Comment("예매자 ID")
-    val user: User,
+    val siteUser: User,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "schedule_id")
@@ -47,7 +49,7 @@ class Booking(
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_status", nullable = false)
     @Comment("예매 상태")
-    var status: BookingStatus = BookingStatus.PENDING
+    var bookingStatus: BookingStatus = BookingStatus.PENDING
         private set
 
     @Column(nullable = false)
@@ -61,15 +63,23 @@ class Booking(
 
         fun create(
             user: User,
-            schedule: PerformanceSchedule,
-            bookingNumber: String
+            schedule: PerformanceSchedule
         ): Booking {
+            schedule.validateCanBook()
+            
             return Booking(
-                user = user,
+                siteUser = user,
                 schedule = schedule,
-                bookingNumber = bookingNumber,
+                bookingNumber = generateBookingNumber(),
                 expiresAt = LocalDateTime.now().plusMinutes(BOOKING_VALIDITY_MINUTES)
             )
+        }
+
+        private fun generateBookingNumber(): String {
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+            val datePart = LocalDateTime.now().format(formatter)
+            val randomPart = Random.nextInt(100_000_000, 999_999_999).toString()
+            return "$datePart-$randomPart"
         }
     }
 
@@ -114,21 +124,21 @@ class Booking(
 
     fun confirm() {
         validateBookingIsMutable()
-        this.status = BookingStatus.CONFIRMED
+        this.bookingStatus = BookingStatus.CONFIRMED
     }
 
     fun cancel() {
-        if (this.status != BookingStatus.PENDING && this.status != BookingStatus.CONFIRMED) {
+        if (this.bookingStatus != BookingStatus.PENDING && this.bookingStatus != BookingStatus.CONFIRMED) {
              throw CustomException(ErrorCode.BOOKING_INVALID_STATUS, "취소할 수 없는 예매 상태입니다.")
         }
-        this.status = BookingStatus.CANCELLED
+        this.bookingStatus = BookingStatus.CANCELLED
     }
 
     fun expire() {
-        if (this.status != BookingStatus.PENDING) {
+        if (this.bookingStatus != BookingStatus.PENDING) {
             return // 이미 처리된 경우 무시
         }
-        this.status = BookingStatus.EXPIRED
+        this.bookingStatus = BookingStatus.EXPIRED
     }
 
     fun getRemainingSeconds(): Long {
@@ -141,7 +151,7 @@ class Booking(
     }
 
     fun validateBookingIsMutable() {
-        if (this.status != BookingStatus.PENDING) {
+        if (this.bookingStatus != BookingStatus.PENDING) {
             throw CustomException(ErrorCode.BOOKING_INVALID_STATUS, "예매를 변경할 수 없는 상태입니다.")
         }
         if (isExpired()) {

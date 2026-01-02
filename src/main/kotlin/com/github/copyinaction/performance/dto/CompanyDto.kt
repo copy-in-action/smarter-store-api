@@ -2,7 +2,9 @@ package com.github.copyinaction.performance.dto
 
 import com.github.copyinaction.performance.domain.Company
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
 
 @Schema(description = "판매자 정보 응답 DTO")
 data class CompanyResponse(
@@ -48,17 +50,22 @@ data class CompanyResponse(
 
 @Schema(description = "판매자 생성/수정 요청 DTO")
 data class CompanyRequest(
-    @field:NotBlank
+    @field:NotBlank(message = "상호명은 필수입니다.")
     @Schema(description = "상호", example = "미쓰잭슨 주식회사", required = true)
     val name: String,
 
     @Schema(description = "대표자명", example = "박주영")
     val ceoName: String?,
 
-    @field:NotBlank
+    @field:NotBlank(message = "사업자등록번호는 필수입니다.")
+    @field:Pattern(
+        regexp = "^(\\d{3}-\\d{2}-\\d{5}|\\d{10})$",
+        message = "사업자등록번호 형식이 올바르지 않습니다. (예: 123-45-67890 또는 숫자 10자리)"
+    )
     @Schema(description = "사업자등록번호", example = "564-88-01097", required = true)
     val businessNumber: String,
 
+    @field:Email(message = "이메일 형식이 올바르지 않습니다.")
     @Schema(description = "이메일", example = "hello@msjackson.biz")
     val email: String?,
 

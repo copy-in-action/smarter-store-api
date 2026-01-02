@@ -2,6 +2,7 @@ package com.github.copyinaction.seat.dto
 
 import com.github.copyinaction.seat.domain.ScheduleSeatStatus
 import com.github.copyinaction.seat.domain.SeatStatus
+import com.github.copyinaction.seat.domain.SeatPosition
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
@@ -88,14 +89,6 @@ enum class SeatEventAction {
     RELEASED,   // 좌석 해제됨
     CONFIRMED   // 좌석 확정됨
 }
-
-/**
- * SSE 이벤트용 좌석 위치
- */
-data class SeatPosition(
-    val row: Int,
-    val col: Int
-)
 
 /**
  * SSE 이벤트 메시지

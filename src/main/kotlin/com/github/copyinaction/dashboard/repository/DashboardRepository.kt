@@ -20,11 +20,11 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
 
     @Query("""
         SELECT
-            COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as totalRevenue,
+            COALESCE(SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as totalRevenue,
             COUNT(b) as totalBookings,
-            SUM(CASE WHEN b.status = 'CONFIRMED' THEN 1 ELSE 0 END) as confirmedBookings,
-            SUM(CASE WHEN b.status = 'CANCELLED' THEN 1 ELSE 0 END) as cancelledBookings,
-            SUM(CASE WHEN b.status = 'EXPIRED' THEN 1 ELSE 0 END) as expiredBookings
+            SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN 1 ELSE 0 END) as confirmedBookings,
+            SUM(CASE WHEN b.bookingStatus = 'CANCELLED' THEN 1 ELSE 0 END) as cancelledBookings,
+            SUM(CASE WHEN b.bookingStatus = 'EXPIRED' THEN 1 ELSE 0 END) as expiredBookings
         FROM Booking b
         WHERE b.createdAt >= :startDate AND b.createdAt < :endDate
     """)
@@ -36,7 +36,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
     @Query("""
         SELECT COUNT(bs)
         FROM BookingSeat bs
-        WHERE bs.booking.status = 'CONFIRMED'
+        WHERE bs.booking.bookingStatus = 'CONFIRMED'
           AND bs.booking.createdAt >= :startDate
           AND bs.booking.createdAt < :endDate
     """)
@@ -55,17 +55,17 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
             v.name as venueName,
             p.startDate as startDate,
             p.endDate as endDate,
-            COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as totalRevenue,
+            COALESCE(SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as totalRevenue,
             COUNT(b) as totalBookings,
-            SUM(CASE WHEN b.status = 'CONFIRMED' THEN 1 ELSE 0 END) as confirmedBookings,
-            SUM(CASE WHEN b.status = 'CANCELLED' THEN 1 ELSE 0 END) as cancelledBookings
+            SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN 1 ELSE 0 END) as confirmedBookings,
+            SUM(CASE WHEN b.bookingStatus = 'CANCELLED' THEN 1 ELSE 0 END) as cancelledBookings
         FROM Performance p
         LEFT JOIN p.venue v
         LEFT JOIN PerformanceSchedule ps ON ps.performance = p
         LEFT JOIN Booking b ON b.schedule = ps
             AND b.createdAt >= :startDate AND b.createdAt < :endDate
         GROUP BY p.id, p.title, p.category, v.name, p.startDate, p.endDate
-        ORDER BY SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalPrice ELSE 0 END) DESC
+        ORDER BY SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN b.totalPrice ELSE 0 END) DESC
     """)
     fun findPerformanceSales(
         @Param("startDate") startDate: LocalDateTime,
@@ -79,7 +79,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
         JOIN bs.booking b
         JOIN b.schedule ps
         WHERE ps.performance.id = :performanceId
-          AND b.status = 'CONFIRMED'
+          AND b.bookingStatus = 'CONFIRMED'
           AND b.createdAt >= :startDate
           AND b.createdAt < :endDate
     """)
@@ -94,7 +94,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
     @Query("""
         SELECT
             CAST(b.createdAt AS LocalDate) as date,
-            COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as revenue,
+            COALESCE(SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as revenue,
             COUNT(b) as bookings
         FROM Booking b
         WHERE b.createdAt >= :startDate AND b.createdAt < :endDate
@@ -113,7 +113,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
             CAST(bs.booking.createdAt AS LocalDate) as date,
             COUNT(bs) as ticketsSold
         FROM BookingSeat bs
-        WHERE bs.booking.status = 'CONFIRMED'
+        WHERE bs.booking.bookingStatus = 'CONFIRMED'
           AND bs.booking.createdAt >= :startDate
           AND bs.booking.createdAt < :endDate
           AND (:performanceId IS NULL OR bs.booking.schedule.performance.id = :performanceId)
@@ -134,7 +134,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
             COUNT(bs) as ticketsSold
         FROM BookingSeat bs
         JOIN bs.booking b
-        WHERE b.status = 'CONFIRMED'
+        WHERE b.bookingStatus = 'CONFIRMED'
           AND b.schedule.performance.id = :performanceId
           AND b.createdAt >= :startDate
           AND b.createdAt < :endDate
@@ -152,8 +152,8 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
         SELECT
             ps.id as scheduleId,
             ps.showDateTime as performanceDate,
-            COALESCE(SUM(CASE WHEN b.status = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as revenue,
-            SUM(CASE WHEN b.status = 'CONFIRMED' THEN 1 ELSE 0 END) as confirmedBookings
+            COALESCE(SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN b.totalPrice ELSE 0 END), 0) as revenue,
+            SUM(CASE WHEN b.bookingStatus = 'CONFIRMED' THEN 1 ELSE 0 END) as confirmedBookings
         FROM PerformanceSchedule ps
         LEFT JOIN Booking b ON b.schedule = ps
         WHERE ps.performance.id = :performanceId
@@ -168,7 +168,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
         SELECT COUNT(bs)
         FROM BookingSeat bs
         WHERE bs.booking.schedule.id = :scheduleId
-          AND bs.booking.status = 'CONFIRMED'
+          AND bs.booking.bookingStatus = 'CONFIRMED'
     """)
     fun getSoldSeatsBySchedule(@Param("scheduleId") scheduleId: Long): Long
 
@@ -176,7 +176,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
         SELECT COUNT(bs)
         FROM BookingSeat bs
         WHERE bs.booking.schedule.id = :scheduleId
-          AND bs.booking.status = 'PENDING'
+          AND bs.booking.bookingStatus = 'PENDING'
     """)
     fun getPendingSeatsBySchedule(@Param("scheduleId") scheduleId: Long): Long
 
@@ -190,7 +190,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
         FROM BookingSeat bs
         JOIN bs.booking b
         WHERE b.schedule.id = :scheduleId
-          AND b.status = 'CONFIRMED'
+          AND b.bookingStatus = 'CONFIRMED'
         GROUP BY bs.grade
     """)
     fun findSalesByGradeForSchedule(
@@ -204,7 +204,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
         FROM BookingSeat bs
         JOIN bs.booking b
         WHERE b.schedule.id = :scheduleId
-          AND b.status = 'PENDING'
+          AND b.bookingStatus = 'PENDING'
         GROUP BY bs.grade
     """)
     fun findPendingSeatsByGradeForSchedule(
@@ -215,15 +215,15 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
 
     @Query("""
         SELECT b FROM Booking b
-        JOIN FETCH b.user
+        JOIN FETCH b.siteUser
         JOIN FETCH b.schedule ps
         JOIN FETCH ps.performance
-        WHERE (:status IS NULL OR b.status = :status)
+        WHERE (:bookingStatus IS NULL OR b.bookingStatus = :bookingStatus)
           AND (:performanceId IS NULL OR ps.performance.id = :performanceId)
         ORDER BY b.createdAt DESC
     """)
     fun findRecentBookings(
-        @Param("status") status: BookingStatus?,
+        @Param("bookingStatus") bookingStatus: BookingStatus?,
         @Param("performanceId") performanceId: Long?,
         pageable: Pageable
     ): List<Booking>
@@ -232,7 +232,7 @@ interface DashboardRepository : JpaRepository<Booking, UUID> {
 
     @Query("""
         SELECT b FROM Booking b
-        JOIN FETCH b.user
+        JOIN FETCH b.siteUser
         JOIN FETCH b.schedule ps
         JOIN FETCH ps.performance
         WHERE b.schedule.id = :scheduleId

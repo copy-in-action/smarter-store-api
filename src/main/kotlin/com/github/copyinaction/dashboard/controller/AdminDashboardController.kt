@@ -150,32 +150,14 @@ class AdminDashboardController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(
-        summary = "최근 예매 내역 조회",
-        description = """
-            최근 예매 내역을 조회합니다.
-            - 예매 상태별 필터링 가능
-            - 특정 공연 필터링 가능
-            - 사용자 정보 마스킹 처리
-
-            **권한: ADMIN**
-        """
-    )
     @GetMapping("/bookings/recent")
+    @Operation(summary = "최근 예매 내역 조회")
     fun getRecentBookings(
-        @Parameter(description = "조회 건수 (기본: 10, 최대: 50)")
-        @RequestParam(defaultValue = "10")
-        limit: Int,
-
-        @Parameter(description = "예매 상태 필터 (PENDING, CONFIRMED, CANCELLED, EXPIRED)")
-        @RequestParam(required = false)
-        status: BookingStatus?,
-
-        @Parameter(description = "공연 ID (선택)")
-        @RequestParam(required = false)
-        performanceId: Long?
+        @RequestParam(defaultValue = "10") limit: Int,
+        @RequestParam(required = false) bookingStatus: BookingStatus?,
+        @RequestParam(required = false) performanceId: Long?
     ): ResponseEntity<RecentBookingsResponse> {
-        val response = dashboardService.getRecentBookings(limit, status, performanceId)
+        val response = dashboardService.getRecentBookings(limit, bookingStatus, performanceId)
         return ResponseEntity.ok(response)
     }
 }

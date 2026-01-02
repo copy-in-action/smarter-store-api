@@ -1,6 +1,8 @@
 package com.github.copyinaction.performance.domain
 
 import com.github.copyinaction.common.domain.BaseEntity
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.venue.domain.Venue
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
@@ -105,7 +107,7 @@ class Performance(
             bookingFee: Int? = null,
             shippingGuide: String? = null
         ): Performance {
-            return Performance(
+            val performance = Performance(
                 title = title,
                 description = description,
                 category = category,
@@ -128,6 +130,8 @@ class Performance(
                 bookingFee = bookingFee,
                 shippingGuide = shippingGuide
             )
+            performance.validate()
+            return performance
         }
     }
 
@@ -175,5 +179,22 @@ class Performance(
         this.company = company
         this.bookingFee = bookingFee
         this.shippingGuide = shippingGuide
+        validate()
+    }
+
+    private fun validate() {
+        if (endDate.isBefore(startDate)) {
+            throw CustomException(ErrorCode.INVALID_INPUT_VALUE, "종료일은 시작일 이후여야 합니다.")
+        }
+        runningTime?.let {
+            if (it <= 0) {
+                throw CustomException(ErrorCode.INVALID_INPUT_VALUE, "러닝타임은 0보다 커야 합니다.")
+            }
+        }
+        bookingFee?.let {
+            if (it < 0) {
+                throw CustomException(ErrorCode.INVALID_INPUT_VALUE, "예매 수수료는 0 이상이어야 합니다.")
+            }
+        }
     }
 }

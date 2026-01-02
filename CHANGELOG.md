@@ -2,6 +2,26 @@
 
 ## 2026년 1월 2일 (금)
 
+*   **DDD 아키텍처 고도화 및 풍부한 도메인 모델(Rich Domain Model) 적용:**
+    *   **도메인 로직 이동:** 서비스 계층에 흩어져 있던 핵심 비즈니스 계산 로직을 도메인 엔티티 및 값 객체(VO)로 이동하여 응집도를 높였습니다.
+        *   좌석 변경 계산 로직: `SeatOccupationService` → `SeatSelection` (VO) 이동
+        *   잔여 좌석 계산 로직: `PerformanceScheduleService` → `PerformanceSchedule` 엔티티 이동
+        *   예매 번호 생성 규칙: `BookingService` → `Booking` 엔티티 이동
+    *   **Domain Factory 패턴 적용:** DTO가 엔티티 생성 방식을 결정하지 않도록, 엔티티 내부 팩토리 메서드와 Command 객체를 도입했습니다. (`TicketOptionCommand`, `SeatCapacityCommand`)
+*   **이벤트 기반 아키텍처 (EDD) 도입을 통한 결합도 해소:**
+    *   **도메인 이벤트 발행:** Spring Data JPA의 `@DomainEvents`를 활용하여 애그리거트 상태 변경 시 이벤트를 발행하도록 개선했습니다.
+    *   **서비스 간 느슨한 결합:** `BookingService`와 `VenueService`가 다른 도메인 서비스를 직접 호출하던 강한 의존성을 제거하고, 이벤트 핸들러(`BookingEventHandler`, `VenueEventHandler`)를 통해 비동기/격리 처리가 가능하도록 구조를 개편했습니다.
+    *   **공통 인프라 구축:** 모든 엔티티가 이벤트를 관리할 수 있도록 `BaseEntity`에 도메인 이벤트 발행 기능을 통합했습니다.
+*   **전역 검증(Validation) 전략 수립 및 적용:**
+    *   **역할 분담 명확화:** DTO(형식 및 포맷 검증)와 Domain(비즈니스 논리 및 무결성 검증)의 책임을 명확히 구분하는 원칙을 수립하고 `DEVELOPMENT_CONVENTION.md`에 명시했습니다.
+    *   **도메인 검증 강화:** `Performance`, `PerformanceSchedule` 등에 날짜 순서 및 업무 규칙 검증 로직(`validate()`)을 추가하여 "언제나 올바른 상태의 엔티티"를 보장하도록 했습니다.
+    *   **DTO 검증 보강:** `CompanyRequest`, `PerformanceRequest` 등에 Bean Validation(@Pattern, @Email, @Min)을 추가하여 잘못된 형식을 입구에서 차단하도록 했습니다.
+*   **엔티티 명명 규칙 및 DB 예약어 대응 리팩토링:**
+    *   `Booking` 엔티티의 필드명을 컨벤션에 맞춰 리팩토링했습니다. (`status` → `bookingStatus`, `user` → `siteUser`)
+    *   이로 인해 발생한 대시보드 통계 쿼리(JPQL) 및 관련 서비스 로직을 전수 조사하여 업데이트를 완료했습니다.
+*   **문서 및 DX(Developer Experience) 개선:**
+    *   **설계 문서 추가:** `이벤트_기반_좌석_처리.md`를 작성하여 신규 도입된 아키텍처를 시각화하고 설명했습니다.
+    *   **Swagger 예제 최신화:** 테스트 편의를 위해 공연 회차 생성 예제 날짜를 현재 시점(2026년 1월)으로 업데이트했습니다.
 *   **SSE Broken pipe 에러 처리 개선:**
     *   `GlobalExceptionHandler`에 `IOException` 전용 핸들러 추가
     *   클라이언트 연결 끊김(Broken pipe) 시 ERROR 대신 DEBUG 레벨로 로깅

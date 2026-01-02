@@ -96,7 +96,7 @@ class PerformanceController(
     @GetMapping("/{id}/schedules")
     fun getAvailableSchedulesByDate(
         @Parameter(description = "공연 ID", required = true, example = "1") @PathVariable id: Long,
-        @Parameter(description = "조회할 날짜 (yyyy-MM-dd)", required = true, example = "2025-12-26")
+        @Parameter(description = "조회할 날짜 (yyyy-MM-dd)", required = true, example = "2026-01-02")
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
     ): ResponseEntity<List<AvailableScheduleResponse>> {
         val schedules = performanceScheduleService.getAvailableSchedulesByDate(id, date)

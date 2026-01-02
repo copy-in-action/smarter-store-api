@@ -2,7 +2,7 @@ package com.github.copyinaction.booking.service
 
 import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.booking.repository.BookingRepository
-import com.github.copyinaction.seat.dto.SeatPosition
+import com.github.copyinaction.seat.domain.SeatPosition
 import com.github.copyinaction.seat.repository.ScheduleSeatStatusRepository
 import com.github.copyinaction.seat.service.SeatOccupationService
 import org.slf4j.LoggerFactory
@@ -27,7 +27,7 @@ class BookingCleanupScheduler(
         log.debug("만료된 예매 및 좌석 점유 정리 스케줄러 실행: {}", now)
 
         // 1. 만료된 PENDING 상태의 예매 조회
-        val expiredBookings = bookingRepository.findAllByStatusAndExpiresAtBefore(BookingStatus.PENDING, now)
+        val expiredBookings = bookingRepository.findAllByBookingStatusAndExpiresAtBefore(BookingStatus.PENDING, now)
 
         if (expiredBookings.isNotEmpty()) {
             expiredBookings.forEach { booking ->
@@ -36,7 +36,7 @@ class BookingCleanupScheduler(
                     SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
                 }
                 booking.expire()
-                seatOccupationService.releaseUserPendingSeats(scheduleId, booking.user.id, seatPositions)
+                seatOccupationService.releaseUserPendingSeats(scheduleId, booking.siteUser.id, seatPositions)
             }
             bookingRepository.saveAll(expiredBookings)
             log.info("만료된 PENDING 예매 {}건 처리 완료", expiredBookings.size)

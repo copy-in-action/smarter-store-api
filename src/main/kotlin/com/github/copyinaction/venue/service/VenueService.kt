@@ -1,19 +1,14 @@
 package com.github.copyinaction.venue.service
 
-import com.github.copyinaction.venue.domain.Venue
-import com.github.copyinaction.venue.domain.VenueSeatCapacity
-import com.github.copyinaction.venue.dto.CreateVenueRequest
-import com.github.copyinaction.venue.dto.SeatingChartRequest
-import com.github.copyinaction.venue.dto.SeatingChartResponse
-import com.github.copyinaction.venue.dto.UpdateVenueRequest
-import com.github.copyinaction.venue.dto.VenueResponse
-import com.github.copyinaction.venue.dto.VenueSeatCapacityResponse
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.repository.PerformanceRepository
-import com.github.copyinaction.performance.service.TicketOptionSyncService
+import com.github.copyinaction.venue.domain.SeatCapacityCommand
+import com.github.copyinaction.venue.domain.SeatingChartUpdatedEvent
+import com.github.copyinaction.venue.domain.Venue
+import com.github.copyinaction.venue.dto.*
 import com.github.copyinaction.venue.repository.VenueRepository
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional
 class VenueService(
     private val venueRepository: VenueRepository,
     private val performanceRepository: PerformanceRepository,
-    private val ticketOptionSyncService: TicketOptionSyncService,
     private val objectMapper: ObjectMapper
 ) {
 
@@ -92,20 +86,20 @@ class VenueService(
         // 객체를 JSON 문자열로 직렬화
         val seatingChartJson = objectMapper.writeValueAsString(request.seatingChart)
 
-        // 새로운 좌석 정보 객체 생성 (Venue 객체를 전달)
-        val newCapacities = request.seatCapacities?.map { req ->
-            VenueSeatCapacity.create(
-                venue = venue,
+        // Command 객체 생성
+        val commands = request.seatCapacities?.map { req ->
+            SeatCapacityCommand(
                 seatGrade = req.seatGrade,
                 capacity = req.capacity
             )
         }
 
         // 도메인 엔티티에게 업데이트 위임 (Aggregate Root를 통한 관리)
-        venue.updateSeatingChart(seatingChartJson, newCapacities)
+        venue.updateSeatingChart(seatingChartJson, commands)
 
-        // 좌석배치도 변경 시 관련 스케줄의 TicketOption.totalQuantity 동기화 (Aggregate 경계 존중)
-        ticketOptionSyncService.syncTotalQuantityByVenue(venueId, seatingChartJson)
+        // 이벤트 등록 (좌석배치도 변경 시 관련 스케줄 동기화)
+        venue.registerEvent(SeatingChartUpdatedEvent(venueId, seatingChartJson))
+        venueRepository.save(venue)
 
         return SeatingChartResponse(
             venueId = venue.id,

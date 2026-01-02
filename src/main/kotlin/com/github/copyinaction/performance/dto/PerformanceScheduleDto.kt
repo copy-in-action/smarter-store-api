@@ -12,11 +12,11 @@ import java.time.LocalDateTime
 @Schema(description = "공연 회차 생성 요청 DTO")
 data class CreatePerformanceScheduleRequest(
     @field:NotNull
-    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00", required = true)
+    @Schema(description = "공연 날짜 및 시간", example = "2026-01-09T19:30:00", required = true)
     val showDateTime: LocalDateTime,
 
     @field:NotNull
-    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00", required = true)
+    @Schema(description = "티켓 판매 시작 일시", example = "2026-01-02T10:00:00", required = true)
     val saleStartDateTime: LocalDateTime,
 
     @field:NotEmpty
@@ -30,10 +30,10 @@ data class PerformanceScheduleResponse(
     @Schema(description = "회차 ID", example = "1")
     val id: Long,
 
-    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00")
+    @Schema(description = "공연 날짜 및 시간", example = "2026-01-09T19:30:00")
     val showDateTime: LocalDateTime,
 
-    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00")
+    @Schema(description = "티켓 판매 시작 일시", example = "2026-01-02T10:00:00")
     val saleStartDateTime: LocalDateTime,
 
     @Schema(description = "생성일시")
@@ -62,11 +62,11 @@ data class PerformanceScheduleResponse(
 @Schema(description = "공연 회차 수정 요청 DTO")
 data class UpdatePerformanceScheduleRequest(
     @field:NotNull
-    @Schema(description = "공연 날짜 및 시간", example = "2025-12-25T19:30:00", required = true)
+    @Schema(description = "공연 날짜 및 시간", example = "2026-01-09T19:30:00", required = true)
     val showDateTime: LocalDateTime,
 
     @field:NotNull
-    @Schema(description = "티켓 판매 시작 일시", example = "2025-12-10T14:00:00", required = true)
+    @Schema(description = "티켓 판매 시작 일시", example = "2026-01-02T10:00:00", required = true)
     val saleStartDateTime: LocalDateTime,
 
     @field:NotEmpty

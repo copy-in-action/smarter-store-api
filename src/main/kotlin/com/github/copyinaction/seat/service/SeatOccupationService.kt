@@ -4,8 +4,9 @@ import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.domain.PerformanceSchedule
 import com.github.copyinaction.seat.domain.ScheduleSeatStatus
+import com.github.copyinaction.seat.domain.SeatChangeResult
+import com.github.copyinaction.seat.domain.SeatPosition
 import com.github.copyinaction.seat.domain.SeatStatus
-import com.github.copyinaction.seat.dto.SeatPosition
 import com.github.copyinaction.seat.repository.ScheduleSeatStatusRepository
 import com.github.copyinaction.venue.domain.SeatGrade
 import com.github.copyinaction.venue.util.SeatingChartParser
@@ -24,19 +25,6 @@ class SeatOccupationService(
     private val sseService: SseService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-
-    /**
-     * 좌석 변경 사항 계산
-     */
-    fun calculateSeatChanges(
-        oldSet: Set<SeatPosition>,
-        newSet: Set<SeatPosition>
-    ): SeatChangeResult {
-        val kept = oldSet.intersect(newSet)
-        val released = oldSet - newSet
-        val added = newSet - oldSet
-        return SeatChangeResult(kept, released, added)
-    }
 
     /**
      * 좌석 상태 DB 반영 (점유/해제/연장)
@@ -173,11 +161,3 @@ class SeatOccupationService(
     }
 }
 
-/**
- * 좌석 변경 결과
- */
-data class SeatChangeResult(
-    val kept: Set<SeatPosition>,
-    val released: Set<SeatPosition>,
-    val added: Set<SeatPosition>
-)

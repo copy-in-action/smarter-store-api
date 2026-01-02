@@ -1,6 +1,8 @@
 package com.github.copyinaction.performance.domain
 
 import com.github.copyinaction.common.domain.BaseEntity
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 
@@ -53,7 +55,7 @@ class Company(
             address: String?,
             performanceInquiry: String?
         ): Company {
-            return Company(
+            val company = Company(
                 name = name,
                 ceoName = ceoName,
                 businessNumber = businessNumber,
@@ -62,6 +64,8 @@ class Company(
                 address = address,
                 performanceInquiry = performanceInquiry
             )
+            company.validate()
+            return company
         }
     }
 
@@ -81,5 +85,12 @@ class Company(
         this.contact = contact
         this.address = address
         this.performanceInquiry = performanceInquiry
+        validate()
+    }
+
+    private fun validate() {
+        if (name.isBlank()) {
+            throw CustomException(ErrorCode.INVALID_INPUT_VALUE, "상호명은 필수입니다.")
+        }
     }
 }

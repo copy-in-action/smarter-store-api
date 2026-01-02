@@ -6,6 +6,7 @@ import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.domain.PerformanceSchedule
 import com.github.copyinaction.performance.domain.TicketOption
+import com.github.copyinaction.performance.domain.TicketOptionCommand
 import com.github.copyinaction.performance.dto.AvailableScheduleResponse
 import com.github.copyinaction.performance.dto.CreatePerformanceScheduleRequest
 import com.github.copyinaction.performance.dto.PerformanceScheduleResponse
@@ -71,16 +72,15 @@ class PerformanceScheduleService(
             saleStartDateTime = request.saleStartDateTime
         )
 
-        request.ticketOptions.forEach { ticketOptionRequest ->
+        val commands = request.ticketOptions.map { ticketOptionRequest ->
             val totalQuantity = seatsByGrade[ticketOptionRequest.seatGrade] ?: 0
-            val ticketOption = TicketOption(
-                performanceSchedule = performanceSchedule,
+            TicketOptionCommand(
                 seatGrade = ticketOptionRequest.seatGrade,
                 price = ticketOptionRequest.price,
                 totalQuantity = totalQuantity
             )
-            performanceSchedule.addTicketOption(ticketOption)
         }
+        performanceSchedule.addTicketOptions(commands)
 
         val savedSchedule = performanceScheduleRepository.save(performanceSchedule)
 
@@ -106,7 +106,7 @@ class PerformanceScheduleService(
         val schedule = findScheduleById(scheduleId)
 
         // 예매가 진행된 경우 수정 불가 (PENDING, CONFIRMED 상태 체크)
-        if (bookingRepository.existsBySchedule_IdAndStatusIn(
+        if (bookingRepository.existsBySchedule_IdAndBookingStatusIn(
                 scheduleId,
                 listOf(BookingStatus.PENDING, BookingStatus.CONFIRMED)
             )
@@ -140,16 +140,16 @@ class PerformanceScheduleService(
 
         // 기존 티켓 옵션 삭제 후 새로 추가 (OrphanRemoval + Cascade)
         schedule.clearTicketOptions()
-        request.ticketOptions.forEach { ticketOptionRequest ->
+        
+        val commands = request.ticketOptions.map { ticketOptionRequest ->
             val totalQuantity = seatsByGrade[ticketOptionRequest.seatGrade] ?: 0
-            val ticketOption = TicketOption(
-                performanceSchedule = schedule,
+            TicketOptionCommand(
                 seatGrade = ticketOptionRequest.seatGrade,
                 price = ticketOptionRequest.price,
                 totalQuantity = totalQuantity
             )
-            schedule.addTicketOption(ticketOption)
         }
+        schedule.addTicketOptions(commands)
         
         // 명시적 저장 및 Flush (ID 생성 보장)
         val updatedSchedule = performanceScheduleRepository.saveAndFlush(schedule)
@@ -161,7 +161,7 @@ class PerformanceScheduleService(
         val schedule = findScheduleById(scheduleId)
 
         // 예매가 진행된 경우 삭제 불가 (PENDING, CONFIRMED 상태 체크)
-        if (bookingRepository.existsBySchedule_IdAndStatusIn(
+        if (bookingRepository.existsBySchedule_IdAndBookingStatusIn(
                 scheduleId,
                 listOf(BookingStatus.PENDING, BookingStatus.CONFIRMED)
             )
@@ -221,32 +221,26 @@ class PerformanceScheduleService(
      * 회차 응답 DTO 생성 (잔여석 계산 포함)
      */
     private fun buildScheduleResponseWithRemainingSeats(schedule: PerformanceSchedule): AvailableScheduleResponse {
-        val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
-        val ticketOptionsWithSeats = calculateRemainingSeats(schedule.id, ticketOptions)
+        val ticketOptionsWithSeats = calculateRemainingSeats(schedule)
         return AvailableScheduleResponse.from(schedule, ticketOptionsWithSeats)
     }
 
     /**
-     * 등급별 잔여석 계산
+     * 등급별 잔여석 계산 (도메인 위임)
      */
     private fun calculateRemainingSeats(
-        scheduleId: Long,
-        ticketOptions: List<TicketOption>
+        schedule: PerformanceSchedule
     ): List<TicketOptionWithRemainingSeatsResponse> {
-        val occupiedByGradeRaw = scheduleSeatStatusRepository.countByScheduleIdGroupBySeatGrade(scheduleId)
+        val occupiedByGradeRaw = scheduleSeatStatusRepository.countByScheduleIdGroupBySeatGrade(schedule.id)
         val occupiedByGrade = occupiedByGradeRaw.associate {
             (it[0] as SeatGrade) to (it[1] as Long).toInt()
         }
 
-        return ticketOptions.map { option ->
-            val totalSeats = option.totalQuantity
-            val occupied = occupiedByGrade[option.seatGrade] ?: 0
-            val remaining = maxOf(0, totalSeats - occupied)
-
+        return schedule.calculateRemainingSeats(occupiedByGrade).map { info ->
             TicketOptionWithRemainingSeatsResponse(
-                seatGrade = option.seatGrade.name,
-                price = option.price,
-                remainingSeats = remaining
+                seatGrade = info.seatGrade.name,
+                price = info.price,
+                remainingSeats = info.remainingCount
             )
         }
     }

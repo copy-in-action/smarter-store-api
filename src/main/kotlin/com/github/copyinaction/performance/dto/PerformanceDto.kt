@@ -3,6 +3,7 @@ package com.github.copyinaction.performance.dto
 import com.github.copyinaction.performance.domain.Performance
 import com.github.copyinaction.venue.dto.VenueResponse
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
@@ -38,10 +39,10 @@ data class PerformanceResponse(
     @Schema(description = "공연이 열리는 공연장 정보")
     val venue: VenueResponse?,
 
-    @Schema(description = "공연 시작일", example = "2025-12-20")
+    @Schema(description = "공연 시작일", example = "2026-01-02")
     val startDate: LocalDate,
 
-    @Schema(description = "공연 종료일", example = "2025-12-31")
+    @Schema(description = "공연 종료일", example = "2026-12-31")
     val endDate: LocalDate,
 
     @Schema(description = "출연진", example = "효린, 다솜")
@@ -117,7 +118,7 @@ data class PerformanceResponse(
 
 @Schema(description = "공연 생성 요청 DTO")
 data class CreatePerformanceRequest(
-    @field:NotBlank
+    @field:NotBlank(message = "공연명은 필수입니다.")
     @field:Size(max = 255)
     @Schema(description = "생성할 공연명", example = "2025 HYOLYN CONCERT", required = true)
     val title: String,
@@ -125,10 +126,11 @@ data class CreatePerformanceRequest(
     @Schema(description = "생성할 공연 상세 설명", example = "이 공연은...")
     val description: String?,
 
-    @field:NotBlank
+    @field:NotBlank(message = "공연 카테고리는 필수입니다.")
     @Schema(description = "생성할 공연 카테고리", example = "콘서트", required = true)
     val category: String,
 
+    @field:Min(1, message = "공연 시간은 1분 이상이어야 합니다.")
     @Schema(description = "생성할 공연 시간 (분)", example = "120")
     val runningTime: Int?,
 
@@ -144,11 +146,11 @@ data class CreatePerformanceRequest(
     @Schema(description = "공연이 열릴 공연장 ID", example = "1")
     val venueId: Long?,
 
-    @field:NotNull
+    @field:NotNull(message = "공연 시작일은 필수입니다.")
     @Schema(description = "생성할 공연 시작일", example = "2025-12-20", required = true)
     val startDate: LocalDate,
 
-    @field:NotNull
+    @field:NotNull(message = "공연 종료일은 필수입니다.")
     @Schema(description = "생성할 공연 종료일", example = "2025-12-31", required = true)
     val endDate: LocalDate,
 
@@ -183,6 +185,7 @@ data class CreatePerformanceRequest(
     @Schema(description = "판매자/기획사 ID", example = "1")
     val companyId: Long? = null,
 
+    @field:Min(0, message = "예매 수수료는 0원 이상이어야 합니다.")
     @Schema(description = "예매 수수료", example = "1000")
     val bookingFee: Int? = null,
 
@@ -192,7 +195,7 @@ data class CreatePerformanceRequest(
 
 @Schema(description = "공연 수정 요청 DTO")
 data class UpdatePerformanceRequest(
-    @field:NotBlank
+    @field:NotBlank(message = "공연명은 필수입니다.")
     @field:Size(max = 255)
     @Schema(description = "수정할 공연명", example = "2025 HYOLYN CONCERT", required = true)
     val title: String,
@@ -200,10 +203,11 @@ data class UpdatePerformanceRequest(
     @Schema(description = "수정할 공연 상세 설명", example = "이 공연은...")
     val description: String?,
 
-    @field:NotBlank
+    @field:NotBlank(message = "공연 카테고리는 필수입니다.")
     @Schema(description = "수정할 공연 카테고리", example = "콘서트", required = true)
     val category: String,
 
+    @field:Min(1, message = "공연 시간은 1분 이상이어야 합니다.")
     @Schema(description = "수정할 공연 시간 (분)", example = "120")
     val runningTime: Int?,
 
@@ -219,11 +223,11 @@ data class UpdatePerformanceRequest(
     @Schema(description = "공연이 열릴 공연장 ID", example = "1")
     val venueId: Long?,
 
-    @field:NotNull
+    @field:NotNull(message = "공연 시작일은 필수입니다.")
     @Schema(description = "수정할 공연 시작일", example = "2025-12-20", required = true)
     val startDate: LocalDate,
 
-    @field:NotNull
+    @field:NotNull(message = "공연 종료일은 필수입니다.")
     @Schema(description = "수정할 공연 종료일", example = "2025-12-31", required = true)
     val endDate: LocalDate,
 
@@ -258,6 +262,7 @@ data class UpdatePerformanceRequest(
     @Schema(description = "판매자/기획사 ID", example = "1")
     val companyId: Long? = null,
 
+    @field:Min(0, message = "예매 수수료는 0원 이상이어야 합니다.")
     @Schema(description = "예매 수수료", example = "1000")
     val bookingFee: Int? = null,
 

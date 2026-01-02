@@ -2,6 +2,9 @@ package com.github.copyinaction.booking.service
 
 import com.github.copyinaction.auth.repository.UserRepository
 import com.github.copyinaction.booking.domain.Booking
+import com.github.copyinaction.booking.domain.BookingCancelledEvent
+import com.github.copyinaction.booking.domain.BookingConfirmedEvent
+import com.github.copyinaction.booking.domain.BookingStartedEvent
 import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.dto.BookingTimeResponse
@@ -11,8 +14,8 @@ import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.repository.PerformanceScheduleRepository
 import com.github.copyinaction.performance.repository.TicketOptionRepository
-import com.github.copyinaction.seat.dto.SeatPosition
-import com.github.copyinaction.seat.service.SeatOccupationService
+import com.github.copyinaction.seat.domain.SeatPosition
+import com.github.copyinaction.seat.domain.SeatSelection
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -27,8 +30,7 @@ class BookingService(
     private val bookingRepository: BookingRepository,
     private val userRepository: UserRepository,
     private val performanceScheduleRepository: PerformanceScheduleRepository,
-    private val ticketOptionRepository: TicketOptionRepository,
-    private val seatOccupationService: SeatOccupationService
+    private val ticketOptionRepository: TicketOptionRepository
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -44,7 +46,7 @@ class BookingService(
         val newSeatSet = seats.map { SeatPosition(it.row, it.col) }.toSet()
 
         // 1. 기존 PENDING 상태의 예매 확인 및 취소
-        val existingBooking = bookingRepository.findByUser_IdAndSchedule_IdAndStatus(userId, scheduleId, BookingStatus.PENDING)
+        val existingBooking = bookingRepository.findBySiteUser_IdAndSchedule_IdAndBookingStatus(userId, scheduleId, BookingStatus.PENDING)
         val oldSeatSet = getOldSeatSet(existingBooking)
 
         if (existingBooking != null) {
@@ -53,16 +55,23 @@ class BookingService(
         }
 
         // 2. 좌석 변경 사항 계산
-        val seatChanges = seatOccupationService.calculateSeatChanges(oldSeatSet, newSeatSet)
+        val oldSelection = SeatSelection(oldSeatSet)
+        val newSelection = SeatSelection(newSeatSet)
+        val seatChanges = oldSelection.calculateChanges(newSelection)
 
-        // 3. 좌석 상태 DB 반영
-        seatOccupationService.processSeatChanges(schedule, userId, seatChanges)
-
-        // 4. Booking 및 BookingSeat 생성
+        // 3. Booking 및 BookingSeat 생성
         val savedBooking = createAndSaveBooking(user, schedule, seats)
 
-        // 5. SSE 이벤트 발행
-        seatOccupationService.publishSeatEvents(scheduleId, seatChanges)
+        // 4. 좌석 점유를 위한 도메인 이벤트 등록
+        savedBooking.registerEvent(BookingStartedEvent(
+            bookingId = savedBooking.id!!,
+            scheduleId = scheduleId,
+            userId = userId,
+            seatChanges = seatChanges
+        ))
+        
+        // save를 명시적으로 호출하여 이벤트 발행 유도
+        bookingRepository.save(savedBooking)
 
         log.info("예매 시작 - bookingId: {}, scheduleId: {}, 유지: {}, 추가: {}, 해제: {}",
             savedBooking.id, scheduleId, seatChanges.kept.size, seatChanges.added.size, seatChanges.released.size)
@@ -81,8 +90,7 @@ class BookingService(
         schedule: com.github.copyinaction.performance.domain.PerformanceSchedule,
         seats: List<SeatPositionRequest>
     ): Booking {
-        val bookingNumber = generateBookingNumber()
-        val newBooking = Booking.create(user, schedule, bookingNumber)
+        val newBooking = Booking.create(user, schedule)
 
         val defaultTicketOption = ticketOptionRepository.findByPerformanceScheduleId(schedule.id).firstOrNull()
         val seatGrade = defaultTicketOption?.seatGrade ?: com.github.copyinaction.venue.domain.SeatGrade.R
@@ -109,10 +117,11 @@ class BookingService(
 
         if (booking.isExpired()) {
             booking.expire()
+            bookingRepository.save(booking) // 만료 상태 저장
             throw CustomException(ErrorCode.BOOKING_EXPIRED)
         }
 
-        // 좌석 확정 처리
+        // 좌석 확정 처리 정보 추출
         val seatPositions = booking.bookingSeats.map {
             val rowNum = it.rowName.toIntOrNull()
                 ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 열입니다.")
@@ -122,9 +131,18 @@ class BookingService(
         val seatGrade = booking.bookingSeats.firstOrNull()?.grade
             ?: com.github.copyinaction.venue.domain.SeatGrade.R
 
-        seatOccupationService.confirmSeats(booking.schedule.id, seatPositions, seatGrade, booking.schedule)
+        // 1. 도메인 이벤트 등록
+        booking.registerEvent(BookingConfirmedEvent(
+            bookingId = bookingId,
+            scheduleId = booking.schedule.id,
+            seats = seatPositions,
+            seatGrade = seatGrade
+        ))
 
+        // 2. 예매 상태 변경 (내부에서 검증 포함)
         booking.confirm()
+        
+        // 3. 저장 (이벤트 발행)
         bookingRepository.save(booking)
 
         log.info("예매 확정 - bookingId: {}, scheduleId: {}", bookingId, booking.schedule.id)
@@ -142,9 +160,14 @@ class BookingService(
             SeatPosition(it.rowName.toIntOrNull() ?: 1, it.seatNumber)
         }
 
-        // PENDING 상태인 경우 좌석 점유 해제
-        if (booking.status == BookingStatus.PENDING) {
-            seatOccupationService.releaseUserPendingSeats(scheduleId, booking.user.id, seatPositions)
+        // PENDING 상태인 경우 좌석 점유 해제를 위한 이벤트 등록
+        if (booking.bookingStatus == BookingStatus.PENDING) {
+            booking.registerEvent(BookingCancelledEvent(
+                bookingId = bookingId,
+                scheduleId = scheduleId,
+                userId = userId,
+                seats = seatPositions
+            ))
         }
 
         booking.cancel()
@@ -155,15 +178,8 @@ class BookingService(
         return BookingResponse.from(booking)
     }
 
-    private fun generateBookingNumber(): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-        val datePart = LocalDateTime.now().format(formatter)
-        val randomPart = Random.nextInt(100_000_000, 999_999_999).toString()
-        return "$datePart-$randomPart"
-    }
-
     private fun validateBookingOwner(booking: Booking, userId: Long) {
-        if (booking.user.id != userId) {
+        if (booking.siteUser.id != userId) {
             throw CustomException(ErrorCode.FORBIDDEN, "해당 예매에 대한 권한이 없습니다.")
         }
     }
