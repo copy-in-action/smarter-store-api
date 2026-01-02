@@ -110,3 +110,40 @@ jobs:
           
           # 사용하지 않는 Docker 이미지 정리
           docker image prune -f
+
+      - name: Notify Slack on Success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "✅ *배포 완료*",
+              "attachments": [{
+                "color": "#36a64f",
+                "fields": [
+                  {"title": "Repository", "value": "${{ github.repository }}", "short": true},
+                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
+                  {"title": "Commit", "value": "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>", "short": false},
+                  {"title": "Author", "value": "${{ github.actor }}", "short": true}
+                ]
+              }]
+            }' \
+            ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
+
+      - name: Notify Slack on Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "❌ *배포 실패*",
+              "attachments": [{
+                "color": "#ff0000",
+                "fields": [
+                  {"title": "Repository", "value": "${{ github.repository }}", "short": true},
+                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
+                  {"title": "Commit", "value": "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>", "short": false},
+                  {"title": "Author", "value": "${{ github.actor }}", "short": true},
+                  {"title": "Actions", "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|로그 확인>", "short": true}
+                ]
+              }]
+            }' \
+            ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
