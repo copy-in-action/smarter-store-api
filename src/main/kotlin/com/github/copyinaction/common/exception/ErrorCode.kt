@@ -21,6 +21,11 @@ enum class ErrorCode(
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.DEBUG),
 
+    // Critical - Slack 알림 대상 (즉시 조치 필요)
+    DATA_INTEGRITY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터 정합성 오류가 발생했습니다.", LogLevel.ERROR),
+    BOOKING_CONFIRM_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "예매 확정 처리 중 오류가 발생했습니다.", LogLevel.ERROR),
+    EXTERNAL_SERVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "외부 서비스 연동 중 오류가 발생했습니다.", LogLevel.ERROR),
+
     // Booking
     BOOKING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예매를 찾을 수 없습니다."),
     BOOKING_EXPIRED(HttpStatus.GONE, "예매 시간이 만료되었습니다."),

@@ -3,6 +3,8 @@ package com.github.copyinaction.booking.service
 import com.github.copyinaction.booking.domain.BookingCancelledEvent
 import com.github.copyinaction.booking.domain.BookingConfirmedEvent
 import com.github.copyinaction.booking.domain.BookingStartedEvent
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.repository.PerformanceScheduleRepository
 import com.github.copyinaction.seat.service.SeatOccupationService
 import org.slf4j.LoggerFactory
@@ -36,8 +38,15 @@ class BookingEventHandler(
     fun handleBookingConfirmed(event: BookingConfirmedEvent) {
         log.debug("이벤트 핸들러 - 예매 확정 처리: bookingId={}", event.bookingId)
         val schedule = performanceScheduleRepository.findByIdOrNull(event.scheduleId) ?: return
-        
-        seatOccupationService.confirmSeats(event.scheduleId, event.seats, event.seatGrade, schedule)
+
+        try {
+            seatOccupationService.confirmSeats(event.scheduleId, event.seats, event.seatGrade, schedule)
+        } catch (e: CustomException) {
+            throw e
+        } catch (e: Exception) {
+            log.error("예매 확정 처리 실패 - bookingId: {}, scheduleId: {}", event.bookingId, event.scheduleId, e)
+            throw CustomException(ErrorCode.BOOKING_CONFIRM_FAILED)
+        }
     }
 
     @EventListener

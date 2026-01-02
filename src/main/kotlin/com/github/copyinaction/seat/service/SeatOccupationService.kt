@@ -82,14 +82,8 @@ class SeatOccupationService(
                 existingSeat.seatStatus = SeatStatus.RESERVED
                 scheduleSeatStatusRepository.save(existingSeat)
             } else {
-                val newSeat = ScheduleSeatStatus(
-                    schedule = schedule,
-                    rowNum = seat.row,
-                    colNum = seat.col,
-                    seatGrade = seatGrade,
-                    seatStatus = SeatStatus.RESERVED
-                )
-                scheduleSeatStatusRepository.save(newSeat)
+                log.error("데이터 정합성 오류 - 점유되지 않은 좌석 확정 시도. scheduleId: {}, seat: ({}, {})", scheduleId, seat.row, seat.col)
+                throw CustomException(ErrorCode.DATA_INTEGRITY_ERROR, "점유되지 않은 좌석을 확정하려고 합니다. 좌석(${seat.row}, ${seat.col})")
             }
         }
 

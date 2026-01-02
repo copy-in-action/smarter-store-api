@@ -26,6 +26,19 @@
     *   `GlobalExceptionHandler`에 `IOException` 전용 핸들러 추가
     *   클라이언트 연결 끊김(Broken pipe) 시 ERROR 대신 DEBUG 레벨로 로깅
     *   불필요한 에러 로그 노이즈 감소
+*   **GitHub 배포 Slack 알림 기능 추가 (CCS-120):**
+    *   배포 시작/성공/실패 시 Slack 알림 발송
+    *   알림 타이밍을 deploy → build-and-push 단계로 변경
+    *   변경된 모든 커밋 내역을 알림에 표시하는 기능 추가
+*   **Critical 에러 코드 추가 (Slack 알림 대상):**
+    *   `DATA_INTEGRITY_ERROR`: 데이터 정합성 오류 발생 시 (점유되지 않은 좌석 확정 시도 등)
+    *   `BOOKING_CONFIRM_FAILED`: 예매 확정 처리 중 오류 발생 시
+    *   `EXTERNAL_SERVICE_ERROR`: 외부 서비스 연동 오류 (추후 결제 연동 시 사용)
+    *   LogLevel.ERROR 설정으로 Slack 알림 대상에 포함
+*   **예매 시스템 코드 가이드 문서 추가:**
+    *   핵심 파일 6개 및 아키텍처 다이어그램 포함
+    *   상태 전이, 동시성 처리, SSE 동기화 설명
+    *   테스트 시나리오 및 디버깅 가이드 추가
 
 ## 2025년 12월 31일 (수)
 
