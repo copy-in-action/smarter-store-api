@@ -76,6 +76,32 @@ jobs:
     environment: production
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get Commit Message
+        id: commit
+        run: echo "message=$(git log -1 --pretty=%s)" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Slack on Start
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "🚀 *배포 시작*",
+              "attachments": [{
+                "color": "#439FE0",
+                "fields": [
+                  {"title": "Repository", "value": "${{ github.repository }}", "short": true},
+                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
+                  {"title": "Author", "value": "${{ github.actor }}", "short": true},
+                  {"title": "Commit", "value": "${{ steps.commit.outputs.message }}", "short": false}
+                ]
+              }]
+            }' \
+            ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
+
       - name: Docker Hub Login (on self-hosted runner)
         # 배포 서버(self-hosted runner)에서 Docker Hub에 로그인
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -115,18 +141,7 @@ jobs:
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-            --data '{
-              "text": "✅ *배포 완료*",
-              "attachments": [{
-                "color": "#36a64f",
-                "fields": [
-                  {"title": "Repository", "value": "${{ github.repository }}", "short": true},
-                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
-                  {"title": "Commit", "value": "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>", "short": false},
-                  {"title": "Author", "value": "${{ github.actor }}", "short": true}
-                ]
-              }]
-            }' \
+            --data '{"text": "✅ *배포 완료*"}' \
             ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
 
       - name: Notify Slack on Failure
@@ -134,16 +149,6 @@ jobs:
         run: |
           curl -X POST -H 'Content-type: application/json' \
             --data '{
-              "text": "❌ *배포 실패*",
-              "attachments": [{
-                "color": "#ff0000",
-                "fields": [
-                  {"title": "Repository", "value": "${{ github.repository }}", "short": true},
-                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
-                  {"title": "Commit", "value": "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>", "short": false},
-                  {"title": "Author", "value": "${{ github.actor }}", "short": true},
-                  {"title": "Actions", "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|로그 확인>", "short": true}
-                ]
-              }]
+              "text": "❌ *배포 실패*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|로그 확인>"
             }' \
             ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
