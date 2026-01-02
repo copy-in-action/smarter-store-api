@@ -66,7 +66,7 @@ class ScheduleSeatStatus(
 ) : BaseEntity() {
 
     companion object {
-        private const val HOLD_DURATION_MINUTES = 10L
+        private const val HOLD_DURATION_MINUTES = 1L
 
         /**
          * 좌석 점유 생성
