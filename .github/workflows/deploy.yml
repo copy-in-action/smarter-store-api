@@ -20,26 +20,49 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get Commit Message
         id: commit
-        run: echo "message=$(git log -1 --pretty=%s)" >> "$GITHUB_OUTPUT"
+        run: |
+          # 이전 커밋 해시 (Push 이벤트)
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          
+          # before가 없거나 000...인 경우 (최초 푸시, 수동 실행 등)
+          if [ -z "$BEFORE" ] || [ "$BEFORE" == "0000000000000000000000000000000000000000" ]; then
+             # 최근 5개 커밋만 표시
+             MSG=$(git log -5 --pretty=format:"• %s")
+          else
+             # 변경된 범위의 커밋 목록 표시
+             MSG=$(git log $BEFORE..$AFTER --pretty=format:"• %s")
+          fi
+          
+          echo "message<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$MSG" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Notify Slack on Start
+        env:
+          COMMIT_MSG: ${{ steps.commit.outputs.message }}
         run: |
+          # 커밋 메시지의 개행 문자 등을 JSON 안전하게 처리
+          ESCAPED_MSG=$(echo "$COMMIT_MSG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+          
           curl -X POST -H 'Content-type: application/json' \
-            --data '{
-              "text": "🚀 *배포 시작*",
-              "attachments": [{
-                "color": "#439FE0",
-                "fields": [
-                  {"title": "Repository", "value": "${{ github.repository }}", "short": true},
-                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
-                  {"title": "Author", "value": "${{ github.actor }}", "short": true},
-                  {"title": "Commit", "value": "${{ steps.commit.outputs.message }}", "short": false}
+            --data "{
+              \"text\": \"🚀 *배포 시작*\",
+              \"attachments\": [{
+                \"color\": \"#439FE0\",
+                \"fields\": [
+                  {\"title\": \"Repository\", \"value\": \"${{ github.repository }}\", \"short\": true},
+                  {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
+                  {\"title\": \"Author\", \"value\": \"${{ github.actor }}\", \"short\": true},
+                  {\"title\": \"Changes\", \"value\": \"$ESCAPED_MSG\", \"short\": false}
                 ]
               }]
-            }' \
+            }" \
             ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
 
       - name: Set up JDK 21
