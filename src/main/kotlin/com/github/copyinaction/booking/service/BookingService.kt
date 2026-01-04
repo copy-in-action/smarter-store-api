@@ -81,7 +81,7 @@ class BookingService(
 
     private fun getOldSeatSet(booking: Booking?): Set<SeatPosition> {
         return booking?.bookingSeats?.map {
-            SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+            SeatPosition(it.row, it.col)
         }?.toSet() ?: emptySet()
     }
 
@@ -123,9 +123,7 @@ class BookingService(
 
         // 좌석 확정 처리 정보 추출
         val seatPositions = booking.bookingSeats.map {
-            val rowNum = it.rowName.toIntOrNull()
-                ?: throw CustomException(ErrorCode.INVALID_REQUEST, "유효하지 않은 좌석 열입니다.")
-            SeatPosition(rowNum, it.seatNumber)
+            SeatPosition(it.row, it.col)
         }
 
         val seatGrade = booking.bookingSeats.firstOrNull()?.grade
@@ -157,7 +155,7 @@ class BookingService(
 
         val scheduleId = booking.schedule.id
         val seatPositions = booking.bookingSeats.map {
-            SeatPosition(it.rowName.toIntOrNull() ?: 1, it.seatNumber)
+            SeatPosition(it.row, it.col)
         }
 
         // PENDING 상태인 경우 좌석 점유 해제를 위한 이벤트 등록

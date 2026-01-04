@@ -1,9 +1,10 @@
 package com.github.copyinaction.seat.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.copyinaction.seat.dto.SeatEventMessage
 import com.github.copyinaction.seat.domain.SeatPosition
+import com.github.copyinaction.seat.dto.SeatEventMessage
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
@@ -13,7 +14,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
 class SseService(
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    @Lazy private val seatService: SeatService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -43,6 +45,8 @@ class SseService(
                     .name("connect")
                     .data("connected")
             )
+            // 초기 좌석 상태 스냅샷 전송
+            sendSnapshot(scheduleId, emitter)
         } catch (e: IOException) {
             log.warn("SSE 초기 이벤트 전송 실패 - scheduleId: {}", scheduleId)
             removeEmitter(scheduleId, emitter)
@@ -51,6 +55,26 @@ class SseService(
         log.debug("SSE 구독 등록 - scheduleId: {}, 현재 연결 수: {}", scheduleId, emitters[scheduleId]?.size ?: 0)
 
         return emitter
+    }
+
+    /**
+     * 초기 좌석 상태 스냅샷 전송
+     */
+    private fun sendSnapshot(scheduleId: Long, emitter: SseEmitter) {
+        try {
+            val seatStatus = seatService.getSeatStatus(scheduleId)
+            val jsonData = objectMapper.writeValueAsString(seatStatus)
+            
+            emitter.send(
+                SseEmitter.event()
+                    .name("snapshot")
+                    .data(jsonData)
+            )
+            log.debug("SSE 스냅샷 전송 완료 - scheduleId: {}", scheduleId)
+        } catch (e: Exception) {
+            log.error("SSE 스냅샷 전송 실패 - scheduleId: {}", scheduleId, e)
+            // 스냅샷 실패는 연결 해제 사유가 아닐 수 있으므로 로그만 남김 (선택 사항)
+        }
     }
 
     /**

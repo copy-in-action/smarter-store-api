@@ -24,13 +24,13 @@ class BookingSeat(
     @Comment("구역")
     val section: String,
 
-    @Column(nullable = false, length = 10)
-    @Comment("열")
-    val rowName: String,
+    @Column(name = "row_num", nullable = false)
+    @Comment("행 번호")
+    val row: Int,
 
-    @Column(nullable = false)
-    @Comment("좌석 번호")
-    val seatNumber: Int,
+    @Column(name = "col_num", nullable = false)
+    @Comment("열 번호")
+    val col: Int,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -49,16 +49,16 @@ class BookingSeat(
         fun create(
             booking: Booking,
             section: String,
-            rowName: String,
-            seatNumber: Int,
+            row: Int,
+            col: Int,
             grade: SeatGrade,
             price: Int
         ): BookingSeat {
             val seat = BookingSeat(
                 booking = booking,
                 section = section,
-                rowName = rowName,
-                seatNumber = seatNumber,
+                row = row,
+                col = col,
                 grade = grade,
                 price = price
             )

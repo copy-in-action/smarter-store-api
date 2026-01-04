@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026년 1월 4일 (일)
+
+*   **SSE 초기 데이터 통합 (Race Condition 해결):**
+    *   SSE 연결 시 `snapshot` 이벤트로 현재 좌석 상태(pending/reserved)를 즉시 전송하도록 개선
+    *   REST API(`GET /api/schedules/{id}/seat-status`)와 SSE 구독 사이의 데이터 누락 문제 해결
+    *   `SseService`에 `SeatService` 의존성 추가 및 `sendSnapshot()` 메서드 구현
+    *   REST API deprecated 처리 및 SSE 사용 유도 안내 추가
+    *   Swagger 문서에 SSE 이벤트별 응답 샘플 추가 (프론트엔드 개발 가이드)
+*   **좌석 도메인/DTO 리팩토링:**
+    *   `BookingSeat` 엔티티: `rowName(String)` → `row(Int)`, `seatNumber` → `col` 변경
+    *   `BookingSeatResponse`: `grade`, `price` 필드 삭제, `row`/`col` 필드명 통일
+    *   `ScheduleSeatStatusResponse`: `pending`/`reserved`를 `List<String>` → `List<SeatPositionResponse>` 구조로 변경
+    *   관련 서비스(`BookingService`, `BookingCleanupScheduler`, `SeatService`) 수정
+    *   **BREAKING CHANGE**: `booking_seat` 테이블 스키마 변경 필요 (테이블 삭제 후 자동 생성)
+*   **SeatingChartParser 단순화:**
+    *   현재 JSON 구조(`seatTypes.{grade}.positions`)에 맞게 파싱 로직 전면 재설계
+    *   레거시 구조(`seatGrades` 배열) 지원 코드 제거
+    *   `Missing 'seatGrades' field` 경고 및 등급 검증 실패 버그 수정
+
 ## 2026년 1월 2일 (금)
 
 *   **DDD 아키텍처 고도화 및 풍부한 도메인 모델(Rich Domain Model) 적용:**

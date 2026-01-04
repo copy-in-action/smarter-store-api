@@ -98,8 +98,8 @@ class Booking(
             val bookingSeat = BookingSeat(
                 booking = this,
                 section = BookingSeat.DEFAULT_SECTION,
-                rowName = row.toString(),
-                seatNumber = col,
+                row = row,
+                col = col,
                 grade = grade,
                 price = price
             )
