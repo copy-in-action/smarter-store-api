@@ -52,6 +52,18 @@ data class SeatStatusResponse(
 }
 
 /**
+ * 좌석 위치 응답
+ */
+@Schema(description = "좌석 위치 응답 DTO")
+data class SeatPositionResponse(
+    @Schema(description = "행 번호", example = "1")
+    val row: Int,
+
+    @Schema(description = "열 번호", example = "5")
+    val col: Int
+)
+
+/**
  * 회차별 좌석 상태 목록 응답
  */
 @Schema(description = "회차별 좌석 상태 목록 응답 DTO")
@@ -59,11 +71,11 @@ data class ScheduleSeatStatusResponse(
     @Schema(description = "회차 ID", example = "1")
     val scheduleId: Long,
 
-    @Schema(description = "점유 중인 좌석 목록 (row,col 형식)", example = "[\"1,5\", \"1,7\"]")
-    val pending: List<String>,
+    @Schema(description = "점유 중인 좌석 목록")
+    val pending: List<SeatPositionResponse>,
 
-    @Schema(description = "예약 완료된 좌석 목록 (row,col 형식)", example = "[\"1,6\", \"4,6\"]")
-    val reserved: List<String>
+    @Schema(description = "예약 완료된 좌석 목록")
+    val reserved: List<SeatPositionResponse>
 )
 
 /**

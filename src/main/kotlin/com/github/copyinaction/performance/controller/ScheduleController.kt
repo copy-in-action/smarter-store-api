@@ -52,9 +52,17 @@ class ScheduleController(
         return ResponseEntity.ok(schedule)
     }
 
+    @Deprecated("SSE 구독 시 snapshot 이벤트로 초기 상태를 수신할 수 있습니다. /seats/stream 엔드포인트를 사용하세요.")
     @Operation(
-        summary = "회차별 좌석 상태 조회",
-        description = "특정 회차의 좌석 상태 목록을 조회합니다. PENDING(점유 중), RESERVED(예약 완료) 상태인 좌석만 반환합니다.\n\n**권한: 누구나**"
+        summary = "회차별 좌석 상태 조회 (Deprecated)",
+        description = """
+            ⚠️ **Deprecated**: SSE 구독(/seats/stream) 시 `snapshot` 이벤트로 초기 상태를 수신할 수 있습니다.
+
+            특정 회차의 좌석 상태 목록을 조회합니다. PENDING(점유 중), RESERVED(예약 완료) 상태인 좌석만 반환합니다.
+
+            **권한: 누구나**
+        """,
+        deprecated = true
     )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "좌석 상태 조회 성공"),
@@ -80,6 +88,7 @@ class ScheduleController(
 
             **이벤트 타입:**
             - `connect`: 연결 성공
+            - `snapshot`: 현재 좌석 상태 스냅샷 (연결 직후 전송)
             - `seat-update`: 좌석 상태 변경 (OCCUPIED/RELEASED/CONFIRMED)
             - `heartbeat`: 연결 유지 (45초마다)
 
@@ -87,7 +96,40 @@ class ScheduleController(
         """
     )
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "SSE 스트림 연결 성공")
+        ApiResponse(
+            responseCode = "200",
+            description = """
+                SSE 스트림 연결 성공. 아래 형식의 이벤트가 순차적으로 전송됩니다.
+
+                **1. connect (연결 직후)**
+                ```
+                event: connect
+                data: connected
+                ```
+
+                **2. snapshot (연결 직후, 현재 좌석 상태)**
+                ```
+                event: snapshot
+                data: {"scheduleId":36,"pending":[{"row":1,"col":5}],"reserved":[{"row":2,"col":3}]}
+                ```
+                - pending: 점유 중인 좌석 (결제 진행 중)
+                - reserved: 예약 완료된 좌석
+
+                **3. seat-update (좌석 상태 변경 시)**
+                ```
+                event: seat-update
+                data: {"action":"OCCUPIED","seats":[{"row":3,"col":7},{"row":3,"col":8}]}
+                ```
+                - action: OCCUPIED(점유) | RELEASED(해제) | CONFIRMED(확정)
+                - seats: 변경된 좌석 목록
+
+                **4. heartbeat (45초마다)**
+                ```
+                event: heartbeat
+                data:
+                ```
+            """
+        )
     )
     @GetMapping("/{scheduleId}/seats/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun subscribeSeatEvents(

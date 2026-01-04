@@ -33,7 +33,7 @@ class BookingCleanupScheduler(
             expiredBookings.forEach { booking ->
                 val scheduleId = booking.schedule.id
                 val seatPositions = booking.bookingSeats.map {
-                    SeatPosition(it.rowName.toIntOrNull() ?: 0, it.seatNumber)
+                    SeatPosition(it.row, it.col)
                 }
                 booking.expire()
                 seatOccupationService.releaseUserPendingSeats(scheduleId, booking.siteUser.id, seatPositions)

@@ -4,6 +4,7 @@ import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.repository.PerformanceScheduleRepository
 import com.github.copyinaction.seat.dto.ScheduleSeatStatusResponse
+import com.github.copyinaction.seat.dto.SeatPositionResponse
 import com.github.copyinaction.seat.dto.SeatStatusResponse
 import com.github.copyinaction.seat.repository.ScheduleSeatStatusRepository
 import org.springframework.stereotype.Service
@@ -33,8 +34,8 @@ class SeatService(
 
         return ScheduleSeatStatusResponse(
             scheduleId = scheduleId,
-            pending = groupedSeats[SeatStatus.PENDING]?.map { "${it.rowNum},${it.colNum}" } ?: emptyList(),
-            reserved = groupedSeats[SeatStatus.RESERVED]?.map { "${it.rowNum},${it.colNum}" } ?: emptyList()
+            pending = groupedSeats[SeatStatus.PENDING]?.map { SeatPositionResponse(it.rowNum, it.colNum) } ?: emptyList(),
+            reserved = groupedSeats[SeatStatus.RESERVED]?.map { SeatPositionResponse(it.rowNum, it.colNum) } ?: emptyList()
         )
     }
 
