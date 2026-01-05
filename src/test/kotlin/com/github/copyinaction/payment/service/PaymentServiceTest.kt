@@ -19,18 +19,21 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
+import java.time.LocalDateTime
 import java.util.*
 
 class PaymentServiceTest {
     private val paymentRepository = mockk<PaymentRepository>()
     private val bookingRepository = mockk<BookingRepository>()
     private val couponService = mockk<CouponService>(relaxed = true)
+    private val salesStatsService = mockk<com.github.copyinaction.stats.service.SalesStatsService>(relaxed = true)
     private val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
     
     private val paymentService = PaymentService(
         paymentRepository, 
         bookingRepository, 
         couponService, 
+        salesStatsService,
         eventPublisher
     )
 
@@ -59,7 +62,7 @@ class PaymentServiceTest {
             type = DiscountType.COUPON,
             name = "Test Coupon",
             amount = discountAmount,
-            referenceId = "COUPON-123"
+            referenceId = "123"
         )
         
         val request = PaymentCreateRequest(
@@ -69,11 +72,17 @@ class PaymentServiceTest {
             bookingFee = bookingFee,
             totalAmount = finalPrice,
             ticketAmount = originalPrice - discountAmount,
+            isAgreed = true,
             discounts = listOf(discountDto)
         )
 
         every { bookingRepository.findByIdOrNull(bookingId) } returns booking
         every { paymentRepository.save(any()) } answers { firstArg() }
+        
+        // Mock BookingSeats for PaymentItem generation
+        every { booking.bookingSeats } returns mutableListOf()
+        every { booking.schedule.performance } returns mockk(relaxed = true)
+        every { booking.schedule.showDateTime } returns LocalDateTime.now()
 
         // Act
         val response = paymentService.createPayment(userId, request)
@@ -81,13 +90,12 @@ class PaymentServiceTest {
         // Assert
         assertThat(response.finalPrice).isEqualTo(finalPrice)
         
-        // Verify CouponService call
+        // Verify CouponService call (plural method)
         verify { 
-            couponService.useCoupon(
+            couponService.useCoupons(
                 userId = userId, 
-                couponCode = "COUPON-123", 
                 paymentId = any(), 
-                orderAmount = originalPrice
+                seatCoupons = any()
             ) 
         }
     }

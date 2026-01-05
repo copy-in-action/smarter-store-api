@@ -12,9 +12,6 @@ class Coupon(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    @Column(nullable = false, unique = true, length = 50)
-    val code: String,
-
     @Column(nullable = false, length = 100)
     val name: String,
 
@@ -46,11 +43,8 @@ class Coupon(
     @Column(nullable = false)
     val validUntil: LocalDateTime,
 
-    @Column(nullable = false)
-    val totalQuantity: Int,
-
-    @Column(nullable = false)
-    var usedQuantity: Int = 0,
+    @Column
+    val maxUsagePerUser: Int? = null,
 
     @Column(nullable = false)
     var isActive: Boolean = true
@@ -64,11 +58,6 @@ class Coupon(
                now.isBefore(validUntil)
     }
 
-    fun use() {
-        check(isValid()) { "유효하지 않거나 만료된 쿠폰입니다." }
-        usedQuantity++
-    }
-
     fun calculateDiscount(orderAmount: Int): Int {
         if (!isValid()) return 0
         if (minOrderAmount != null && orderAmount < minOrderAmount) return 0
@@ -80,29 +69,33 @@ class Coupon(
 
         return maxDiscountAmount?.let { minOf(discount, it) } ?: discount
     }
-    
+
     companion object {
         fun create(
-            code: String,
             name: String,
             discountMethod: DiscountMethod,
             discountValue: Int,
             validFrom: LocalDateTime,
             validUntil: LocalDateTime,
-            totalQuantity: Int,
+            description: String? = null,
             minOrderAmount: Int? = null,
-            maxDiscountAmount: Int? = null
+            maxDiscountAmount: Int? = null,
+            maxUsagePerUser: Int? = null,
+            performanceId: Long? = null,
+            targetSeatGrade: SeatGrade? = null
         ): Coupon {
             return Coupon(
-                code = code,
                 name = name,
+                description = description,
                 discountMethod = discountMethod,
                 discountValue = discountValue,
                 validFrom = validFrom,
                 validUntil = validUntil,
-                totalQuantity = totalQuantity,
                 minOrderAmount = minOrderAmount,
-                maxDiscountAmount = maxDiscountAmount
+                maxDiscountAmount = maxDiscountAmount,
+                maxUsagePerUser = maxUsagePerUser,
+                performanceId = performanceId,
+                targetSeatGrade = targetSeatGrade
             )
         }
     }

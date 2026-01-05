@@ -14,13 +14,16 @@ data class PaymentCreateRequest(
     val bookingId: UUID,
     val paymentMethod: PaymentMethod,
     
-    // 금액 검증용 필드 추가
+    // 금액 검증용 필드
     val totalAmount: Int,
     val ticketAmount: Int,
     val bookingFee: Int,
     val originalPrice: Int, // 서버 검증용 원가
 
-    // 할인 적용 상세 내역
+    // 약관 동의 여부
+    val isAgreed: Boolean,
+
+    // 할인 적용 상세 내역 (쿠폰, 포인트, 프로모션 등 통합)
     val discounts: List<AppliedDiscountDto> = emptyList()
 )
 
@@ -28,7 +31,8 @@ data class AppliedDiscountDto(
     val type: DiscountType,
     val name: String,
     val amount: Int,
-    val referenceId: String? = null
+    val referenceId: String? = null,
+    val bookingSeatId: Long? = null // 특정 좌석에 적용된 할인인 경우 좌석 ID
 )
 
 /**

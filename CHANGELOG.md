@@ -4,21 +4,18 @@
 
 *   **결제 시스템 기본 도메인 및 API 구축 (Phase 1) [CCS-125]:**
     *   **설계 문서 추가**: 결제 데이터 수집 시스템 설계 및 TODO 문서 구축.
-        *   `documents/03_기능_명세/결제_데이터_수집_시스템_설계.md`
-        *   `documents/03_기능_명세/결제_데이터_수집_TODO.md`
-    *   **Rich Domain Model 적용**: 결제 상태 변경 로직(`complete`, `cancel`, `refund`)을 `Payment` 엔티티 내부에 캡슐화하여 데이터 정합성 강화 및 도메인 지식 파편화 방지.
-    *   **Aggregate Root 설계**: `Payment`를 Aggregate Root로 정의하고, 결제 상세 항목인 `PaymentItem`을 일관성 경계(Consistency Boundary) 내에서 `Cascade` 및 `OrphanRemoval`로 관리.
-    *   **Enum 전략 수립**: `PaymentMethod`(9종), `PaymentStatus`(6종) 정의를 통해 결제 생명주기 관리.
+    *   **Rich Domain Model 적용**: 결제 상태 변경 로직(`complete`, `cancel`, `refund`)을 `Payment` 엔티티 내부에 캡슐화하여 데이터 정합성 강화.
+    *   **데이터 정합성 강화**: `BookingSeat` 정보를 기반으로 결제 시점의 좌석 정보(가격, 등급, 위치)를 담은 `PaymentItem` 스냅샷을 자동 생성하도록 구현.
     *   **RESTful API 구현**: 결제 요청, 완료 승인, 취소, 상세 조회 엔드포인트 구축 및 Swagger 문서화.
-    *   **이벤트 기반 아키텍처(EDD) 도입**: `PaymentCompletedEvent`, `PaymentCancelledEvent` 발행을 통해 통계 시스템 등 타 도메인과의 느슨한 결합 지원.
     *   **TDD 기반 검증**: 도메인 및 서비스 레이어 단위 테스트(`PaymentTest`, `PaymentServiceTest`)를 통한 비즈니스 규칙 검증 완료.
 
 *   **할인 및 쿠폰 시스템 구축 (Phase 2) [CCS-123]:**
-    *   **할인 도메인 추상화**: `DiscountType`(쿠폰, 복지, 프로모션 등) 정의 및 `PaymentDiscount` 엔티티를 통한 결제별 할인 상세 내역 기록.
-    *   **쿠폰 시스템 설계**: `Coupon`(메타 정보)과 `UserCoupon`(사용자 상태)의 분리를 통한 유연한 쿠폰 관리 체계 구축.
-    *   **동시성 및 무결성 제어**: 쿠폰 발급 시 `UserCoupon` 중복 발급 방지를 위한 데이터 무결성 로직(Unique Constraint 및 예외 처리) 적용.
-    *   **결제 서비스 통합**: `PaymentService` 내에 쿠폰 선점(사용 처리) 및 결제 취소 시 자동 복구(Restore) 파이프라인 구축.
+    *   **FE 제안 완벽 수용**: `PaymentCreateRequest` DTO 내에 약관 동의(`isAgreed`) 필드 추가 및 `discounts` 필드로 모든 할인 유형(쿠폰, 포인트 등)을 통합 관리하도록 설계.
+    *   **쿠폰 서비스 일괄 연동**: 리팩토링된 `CouponService`의 일괄 처리 인터페이스(`useCoupons`, `restoreCoupons`)를 연동하여 성능 최적화 및 원자적 처리 보장.
     *   **금액 검증 엔진 고도화**: `Payment.validateAmount` 도메인 메서드 도입을 통해 클라이언트 계산 금액과 서버 정책 금액 간의 불일치를 원천 차단.
+    *   **쿠폰 API 구현**:
+        *   사용자용: 쿠폰 발급(`POST /api/coupons/issue`), 내 쿠폰 목록(`GET /api/coupons/me`), 쿠폰 유효성 검증(`POST /api/coupons/validate`)
+        *   관리자용: 쿠폰 생성(`POST /api/admin/coupons`), 목록 조회(`GET /api/admin/coupons`), 상세 조회(`GET /api/admin/coupons/{id}`), 비활성화(`PATCH /api/admin/coupons/{id}/deactivate`)
 
 *   **통계 및 정산 시스템 구축 (Phase 3) [CCS-107, CCS-127]:**
     *   **실시간 매출 집계 엔진 [CCS-107]**: 결제 완료/취소/환불 이벤트를 구독하여 일별, 공연별, 결제수단별, 할인별 통계를 실시간으로 집계하는 비동기 파이프라인 구축.
@@ -28,7 +25,6 @@
     *   **스케줄러 공통 패키지 통합**: 도메인별로 분산된 스케줄러를 `common/scheduler/` 패키지로 통합하여 유지보수성 향상.
     *   **스케줄러 에러 알림 체계**: `STATS_DAILY_AGGREGATION_FAILED`, `STATS_RECALCULATION_FAILED` ErrorCode 추가 및 `LogLevel.ERROR` 적용으로 Slack 알림 연동.
     *   **도메인 테스트 작성**: 4종의 통계 엔티티에 대한 단위 테스트(`DailySalesStatsTest`, `PerformanceSalesStatsTest`, `PaymentMethodStatsTest`, `DiscountStatsTest`) 구현.
-
 
 *   **공통 Enum 스키마 및 조회 API 추가 [CCS-124]:**
     *   **Enum에 `@Schema(enumAsRef = true)` 적용:** 모든 API 응답에서 사용되는 Enum이 OpenAPI에서 `$ref`로 참조되어 Orval에서 단일 타입으로 생성되도록 개선
