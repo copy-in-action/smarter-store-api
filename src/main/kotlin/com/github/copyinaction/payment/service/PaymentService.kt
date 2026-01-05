@@ -1,8 +1,12 @@
 package com.github.copyinaction.payment.service
 
+import com.github.copyinaction.booking.domain.BookingSeat
 import com.github.copyinaction.booking.repository.BookingRepository
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
+import com.github.copyinaction.coupon.service.CouponService
+import com.github.copyinaction.discount.domain.DiscountType
+import com.github.copyinaction.discount.domain.PaymentDiscount
 import com.github.copyinaction.payment.domain.Payment
 import com.github.copyinaction.payment.domain.PaymentCancelledEvent
 import com.github.copyinaction.payment.domain.PaymentCompletedEvent
@@ -19,6 +23,7 @@ import java.util.*
 class PaymentService(
     private val paymentRepository: PaymentRepository,
     private val bookingRepository: BookingRepository,
+    private val couponService: CouponService,
     private val eventPublisher: ApplicationEventPublisher
 ) {
 
@@ -32,6 +37,7 @@ class PaymentService(
             throw CustomException(ErrorCode.FORBIDDEN)
         }
 
+        // 1. Payment 엔티티 생성
         val payment = Payment.create(
             booking = booking,
             userId = userId,
@@ -40,8 +46,31 @@ class PaymentService(
             bookingFee = request.bookingFee
         )
 
+        // 2. 할인 내역 적용 및 저장
+        request.discounts.forEach { discountDto ->
+            val discount = PaymentDiscount.create(
+                payment = payment,
+                type = discountDto.type,
+                name = discountDto.name,
+                amount = discountDto.amount,
+                referenceId = discountDto.referenceId
+            )
+            payment.addDiscount(discount)
+
+            // 쿠폰인 경우 사용 처리
+            if (discountDto.type == DiscountType.COUPON && discountDto.referenceId != null) {
+                couponService.useCoupon(userId, discountDto.referenceId, payment.id, request.originalPrice)
+            }
+        }
+
+        // 3. 금액 검증 (서버 계산 vs 클라이언트 요청)
+        payment.validateAmount(request.totalAmount)
+
         val savedPayment = paymentRepository.save(payment)
-        return PaymentResponse.from(savedPayment)
+        
+        // 이벤트 발행
+        val response = PaymentResponse.from(savedPayment)
+        return response
     }
 
     @Transactional
@@ -82,6 +111,9 @@ class PaymentService(
         }
 
         payment.cancel(request.reason)
+
+        // 쿠폰 복구 처리
+        couponService.restoreCoupon(userId, payment.id)
 
         eventPublisher.publishEvent(
             PaymentCancelledEvent(

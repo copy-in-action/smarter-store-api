@@ -1,6 +1,9 @@
 package com.github.copyinaction.payment.domain
 
 import com.github.copyinaction.booking.domain.Booking
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.discount.domain.DiscountType
+import com.github.copyinaction.discount.domain.PaymentDiscount
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -86,6 +89,40 @@ class PaymentTest {
         payment.refund(41000, "나머지 취소")
         assertThat(payment.paymentStatus).isEqualTo(PaymentStatus.REFUNDED)
         assertThat(payment.refundAmount).isEqualTo(51000)
+    }
+
+    @Test
+    @DisplayName("할인을 적용하면 최종 금액이 차감된다")
+    fun applyDiscount() {
+        val payment = createPendingPayment()
+        val initialPrice = payment.finalPrice
+
+        val discount = PaymentDiscount.create(
+            payment = payment,
+            type = DiscountType.COUPON,
+            name = "신규 가입 쿠폰",
+            amount = 5000
+        )
+
+        payment.addDiscount(discount)
+
+        assertThat(payment.discountAmount).isEqualTo(5000)
+        assertThat(payment.finalPrice).isEqualTo(initialPrice - 5000)
+        assertThat(payment.discounts).contains(discount)
+    }
+
+    @Test
+    @DisplayName("최종 금액 검증 시 일치하지 않으면 예외가 발생한다")
+    fun validateAmount() {
+        val payment = createPendingPayment()
+        // originalPrice(50000) + bookingFee(1000) = 51000
+
+        // 일치하는 경우 (성공)
+        payment.validateAmount(51000)
+
+        // 불일치하는 경우 (실패)
+        assertThatThrownBy { payment.validateAmount(50000) }
+            .isInstanceOf(CustomException::class.java)
     }
 
     private fun createPendingPayment(): Payment {

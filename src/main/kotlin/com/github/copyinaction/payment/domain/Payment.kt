@@ -2,6 +2,7 @@ package com.github.copyinaction.payment.domain
 
 import com.github.copyinaction.booking.domain.Booking
 import com.github.copyinaction.common.domain.BaseEntity
+import com.github.copyinaction.discount.domain.PaymentDiscount
 import jakarta.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -79,7 +80,10 @@ class Payment(
     var refundAmount: Int? = null,
 
     @OneToMany(mappedBy = "payment", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val paymentItems: MutableList<PaymentItem> = mutableListOf()
+    val paymentItems: MutableList<PaymentItem> = mutableListOf(),
+
+    @OneToMany(mappedBy = "payment", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val discounts: MutableList<PaymentDiscount> = mutableListOf()
 
 ) : BaseEntity() {
 
@@ -146,5 +150,17 @@ class Payment(
 
     fun addPaymentItem(item: PaymentItem) {
         this.paymentItems.add(item)
+    }
+
+    fun addDiscount(discount: PaymentDiscount) {
+        this.discounts.add(discount)
+        this.discountAmount += discount.discountAmount
+        this.finalPrice = originalPrice + bookingFee - discountAmount
+    }
+
+    fun validateAmount(expectedAmount: Int) {
+        if (this.finalPrice != expectedAmount) {
+            throw com.github.copyinaction.common.exception.CustomException(com.github.copyinaction.common.exception.ErrorCode.INVALID_INPUT_VALUE)
+        }
     }
 }

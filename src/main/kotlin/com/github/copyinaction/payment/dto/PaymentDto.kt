@@ -1,5 +1,6 @@
 package com.github.copyinaction.payment.dto
 
+import com.github.copyinaction.discount.domain.DiscountType
 import com.github.copyinaction.payment.domain.Payment
 import com.github.copyinaction.payment.domain.PaymentMethod
 import com.github.copyinaction.payment.domain.PaymentStatus
@@ -12,8 +13,22 @@ import java.util.*
 data class PaymentCreateRequest(
     val bookingId: UUID,
     val paymentMethod: PaymentMethod,
-    val originalPrice: Int,
-    val bookingFee: Int = 0
+    
+    // 금액 검증용 필드 추가
+    val totalAmount: Int,
+    val ticketAmount: Int,
+    val bookingFee: Int,
+    val originalPrice: Int, // 서버 검증용 원가
+
+    // 할인 적용 상세 내역
+    val discounts: List<AppliedDiscountDto> = emptyList()
+)
+
+data class AppliedDiscountDto(
+    val type: DiscountType,
+    val name: String,
+    val amount: Int,
+    val referenceId: String? = null
 )
 
 /**

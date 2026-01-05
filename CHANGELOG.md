@@ -13,6 +13,13 @@
     *   **이벤트 기반 아키텍처(EDD) 도입**: `PaymentCompletedEvent`, `PaymentCancelledEvent` 발행을 통해 통계 시스템 등 타 도메인과의 느슨한 결합 지원.
     *   **TDD 기반 검증**: 도메인 및 서비스 레이어 단위 테스트(`PaymentTest`, `PaymentServiceTest`)를 통한 비즈니스 규칙 검증 완료.
 
+*   **할인 및 쿠폰 시스템 구축 (Phase 2) [CCS-125]:**
+    *   **할인 도메인 추상화**: `DiscountType`(쿠폰, 복지, 프로모션 등) 정의 및 `PaymentDiscount` 엔티티를 통한 결제별 할인 상세 내역 기록.
+    *   **쿠폰 시스템 설계**: `Coupon`(메타 정보)과 `UserCoupon`(사용자 상태)의 분리를 통한 유연한 쿠폰 관리 체계 구축.
+    *   **동시성 및 무결성 제어**: 쿠폰 발급 시 `UserCoupon` 중복 발급 방지를 위한 데이터 무결성 로직(Unique Constraint 및 예외 처리) 적용.
+    *   **결제 서비스 통합**: `PaymentService` 내에 쿠폰 선점(사용 처리) 및 결제 취소 시 자동 복구(Restore) 파이프라인 구축.
+    *   **금액 검증 엔진 고도화**: `Payment.validateAmount` 도메인 메서드 도입을 통해 클라이언트 계산 금액과 서버 정책 금액 간의 불일치를 원천 차단.
+
 
 *   **공통 Enum 스키마 및 조회 API 추가 [CCS-124]:**
     *   **Enum에 `@Schema(enumAsRef = true)` 적용:** 모든 API 응답에서 사용되는 Enum이 OpenAPI에서 `$ref`로 참조되어 Orval에서 단일 타입으로 생성되도록 개선
