@@ -1,4 +1,4 @@
-package com.github.copyinaction.booking.service
+package com.github.copyinaction.common.scheduler
 
 import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.booking.repository.BookingRepository
@@ -7,11 +7,11 @@ import com.github.copyinaction.seat.repository.ScheduleSeatStatusRepository
 import com.github.copyinaction.seat.service.SeatOccupationService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
-@Service
+@Component
 class BookingCleanupScheduler(
     private val bookingRepository: BookingRepository,
     private val scheduleSeatStatusRepository: ScheduleSeatStatusRepository,

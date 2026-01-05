@@ -13,12 +13,21 @@
     *   **이벤트 기반 아키텍처(EDD) 도입**: `PaymentCompletedEvent`, `PaymentCancelledEvent` 발행을 통해 통계 시스템 등 타 도메인과의 느슨한 결합 지원.
     *   **TDD 기반 검증**: 도메인 및 서비스 레이어 단위 테스트(`PaymentTest`, `PaymentServiceTest`)를 통한 비즈니스 규칙 검증 완료.
 
-*   **할인 및 쿠폰 시스템 구축 (Phase 2) [CCS-125]:**
+*   **할인 및 쿠폰 시스템 구축 (Phase 2) [CCS-123]:**
     *   **할인 도메인 추상화**: `DiscountType`(쿠폰, 복지, 프로모션 등) 정의 및 `PaymentDiscount` 엔티티를 통한 결제별 할인 상세 내역 기록.
     *   **쿠폰 시스템 설계**: `Coupon`(메타 정보)과 `UserCoupon`(사용자 상태)의 분리를 통한 유연한 쿠폰 관리 체계 구축.
     *   **동시성 및 무결성 제어**: 쿠폰 발급 시 `UserCoupon` 중복 발급 방지를 위한 데이터 무결성 로직(Unique Constraint 및 예외 처리) 적용.
     *   **결제 서비스 통합**: `PaymentService` 내에 쿠폰 선점(사용 처리) 및 결제 취소 시 자동 복구(Restore) 파이프라인 구축.
     *   **금액 검증 엔진 고도화**: `Payment.validateAmount` 도메인 메서드 도입을 통해 클라이언트 계산 금액과 서버 정책 금액 간의 불일치를 원천 차단.
+
+*   **통계 및 정산 시스템 구축 (Phase 3) [CCS-107, CCS-127]:**
+    *   **실시간 매출 집계 엔진 [CCS-107]**: 결제 완료/취소/환불 이벤트를 구독하여 일별, 공연별, 결제수단별, 할인별 통계를 실시간으로 집계하는 비동기 파이프라인 구축.
+    *   **통계 전용 도메인 및 Repository [CCS-107]**: `DailySalesStats`, `PerformanceSalesStats`, `PaymentMethodStats`, `DiscountStats` 4종의 통계 엔티티 및 비관적 락(`PESSIMISTIC_WRITE`)을 적용한 고성능 집계 저장소 구현.
+    *   **관리자용 통계 조회 API [CCS-127]**: 일별 매출(`/daily`), 공연별(`/performance/{id}`), 결제수단별(`/payment-methods`), 할인별(`/discounts`) 4종의 관리자 전용 REST API 개발.
+    *   **통계 배치 스케줄러 [CCS-107]**: 일별 통계 재집계(`DailyStatsAggregationScheduler`, 매일 자정) 및 주간 통계 재계산(`StatsRecalculationScheduler`, 매주 일요일 03:00) 스케줄러 구현.
+    *   **스케줄러 공통 패키지 통합**: 도메인별로 분산된 스케줄러를 `common/scheduler/` 패키지로 통합하여 유지보수성 향상.
+    *   **스케줄러 에러 알림 체계**: `STATS_DAILY_AGGREGATION_FAILED`, `STATS_RECALCULATION_FAILED` ErrorCode 추가 및 `LogLevel.ERROR` 적용으로 Slack 알림 연동.
+    *   **도메인 테스트 작성**: 4종의 통계 엔티티에 대한 단위 테스트(`DailySalesStatsTest`, `PerformanceSalesStatsTest`, `PaymentMethodStatsTest`, `DiscountStatsTest`) 구현.
 
 
 *   **공통 Enum 스키마 및 조회 API 추가 [CCS-124]:**
