@@ -3,7 +3,16 @@ spring:
     name: smarter-store-api
   profiles:
     active: local
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: HikariPool-SmarterStore
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: true

@@ -2,16 +2,25 @@
 
 ## 2026년 1월 5일 (월)
 
-*   **공통 Enum 스키마 및 조회 API 추가 (CCS-124):**
+*   **결제 시스템 기본 도메인 및 API 구축 (Phase 1) [CCS-125]:**
+    *   **설계 문서 추가**: 결제 데이터 수집 시스템 설계 및 TODO 문서 구축.
+        *   `documents/03_기능_명세/결제_데이터_수집_시스템_설계.md`
+        *   `documents/03_기능_명세/결제_데이터_수집_TODO.md`
+    *   **Rich Domain Model 적용**: 결제 상태 변경 로직(`complete`, `cancel`, `refund`)을 `Payment` 엔티티 내부에 캡슐화하여 데이터 정합성 강화 및 도메인 지식 파편화 방지.
+    *   **Aggregate Root 설계**: `Payment`를 Aggregate Root로 정의하고, 결제 상세 항목인 `PaymentItem`을 일관성 경계(Consistency Boundary) 내에서 `Cascade` 및 `OrphanRemoval`로 관리.
+    *   **Enum 전략 수립**: `PaymentMethod`(9종), `PaymentStatus`(6종) 정의를 통해 결제 생명주기 관리.
+    *   **RESTful API 구현**: 결제 요청, 완료 승인, 취소, 상세 조회 엔드포인트 구축 및 Swagger 문서화.
+    *   **이벤트 기반 아키텍처(EDD) 도입**: `PaymentCompletedEvent`, `PaymentCancelledEvent` 발행을 통해 통계 시스템 등 타 도메인과의 느슨한 결합 지원.
+    *   **TDD 기반 검증**: 도메인 및 서비스 레이어 단위 테스트(`PaymentTest`, `PaymentServiceTest`)를 통한 비즈니스 규칙 검증 완료.
+
+
+*   **공통 Enum 스키마 및 조회 API 추가 [CCS-124]:**
     *   **Enum에 `@Schema(enumAsRef = true)` 적용:** 모든 API 응답에서 사용되는 Enum이 OpenAPI에서 `$ref`로 참조되어 Orval에서 단일 타입으로 생성되도록 개선
         *   적용 대상: `SeatGrade`, `BookingStatus`, `SeatStatus`, `NoticeCategory`, `Role`, `AuditCategory`, `AuditAction`, `AuditTargetType`, `SeatEventAction`
     *   **Enum 조회 API 구현:** `GET /api/enums` - 전체 Enum을 한번에 조회 (인증 불필요)
         *   `EnumResponse` DTO: `code`(영문)와 `label`(한글) 필드 포함
         *   프론트엔드에서 앱 초기화 시 호출하여 캐싱해서 사용
     *   **Swagger Tag kebab-case 통일:** `Admin Dashboard` → `admin-dashboard`, `Enums` → `enums`
-*   **결제 데이터 수집 시스템 설계 문서 추가:**
-    *   `documents/03_기능_명세/결제_데이터_수집_시스템_설계.md` - Payment, PaymentItem, Coupon 등 도메인 설계
-    *   `documents/03_기능_명세/결제_데이터_수집_TODO.md` - 구현 로드맵 및 체크리스트
 
 ## 2026년 1월 4일 (일)
 
