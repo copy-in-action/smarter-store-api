@@ -6,7 +6,10 @@ package com.github.copyinaction.venue.domain
  */
 import io.swagger.v3.oas.annotations.media.Schema
 
-@Schema(description = "좌석 등급 (VIP: VIP석, R: R석, S: S석, A: A석, B: B석)")
+@Schema(
+    description = "좌석 등급 (VIP: VIP석, R: R석, S: S석, A: A석, B: B석)",
+    enumAsRef = true
+)
 enum class SeatGrade(val description: String) {
     VIP("VIP석"),
     R("R석"),

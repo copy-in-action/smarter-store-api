@@ -96,10 +96,14 @@ data class SeatHoldResponse(
 /**
  * SSE 이벤트 액션 타입
  */
-enum class SeatEventAction {
-    OCCUPIED,   // 좌석 점유됨
-    RELEASED,   // 좌석 해제됨
-    CONFIRMED   // 좌석 확정됨
+@Schema(
+    description = "SSE 좌석 이벤트 액션 (OCCUPIED: 점유됨, RELEASED: 해제됨, CONFIRMED: 확정됨)",
+    enumAsRef = true
+)
+enum class SeatEventAction(val description: String) {
+    OCCUPIED("점유됨"),
+    RELEASED("해제됨"),
+    CONFIRMED("확정됨")
 }
 
 /**

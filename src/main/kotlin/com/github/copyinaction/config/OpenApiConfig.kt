@@ -3,7 +3,6 @@ package com.github.copyinaction.config
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
-import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.context.annotation.Bean
