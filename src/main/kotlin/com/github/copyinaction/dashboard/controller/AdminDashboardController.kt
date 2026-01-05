@@ -17,7 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
-@Tag(name = "Admin Dashboard", description = "관리자 대시보드 API")
+@Tag(name = "admin-dashboard", description = "관리자 대시보드 API")
 @RestController
 @RequestMapping("/api/admin/dashboard")
 @PreAuthorize("hasRole('ADMIN')")

@@ -1,34 +1,48 @@
 package com.github.copyinaction.audit.domain
 
+import io.swagger.v3.oas.annotations.media.Schema
+
 /**
  * Audit 카테고리
  */
-enum class AuditCategory {
-    AUTH,       // 인증
-    ACCOUNT,    // 계정
-    BOOKING,    // 예매
-    PAYMENT,    // 결제
-    ADMIN,      // 관리자
-    SEAT        // 좌석
+@Schema(
+    description = "감사 로그 카테고리",
+    enumAsRef = true
+)
+enum class AuditCategory(val description: String) {
+    AUTH("인증"),
+    ACCOUNT("계정"),
+    BOOKING("예매"),
+    PAYMENT("결제"),
+    ADMIN("관리자"),
+    SEAT("좌석")
 }
 
 /**
  * Audit 대상 타입
  */
-enum class AuditTargetType {
-    USER,
-    BOOKING,
-    PAYMENT,
-    PERFORMANCE,
-    SCHEDULE,
-    VENUE,
-    SEAT,
-    NOTICE
+@Schema(
+    description = "감사 로그 대상 타입",
+    enumAsRef = true
+)
+enum class AuditTargetType(val description: String) {
+    USER("사용자"),
+    BOOKING("예매"),
+    PAYMENT("결제"),
+    PERFORMANCE("공연"),
+    SCHEDULE("회차"),
+    VENUE("공연장"),
+    SEAT("좌석"),
+    NOTICE("공지사항")
 }
 
 /**
  * Audit 액션
  */
+@Schema(
+    description = "감사 로그 액션",
+    enumAsRef = true
+)
 enum class AuditAction(val category: AuditCategory, val description: String) {
     // 인증
     LOGIN(AuditCategory.AUTH, "로그인"),
