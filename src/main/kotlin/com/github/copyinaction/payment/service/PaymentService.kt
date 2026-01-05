@@ -1,0 +1,135 @@
+package com.github.copyinaction.payment.service
+
+import com.github.copyinaction.booking.repository.BookingRepository
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
+import com.github.copyinaction.payment.domain.Payment
+import com.github.copyinaction.payment.domain.PaymentCancelledEvent
+import com.github.copyinaction.payment.domain.PaymentCompletedEvent
+import com.github.copyinaction.payment.dto.*
+import com.github.copyinaction.payment.repository.PaymentRepository
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.*
+
+@Service
+@Transactional(readOnly = true)
+class PaymentService(
+    private val paymentRepository: PaymentRepository,
+    private val bookingRepository: BookingRepository,
+    private val eventPublisher: ApplicationEventPublisher
+) {
+
+    @Transactional
+    fun createPayment(userId: Long, request: PaymentCreateRequest): PaymentResponse {
+        val booking = bookingRepository.findByIdOrNull(request.bookingId)
+            ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
+
+        // 사용자 권한 체크 (예매자 본인인지 확인)
+        if (booking.siteUser.id != userId) {
+            throw CustomException(ErrorCode.FORBIDDEN)
+        }
+
+        val payment = Payment.create(
+            booking = booking,
+            userId = userId,
+            paymentMethod = request.paymentMethod,
+            originalPrice = request.originalPrice,
+            bookingFee = request.bookingFee
+        )
+
+        val savedPayment = paymentRepository.save(payment)
+        return PaymentResponse.from(savedPayment)
+    }
+
+    @Transactional
+    fun completePayment(paymentId: UUID, request: PaymentCompleteRequest): PaymentResponse {
+        val payment = paymentRepository.findByIdOrNull(paymentId)
+            ?: throw CustomException(ErrorCode.PAYMENT_NOT_FOUND)
+
+        payment.complete(request.pgProvider, request.pgTransactionId)
+        
+        // 추가 정보 업데이트
+        payment.cardCompany = request.cardCompany
+        payment.cardNumberMasked = request.cardNumberMasked
+        payment.installmentMonths = request.installmentMonths
+
+        val response = PaymentResponse.from(payment)
+
+        eventPublisher.publishEvent(
+            PaymentCompletedEvent(
+                paymentId = payment.id,
+                bookingId = payment.booking.id!!,
+                userId = payment.userId,
+                finalPrice = payment.finalPrice,
+                discountAmount = payment.discountAmount,
+                completedAt = payment.completedAt!!
+            )
+        )
+
+        return response
+    }
+
+    @Transactional
+    fun cancelPayment(paymentId: UUID, userId: Long, request: PaymentCancelRequest): PaymentResponse {
+        val payment = paymentRepository.findByIdOrNull(paymentId)
+            ?: throw CustomException(ErrorCode.PAYMENT_NOT_FOUND)
+
+        if (payment.userId != userId) {
+            throw CustomException(ErrorCode.FORBIDDEN)
+        }
+
+        payment.cancel(request.reason)
+
+        eventPublisher.publishEvent(
+            PaymentCancelledEvent(
+                paymentId = payment.id,
+                bookingId = payment.booking.id!!,
+                userId = payment.userId,
+                cancelReason = payment.cancelReason!!,
+                cancelledAt = payment.cancelledAt!!
+            )
+        )
+
+        return PaymentResponse.from(payment)
+    }
+
+    fun getPayment(paymentId: UUID, userId: Long): PaymentDetailResponse {
+        val payment = paymentRepository.findByIdOrNull(paymentId)
+            ?: throw CustomException(ErrorCode.PAYMENT_NOT_FOUND)
+
+        if (payment.userId != userId) {
+            throw CustomException(ErrorCode.FORBIDDEN)
+        }
+
+        val items = payment.paymentItems.map {
+            PaymentItemResponse(
+                performanceTitle = it.performanceTitle,
+                seatLabel = it.seatLabel,
+                finalPrice = it.finalPrice
+            )
+        }
+
+        val pgInfo = payment.pgProvider?.let {
+            PgInfoResponse(
+                provider = it,
+                transactionId = payment.pgTransactionId ?: "",
+                cardCompany = payment.cardCompany,
+                cardNumber = payment.cardNumberMasked
+            )
+        }
+
+        return PaymentDetailResponse(
+            payment = PaymentResponse.from(payment),
+            items = items,
+            pgInfo = pgInfo
+        )
+    }
+
+    fun getPaymentsByUser(userId: Long): List<PaymentResponse> {
+        return paymentRepository.findAllByUserIdOrderByRequestedAtDesc(userId)
+            .map { PaymentResponse.from(it) }
+    }
+}

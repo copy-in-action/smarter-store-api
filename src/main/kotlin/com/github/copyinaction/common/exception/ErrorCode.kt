@@ -73,4 +73,9 @@ enum class ErrorCode(
 
     // Audit
     AUDIT_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 감사 로그를 찾을 수 없습니다."),
+
+    // Payment
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 결제 정보를 찾을 수 없습니다."),
+    PAYMENT_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 결제입니다."),
+    PAYMENT_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "결제 취소에 실패했습니다."),
 }
