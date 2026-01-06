@@ -28,14 +28,10 @@ class CouponService(
     fun createCoupon(request: CouponCreateRequest): CouponResponse {
         val coupon = Coupon.create(
             name = request.name,
-            description = request.description,
             discountMethod = request.discountMethod,
             discountValue = request.discountValue,
             validFrom = request.validFrom,
-            validUntil = request.validUntil,
-            minOrderAmount = request.minOrderAmount,
-            maxDiscountAmount = request.maxDiscountAmount,
-            maxUsagePerUser = request.maxUsagePerUser
+            validUntil = request.validUntil
         )
 
         val saved = couponRepository.save(coupon)
@@ -80,16 +76,7 @@ class CouponService(
 
         return activeCoupons
             .filter { it.isValid() }
-            .map { coupon ->
-                val remainingUsage = getRemainingUsage(userId, coupon.id)
-                // 사용 횟수가 0이면 목록에서 제외
-                if (remainingUsage != null && remainingUsage <= 0) {
-                    null
-                } else {
-                    AvailableCouponResponse.from(coupon, remainingUsage)
-                }
-            }
-            .filterNotNull()
+            .map { AvailableCouponResponse.from(it) }
     }
 
     /**
@@ -98,18 +85,9 @@ class CouponService(
     fun validateSeatCoupons(userId: Long, request: CouponValidateRequest): CouponValidateResponse {
         val results = mutableListOf<SeatCouponResult>()
 
-        // 각 쿠폰별 사용 횟수 추적 (동일 쿠폰 여러 좌석 적용 시)
-        val couponUsageCount = mutableMapOf<Long, Int>()
-
         for (seatCoupon in request.seatCoupons) {
-            val result = validateSingleSeatCoupon(userId, seatCoupon, couponUsageCount)
+            val result = validateSingleSeatCoupon(seatCoupon)
             results.add(result)
-
-            // 유효한 경우 사용 횟수 증가
-            if (result.isValid) {
-                couponUsageCount[seatCoupon.couponId] =
-                    couponUsageCount.getOrDefault(seatCoupon.couponId, 0) + 1
-            }
         }
 
         val totalOriginalPrice = results.sumOf { it.originalPrice }
@@ -126,9 +104,7 @@ class CouponService(
     }
 
     private fun validateSingleSeatCoupon(
-        userId: Long,
-        seatCoupon: SeatCouponRequest,
-        pendingUsageCount: Map<Long, Int>
+        seatCoupon: SeatCouponRequest
     ): SeatCouponResult {
         val coupon = couponRepository.findById(seatCoupon.couponId).orElse(null)
 
@@ -155,38 +131,6 @@ class CouponService(
                 finalPrice = seatCoupon.originalPrice,
                 isValid = false,
                 message = "유효하지 않거나 만료된 쿠폰입니다."
-            )
-        }
-
-        // 사용 횟수 제한 확인
-        if (coupon.maxUsagePerUser != null) {
-            val usedCount = couponUsageRepository.countByUserIdAndCouponIdAndIsRestoredFalse(userId, coupon.id)
-            val pendingCount = pendingUsageCount.getOrDefault(coupon.id, 0)
-            val totalUsage = usedCount + pendingCount
-
-            if (totalUsage >= coupon.maxUsagePerUser) {
-                return SeatCouponResult(
-                    bookingSeatId = seatCoupon.bookingSeatId,
-                    couponId = seatCoupon.couponId,
-                    originalPrice = seatCoupon.originalPrice,
-                    discountAmount = 0,
-                    finalPrice = seatCoupon.originalPrice,
-                    isValid = false,
-                    message = "쿠폰 사용 횟수를 초과했습니다."
-                )
-            }
-        }
-
-        // 최소 주문금액 확인
-        if (coupon.minOrderAmount != null && seatCoupon.originalPrice < coupon.minOrderAmount) {
-            return SeatCouponResult(
-                bookingSeatId = seatCoupon.bookingSeatId,
-                couponId = seatCoupon.couponId,
-                originalPrice = seatCoupon.originalPrice,
-                discountAmount = 0,
-                finalPrice = seatCoupon.originalPrice,
-                isValid = false,
-                message = "최소 주문금액(${coupon.minOrderAmount}원)을 충족하지 않습니다."
             )
         }
 
@@ -233,19 +177,5 @@ class CouponService(
     fun restoreCoupons(paymentId: UUID) {
         val usages = couponUsageRepository.findByPaymentIdAndIsRestoredFalse(paymentId)
         usages.forEach { it.restore() }
-    }
-
-    /**
-     * 남은 사용 횟수 조회
-     */
-    fun getRemainingUsage(userId: Long, couponId: Long): Int? {
-        val coupon = couponRepository.findById(couponId).orElse(null) ?: return null
-
-        if (coupon.maxUsagePerUser == null) {
-            return null // 무제한
-        }
-
-        val usedCount = couponUsageRepository.countByUserIdAndCouponIdAndIsRestoredFalse(userId, couponId)
-        return maxOf(0, coupon.maxUsagePerUser - usedCount)
     }
 }

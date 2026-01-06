@@ -18,9 +18,6 @@ data class CouponCreateRequest(
     @Schema(description = "쿠폰명", example = "신년 맞이 할인 쿠폰")
     val name: String,
 
-    @Schema(description = "쿠폰 설명", example = "2026년 신년 맞이 10% 할인 쿠폰")
-    val description: String? = null,
-
     @field:NotNull(message = "할인 방식은 필수입니다")
     @Schema(description = "할인 방식", example = "PERCENTAGE")
     val discountMethod: DiscountMethod,
@@ -28,15 +25,6 @@ data class CouponCreateRequest(
     @field:Min(value = 1, message = "할인값은 1 이상이어야 합니다")
     @Schema(description = "할인값 (정액: 원, 정률: %)", example = "10")
     val discountValue: Int,
-
-    @Schema(description = "최대 할인금액 (정률 할인 시)", example = "10000")
-    val maxDiscountAmount: Int? = null,
-
-    @Schema(description = "최소 주문금액", example = "30000")
-    val minOrderAmount: Int? = null,
-
-    @Schema(description = "1인당 최대 사용 횟수 (null=무제한)", example = "3")
-    val maxUsagePerUser: Int? = null,
 
     @field:NotNull(message = "유효 시작일은 필수입니다")
     @Schema(description = "유효 시작일")
@@ -53,8 +41,6 @@ data class CouponResponse(
     val id: Long,
     @Schema(description = "쿠폰명")
     val name: String,
-    @Schema(description = "쿠폰 설명")
-    val description: String?,
     @Schema(description = "할인 방식")
     val discountMethod: DiscountMethod,
     @Schema(description = "할인값")
@@ -63,12 +49,6 @@ data class CouponResponse(
     val validFrom: LocalDateTime,
     @Schema(description = "유효 종료일")
     val validUntil: LocalDateTime,
-    @Schema(description = "최소 주문금액")
-    val minOrderAmount: Int?,
-    @Schema(description = "최대 할인금액")
-    val maxDiscountAmount: Int?,
-    @Schema(description = "1인당 최대 사용 횟수")
-    val maxUsagePerUser: Int?,
     @Schema(description = "활성화 여부")
     val isActive: Boolean
 ) {
@@ -77,14 +57,10 @@ data class CouponResponse(
             return CouponResponse(
                 id = coupon.id,
                 name = coupon.name,
-                description = coupon.description,
                 discountMethod = coupon.discountMethod,
                 discountValue = coupon.discountValue,
                 validFrom = coupon.validFrom,
                 validUntil = coupon.validUntil,
-                minOrderAmount = coupon.minOrderAmount,
-                maxDiscountAmount = coupon.maxDiscountAmount,
-                maxUsagePerUser = coupon.maxUsagePerUser,
                 isActive = coupon.isActive
             )
         }
@@ -99,32 +75,20 @@ data class AvailableCouponResponse(
     val id: Long,
     @Schema(description = "쿠폰명")
     val name: String,
-    @Schema(description = "쿠폰 설명")
-    val description: String?,
     @Schema(description = "할인 방식")
     val discountMethod: DiscountMethod,
     @Schema(description = "할인값")
     val discountValue: Int,
-    @Schema(description = "최대 할인금액")
-    val maxDiscountAmount: Int?,
-    @Schema(description = "최소 주문금액")
-    val minOrderAmount: Int?,
-    @Schema(description = "남은 사용 횟수 (null=무제한)")
-    val remainingUsage: Int?,
     @Schema(description = "유효 종료일")
     val validUntil: LocalDateTime
 ) {
     companion object {
-        fun from(coupon: Coupon, remainingUsage: Int?): AvailableCouponResponse {
+        fun from(coupon: Coupon): AvailableCouponResponse {
             return AvailableCouponResponse(
                 id = coupon.id,
                 name = coupon.name,
-                description = coupon.description,
                 discountMethod = coupon.discountMethod,
                 discountValue = coupon.discountValue,
-                maxDiscountAmount = coupon.maxDiscountAmount,
-                minOrderAmount = coupon.minOrderAmount,
-                remainingUsage = remainingUsage,
                 validUntil = coupon.validUntil
             )
         }

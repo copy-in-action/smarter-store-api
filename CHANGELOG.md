@@ -13,6 +13,11 @@
     *   **검증 API 문맥 강화**: `CouponValidateRequest`에 `bookingId` 필드를 추가하여, 좌석별 쿠폰 검증 시 어떤 예매 건에 대한 검증인지 명시적으로 전달하도록 개선.
     *   **테스트 코드 최신화**: 필드명 및 타입 변경 사항을 `PaymentServiceTest`에 반영하여 검증 완료.
 
+*   **쿠폰 도메인 간소화 리팩토링:**
+    *   **복잡도 제거**: `Coupon` 엔티티에서 불필요한 제약 조건 필드(`description`, `maxDiscountAmount`, `minOrderAmount`, `performanceId`, `targetSeatGrade`, `maxUsagePerUser`)를 모두 제거하여 핵심 할인 로직에 집중.
+    *   **JSON 구조 최적화**: 쿠폰 생성 및 응답 DTO를 `name`, `discountMethod`, `discountValue`, `validFrom`, `validUntil` 등 필수 정보 위주로 경량화.
+    *   **비즈니스 로직 단순화**: `CouponService`의 쿠폰 검증 로직에서 복잡한 조건 체크를 제거하고 유효 기간 및 활성 상태 검사 위주로 재편.
+
 ## 2026년 1월 5일 (월)
 
 *   **결제 시스템 기본 도메인 및 API 구축 (Phase 1) [CCS-125]:**
