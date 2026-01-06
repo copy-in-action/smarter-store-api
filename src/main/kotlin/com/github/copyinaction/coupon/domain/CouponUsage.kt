@@ -19,7 +19,7 @@ class CouponUsage(
     @JoinColumn(name = "coupon_id", nullable = false)
     val coupon: Coupon,
 
-    @Column(nullable = false, columnDefinition = "BINARY(16)")
+    @Column(columnDefinition = "uuid", nullable = false)
     val paymentId: UUID,
 
     @Column(nullable = false)

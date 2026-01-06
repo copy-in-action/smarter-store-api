@@ -14,6 +14,7 @@ import java.util.*
 class Payment(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "uuid")
     val id: UUID = UUID.randomUUID(),
 
     @OneToOne(fetch = FetchType.LAZY)

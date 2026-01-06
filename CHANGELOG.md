@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026년 1월 7일 (수)
+
+*   **PostgreSQL UUID 타입 통일 및 호환성 개선:**
+    *   **BINARY(16) 타입 제거**: `CouponUsage` 엔티티의 `paymentId` 컬럼에서 PostgreSQL에서 지원하지 않는 `BINARY(16)` columnDefinition을 제거하여 테이블 생성 오류 해결.
+    *   **UUID 컬럼 명시적 타입 지정**: 프로젝트 전체의 UUID 타입 컬럼에 `columnDefinition = "uuid"`를 명시적으로 지정하여 PostgreSQL 네이티브 UUID 타입 사용 통일.
+        *   `Payment.id`: UUID PK 컬럼에 `@Column(columnDefinition = "uuid")` 추가
+        *   `CouponUsage.paymentId`: 외래 참조 UUID 컬럼에 `@Column(columnDefinition = "uuid", nullable = false)` 추가
+        *   `Booking.id`: 이미 적용되어 있어 수정 불필요
+
 ## 2026년 1월 6일 (화)
 
 *   **결제 응답 DTO 구조화 개선 (FE Feedback):**
