@@ -135,9 +135,9 @@ data class AvailableCouponResponse(
 
 @Schema(description = "좌석별 쿠폰 적용 요청")
 data class SeatCouponRequest(
-    @field:NotNull(message = "좌석 ID는 필수입니다")
-    @Schema(description = "좌석 ID (BookingItem ID)", example = "1")
-    val seatId: Long,
+    @field:NotNull(message = "예매 좌석 ID는 필수입니다")
+    @Schema(description = "예매 좌석 ID (BookingSeat ID)", example = "1")
+    val bookingSeatId: Long,
 
     @field:NotNull(message = "쿠폰 ID는 필수입니다")
     @Schema(description = "적용할 쿠폰 ID", example = "1")
@@ -158,8 +158,8 @@ data class CouponValidateRequest(
 
 @Schema(description = "좌석별 쿠폰 적용 결과")
 data class SeatCouponResult(
-    @Schema(description = "좌석 ID")
-    val seatId: Long,
+    @Schema(description = "예매 좌석 ID")
+    val bookingSeatId: Long,
     @Schema(description = "쿠폰 ID")
     val couponId: Long,
     @Schema(description = "원가")

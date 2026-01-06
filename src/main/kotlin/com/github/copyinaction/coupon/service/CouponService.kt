@@ -135,7 +135,7 @@ class CouponService(
         // 쿠폰 존재 여부 확인
         if (coupon == null) {
             return SeatCouponResult(
-                seatId = seatCoupon.seatId,
+                bookingSeatId = seatCoupon.bookingSeatId,
                 couponId = seatCoupon.couponId,
                 originalPrice = seatCoupon.originalPrice,
                 discountAmount = 0,
@@ -148,7 +148,7 @@ class CouponService(
         // 쿠폰 유효성 확인
         if (!coupon.isValid()) {
             return SeatCouponResult(
-                seatId = seatCoupon.seatId,
+                bookingSeatId = seatCoupon.bookingSeatId,
                 couponId = seatCoupon.couponId,
                 originalPrice = seatCoupon.originalPrice,
                 discountAmount = 0,
@@ -166,7 +166,7 @@ class CouponService(
 
             if (totalUsage >= coupon.maxUsagePerUser) {
                 return SeatCouponResult(
-                    seatId = seatCoupon.seatId,
+                    bookingSeatId = seatCoupon.bookingSeatId,
                     couponId = seatCoupon.couponId,
                     originalPrice = seatCoupon.originalPrice,
                     discountAmount = 0,
@@ -180,7 +180,7 @@ class CouponService(
         // 최소 주문금액 확인
         if (coupon.minOrderAmount != null && seatCoupon.originalPrice < coupon.minOrderAmount) {
             return SeatCouponResult(
-                seatId = seatCoupon.seatId,
+                bookingSeatId = seatCoupon.bookingSeatId,
                 couponId = seatCoupon.couponId,
                 originalPrice = seatCoupon.originalPrice,
                 discountAmount = 0,
@@ -194,7 +194,7 @@ class CouponService(
         val discountAmount = coupon.calculateDiscount(seatCoupon.originalPrice)
 
         return SeatCouponResult(
-            seatId = seatCoupon.seatId,
+            bookingSeatId = seatCoupon.bookingSeatId,
             couponId = seatCoupon.couponId,
             originalPrice = seatCoupon.originalPrice,
             discountAmount = discountAmount,
@@ -218,7 +218,7 @@ class CouponService(
                 userId = userId,
                 coupon = coupon,
                 paymentId = paymentId,
-                bookingItemId = seatCoupon.seatId,
+                bookingItemId = seatCoupon.bookingSeatId,
                 discountAmount = discountAmount
             )
 

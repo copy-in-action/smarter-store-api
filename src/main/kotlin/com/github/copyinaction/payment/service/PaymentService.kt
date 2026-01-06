@@ -79,15 +79,15 @@ class PaymentService(
                 type = discountDto.type,
                 name = discountDto.name,
                 amount = discountDto.amount,
-                referenceId = discountDto.referenceId
+                couponId = discountDto.couponId
             )
             payment.addDiscount(discount)
 
             // 쿠폰인 경우 수집 (나중에 한꺼번에 처리)
-            if (discountDto.type == DiscountType.COUPON && discountDto.referenceId != null) {
+            if (discountDto.type == DiscountType.COUPON && discountDto.couponId != null) {
                 couponDiscounts.add(SeatCouponRequest(
-                    seatId = discountDto.bookingSeatId ?: 0L, // 좌석 ID (없으면 0)
-                    couponId = discountDto.referenceId.toLong(), // referenceId를 쿠폰 ID로 사용
+                    bookingSeatId = discountDto.bookingSeatId ?: 0L, // 좌석 ID (없으면 0)
+                    couponId = discountDto.couponId, 
                     originalPrice = request.originalPrice // 원가 정보
                 ))
             }

@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026년 1월 6일 (화)
+
+*   **결제 및 쿠폰 시스템 필드명 직관화 및 명칭 통일:**
+    *   **용어 모호성 해소**: 프론트엔드에서 물리적 좌석 번호와 혼동할 수 있는 `seatId` 명칭을 예매 시스템 내부 ID임을 명확히 하는 `bookingSeatId`로 일괄 변경.
+    *   **DTO 필드 리팩토링**: 
+        *   `AppliedDiscountDto`, `SeatCouponRequest`, `SeatCouponResult` 내의 `seatId`를 `bookingSeatId`로 변경.
+        *   할인 참조 ID인 `referenceId`(String)를 용도에 맞게 `couponId`(Long)로 변경하고 타입을 최적화.
+    *   **엔티티 및 로직 고도화**:
+        *   `PaymentDiscount` 엔티티의 `referenceId` 필드를 `couponId`(Long)로 변경하여 데이터 타입 안정성 확보.
+        *   `PaymentService`, `CouponService` 내의 매핑 로직을 변경된 필드명과 타입에 맞춰 전면 수정.
+    *   **검증 API 문맥 강화**: `CouponValidateRequest`에 `bookingId` 필드를 추가하여, 좌석별 쿠폰 검증 시 어떤 예매 건에 대한 검증인지 명시적으로 전달하도록 개선.
+    *   **테스트 코드 최신화**: 필드명 및 타입 변경 사항을 `PaymentServiceTest`에 반영하여 검증 완료.
+
 ## 2026년 1월 5일 (월)
 
 *   **결제 시스템 기본 도메인 및 API 구축 (Phase 1) [CCS-125]:**

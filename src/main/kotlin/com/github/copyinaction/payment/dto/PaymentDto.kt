@@ -31,8 +31,8 @@ data class AppliedDiscountDto(
     val type: DiscountType,
     val name: String,
     val amount: Int,
-    val referenceId: String? = null,
-    val bookingSeatId: Long? = null // 특정 좌석에 적용된 할인인 경우 좌석 ID
+    val couponId: Long? = null,
+    val bookingSeatId: Long? = null // 특정 좌석(BookingSeat)에 적용된 할인인 경우
 )
 
 /**

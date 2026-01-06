@@ -26,8 +26,8 @@ class PaymentDiscount(
     val discountAmount: Int,
 
     // 쿠폰인 경우 참조 ID (nullable)
-    @Column(length = 50)
-    val referenceId: String? = null
+    @Column
+    val couponId: Long? = null
 
 ) : BaseEntity() {
 
@@ -37,14 +37,14 @@ class PaymentDiscount(
             type: DiscountType,
             name: String,
             amount: Int,
-            referenceId: String? = null
+            couponId: Long? = null
         ): PaymentDiscount {
             return PaymentDiscount(
                 payment = payment,
                 discountType = type,
                 discountName = name,
                 discountAmount = amount,
-                referenceId = referenceId
+                couponId = couponId
             )
         }
     }

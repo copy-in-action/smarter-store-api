@@ -62,7 +62,7 @@ class PaymentServiceTest {
             type = DiscountType.COUPON,
             name = "Test Coupon",
             amount = discountAmount,
-            referenceId = "123"
+            couponId = 123L
         )
         
         val request = PaymentCreateRequest(
