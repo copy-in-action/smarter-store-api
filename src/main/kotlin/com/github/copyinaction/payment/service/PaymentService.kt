@@ -74,11 +74,25 @@ class PaymentService(
         val couponDiscounts = mutableListOf<SeatCouponRequest>()
         
         request.discounts.forEach { discountDto ->
+            var discountAmount = discountDto.amount
+
+            // 쿠폰인 경우 서버에서 금액 재계산 (클라이언트 값 무시)
+            if (discountDto.type == DiscountType.COUPON && discountDto.couponId != null) {
+                val targetPrice = if (discountDto.bookingSeatId != null) {
+                    booking.bookingSeats.find { it.id == discountDto.bookingSeatId }?.price
+                        ?: throw CustomException(ErrorCode.INVALID_INPUT_VALUE)
+                } else {
+                    // 좌석 지정 없는 쿠폰은 일단 원가 기준 (정책에 따라 다를 수 있음)
+                    request.originalPrice
+                }
+                discountAmount = couponService.calculateDiscount(discountDto.couponId, targetPrice)
+            }
+
             val discount = PaymentDiscount.create(
                 payment = payment,
                 type = discountDto.type,
                 name = discountDto.name,
-                amount = discountDto.amount,
+                amount = discountAmount,
                 couponId = discountDto.couponId
             )
             payment.addDiscount(discount)
@@ -88,7 +102,7 @@ class PaymentService(
                 couponDiscounts.add(SeatCouponRequest(
                     bookingSeatId = discountDto.bookingSeatId ?: 0L, // 좌석 ID (없으면 0)
                     couponId = discountDto.couponId, 
-                    originalPrice = request.originalPrice // 원가 정보
+                    originalPrice = request.originalPrice // 여기도 개별 좌석 가격이 맞지만, CouponService 내부에서 재계산하므로 무관
                 ))
             }
         }
@@ -171,7 +185,10 @@ class PaymentService(
         val items = payment.paymentItems.map {
             PaymentItemResponse(
                 performanceTitle = it.performanceTitle,
-                seatLabel = it.seatLabel,
+                seatGrade = it.seatGrade,
+                section = it.section,
+                row = it.rowNum,
+                col = it.colNum,
                 finalPrice = it.finalPrice
             )
         }

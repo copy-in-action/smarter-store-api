@@ -14,12 +14,8 @@ class Coupon(
     @Column(nullable = false, length = 100)
     val name: String,
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val discountMethod: DiscountMethod,
-
-    @Column(nullable = false)
-    val discountValue: Int,
+    val discountRate: Int,
 
     @Column(nullable = false)
     val validFrom: LocalDateTime,
@@ -42,24 +38,20 @@ class Coupon(
     fun calculateDiscount(orderAmount: Int): Int {
         if (!isValid()) return 0
 
-        return when (discountMethod) {
-            DiscountMethod.FIXED -> discountValue
-            DiscountMethod.PERCENTAGE -> (orderAmount * discountValue / 100)
-        }
+        // 정률 할인 계산 (원 단위 절삭 등 정책 필요 시 적용, 여기선 단순 계산)
+        return (orderAmount * discountRate / 100)
     }
 
     companion object {
         fun create(
             name: String,
-            discountMethod: DiscountMethod,
-            discountValue: Int,
+            discountRate: Int,
             validFrom: LocalDateTime,
             validUntil: LocalDateTime
         ): Coupon {
             return Coupon(
                 name = name,
-                discountMethod = discountMethod,
-                discountValue = discountValue,
+                discountRate = discountRate,
                 validFrom = validFrom,
                 validUntil = validUntil
             )

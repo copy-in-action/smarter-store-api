@@ -1,14 +1,13 @@
 package com.github.copyinaction.coupon.dto
 
 import com.github.copyinaction.coupon.domain.Coupon
-import com.github.copyinaction.coupon.domain.DiscountMethod
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime
+import java.util.UUID
 
 // ==================== 관리자용 DTO ====================
 
@@ -18,13 +17,9 @@ data class CouponCreateRequest(
     @Schema(description = "쿠폰명", example = "신년 맞이 할인 쿠폰")
     val name: String,
 
-    @field:NotNull(message = "할인 방식은 필수입니다")
-    @Schema(description = "할인 방식", example = "PERCENTAGE")
-    val discountMethod: DiscountMethod,
-
-    @field:Min(value = 1, message = "할인값은 1 이상이어야 합니다")
-    @Schema(description = "할인값 (정액: 원, 정률: %)", example = "10")
-    val discountValue: Int,
+    @field:Min(value = 1, message = "할인율은 1 이상이어야 합니다")
+    @Schema(description = "할인율 (%)", example = "10")
+    val discountRate: Int,
 
     @field:NotNull(message = "유효 시작일은 필수입니다")
     @Schema(description = "유효 시작일")
@@ -41,10 +36,8 @@ data class CouponResponse(
     val id: Long,
     @Schema(description = "쿠폰명")
     val name: String,
-    @Schema(description = "할인 방식")
-    val discountMethod: DiscountMethod,
-    @Schema(description = "할인값")
-    val discountValue: Int,
+    @Schema(description = "할인율")
+    val discountRate: Int,
     @Schema(description = "유효 시작일")
     val validFrom: LocalDateTime,
     @Schema(description = "유효 종료일")
@@ -57,8 +50,7 @@ data class CouponResponse(
             return CouponResponse(
                 id = coupon.id,
                 name = coupon.name,
-                discountMethod = coupon.discountMethod,
-                discountValue = coupon.discountValue,
+                discountRate = coupon.discountRate,
                 validFrom = coupon.validFrom,
                 validUntil = coupon.validUntil,
                 isActive = coupon.isActive
@@ -75,10 +67,8 @@ data class AvailableCouponResponse(
     val id: Long,
     @Schema(description = "쿠폰명")
     val name: String,
-    @Schema(description = "할인 방식")
-    val discountMethod: DiscountMethod,
-    @Schema(description = "할인값")
-    val discountValue: Int,
+    @Schema(description = "할인율")
+    val discountRate: Int,
     @Schema(description = "유효 종료일")
     val validUntil: LocalDateTime
 ) {
@@ -87,8 +77,7 @@ data class AvailableCouponResponse(
             return AvailableCouponResponse(
                 id = coupon.id,
                 name = coupon.name,
-                discountMethod = coupon.discountMethod,
-                discountValue = coupon.discountValue,
+                discountRate = coupon.discountRate,
                 validUntil = coupon.validUntil
             )
         }
@@ -114,10 +103,16 @@ data class SeatCouponRequest(
 
 @Schema(description = "쿠폰 검증 요청")
 data class CouponValidateRequest(
-    @field:NotEmpty(message = "좌석별 쿠폰 정보는 필수입니다")
+    @field:NotNull(message = "예매 ID는 필수입니다")
+    @Schema(description = "예매 ID")
+    val bookingId: java.util.UUID,
+
     @field:Valid
-    @Schema(description = "좌석별 쿠폰 적용 목록")
-    val seatCoupons: List<SeatCouponRequest>
+    @Schema(description = "좌석별 쿠폰 적용 목록 (명시적 매핑 시)")
+    val seatCoupons: List<SeatCouponRequest> = emptyList(),
+
+    @Schema(description = "적용할 쿠폰 ID 목록 (자동 매핑 시)")
+    val couponIds: List<Long> = emptyList()
 )
 
 @Schema(description = "좌석별 쿠폰 적용 결과")

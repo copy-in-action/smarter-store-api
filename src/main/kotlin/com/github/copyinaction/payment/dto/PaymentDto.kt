@@ -4,6 +4,7 @@ import com.github.copyinaction.discount.domain.DiscountType
 import com.github.copyinaction.payment.domain.Payment
 import com.github.copyinaction.payment.domain.PaymentMethod
 import com.github.copyinaction.payment.domain.PaymentStatus
+import com.github.copyinaction.venue.domain.SeatGrade
 import java.time.LocalDateTime
 import java.util.*
 
@@ -93,7 +94,10 @@ data class PaymentDetailResponse(
 
 data class PaymentItemResponse(
     val performanceTitle: String,
-    val seatLabel: String,
+    val seatGrade: SeatGrade,
+    val section: String,
+    val row: Int,
+    val col: Int,
     val finalPrice: Int
 )
 

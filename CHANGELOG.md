@@ -2,6 +2,12 @@
 
 ## 2026년 1월 6일 (화)
 
+*   **결제 응답 DTO 구조화 개선 (FE Feedback):**
+    *   **중복 데이터 제거**: `PaymentItem` 엔티티 및 `PaymentItemResponse` DTO에서 파생 가능한 `seatLabel` 필드 제거.
+    *   **구조화된 데이터 제공**: `PaymentItemResponse`에 `seatGrade`(SeatGrade enum), `section`(String), `row`(Int), `col`(Int) 필드 추가로 타입 안전성 강화.
+    *   **프론트엔드 자율성 향상**: 좌석 정보 표시 형식을 프론트엔드에서 자유롭게 제어할 수 있도록 개선 (다국어, 커스텀 포맷 지원).
+    *   **DRY 원칙 준수**: 서버는 원시 데이터만 제공하고 표현(Presentation) 로직은 클라이언트로 위임하여 유지보수성 향상.
+
 *   **결제 및 쿠폰 시스템 필드명 직관화 및 명칭 통일:**
     *   **용어 모호성 해소**: 프론트엔드에서 물리적 좌석 번호와 혼동할 수 있는 `seatId` 명칭을 예매 시스템 내부 ID임을 명확히 하는 `bookingSeatId`로 일괄 변경.
     *   **DTO 필드 리팩토링**: 
@@ -17,6 +23,12 @@
     *   **복잡도 제거**: `Coupon` 엔티티에서 불필요한 제약 조건 필드(`description`, `maxDiscountAmount`, `minOrderAmount`, `performanceId`, `targetSeatGrade`, `maxUsagePerUser`)를 모두 제거하여 핵심 할인 로직에 집중.
     *   **JSON 구조 최적화**: 쿠폰 생성 및 응답 DTO를 `name`, `discountMethod`, `discountValue`, `validFrom`, `validUntil` 등 필수 정보 위주로 경량화.
     *   **비즈니스 로직 단순화**: `CouponService`의 쿠폰 검증 로직에서 복잡한 조건 체크를 제거하고 유효 기간 및 활성 상태 검사 위주로 재편.
+    *   **쿠폰 할인 정책 일원화**:
+        *   **정률 할인 고정**: `DiscountMethod`를 제거하고 모든 쿠폰을 **정률(%) 할인** 방식으로 통일.
+        *   **명칭 변경**: `discountValue`를 `discountRate`(할인율)로 변경하여 데이터 의미 명확화.
+    *   **프론트엔드 연동성 강화 (FE Feedback)**:
+        *   **쿠폰 자동 매핑**: `validateCoupons` API 호출 시 `couponIds` 목록만으로 높은 가격의 좌석부터 순차적으로 할인을 자동 적용하는 로직 구현 (좌석별 수동 매핑 부담 해소).
+        *   **보안성 강화**: 결제 생성(`createPayment`) 시 클라이언트가 전송한 할인 금액을 무시하고 서버에서 쿠폰 정보를 기반으로 재계산하여 데이터 위변조 방지.
 
 ## 2026년 1월 5일 (월)
 

@@ -16,7 +16,8 @@ import java.util.*
 @Transactional(readOnly = true)
 class CouponService(
     private val couponRepository: CouponRepository,
-    private val couponUsageRepository: CouponUsageRepository
+    private val couponUsageRepository: CouponUsageRepository,
+    private val bookingRepository: com.github.copyinaction.booking.repository.BookingRepository
 ) {
 
     // ==================== 관리자용 메서드 ====================
@@ -28,8 +29,7 @@ class CouponService(
     fun createCoupon(request: CouponCreateRequest): CouponResponse {
         val coupon = Coupon.create(
             name = request.name,
-            discountMethod = request.discountMethod,
-            discountValue = request.discountValue,
+            discountRate = request.discountRate,
             validFrom = request.validFrom,
             validUntil = request.validUntil
         )
@@ -83,9 +83,17 @@ class CouponService(
      * 좌석별 쿠폰 적용 검증
      */
     fun validateSeatCoupons(userId: Long, request: CouponValidateRequest): CouponValidateResponse {
+        val targetSeatCoupons = if (request.seatCoupons.isNotEmpty()) {
+            request.seatCoupons
+        } else if (request.couponIds.isNotEmpty()) {
+            autoMapCoupons(request.bookingId, request.couponIds)
+        } else {
+            emptyList()
+        }
+
         val results = mutableListOf<SeatCouponResult>()
 
-        for (seatCoupon in request.seatCoupons) {
+        for (seatCoupon in targetSeatCoupons) {
             val result = validateSingleSeatCoupon(seatCoupon)
             results.add(result)
         }
@@ -101,6 +109,29 @@ class CouponService(
             totalFinalPrice = totalFinalPrice,
             allValid = results.all { it.isValid }
         )
+    }
+
+    private fun autoMapCoupons(bookingId: UUID, couponIds: List<Long>): List<SeatCouponRequest> {
+        val booking = bookingRepository.findById(bookingId)
+            .orElseThrow { CustomException(ErrorCode.BOOKING_NOT_FOUND) }
+
+        // 좌석 가격 내림차순 정렬
+        val seats = booking.bookingSeats.sortedByDescending { it.price }
+        val coupons = couponIds.mapNotNull { couponRepository.findById(it).orElse(null) }
+
+        val result = mutableListOf<SeatCouponRequest>()
+        val minSize = minOf(seats.size, coupons.size)
+
+        for (i in 0 until minSize) {
+            val seat = seats[i]
+            val coupon = coupons[i]
+            result.add(SeatCouponRequest(
+                bookingSeatId = seat.id,
+                couponId = coupon.id,
+                originalPrice = seat.price
+            ))
+        }
+        return result
     }
 
     private fun validateSingleSeatCoupon(
@@ -145,6 +176,16 @@ class CouponService(
             finalPrice = seatCoupon.originalPrice - discountAmount,
             isValid = true
         )
+    }
+
+    /**
+     * 할인 금액 계산 (단순 계산)
+     */
+    fun calculateDiscount(couponId: Long, originalPrice: Int): Int {
+        val coupon = couponRepository.findById(couponId)
+            .orElseThrow { CustomException(ErrorCode.RESOURCE_NOT_FOUND) }
+        
+        return coupon.calculateDiscount(originalPrice)
     }
 
     /**

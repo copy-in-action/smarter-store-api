@@ -44,9 +44,6 @@ class PaymentItem(
     @Column(nullable = false)
     val colNum: Int,
 
-    @Column(nullable = false, length = 100)
-    val seatLabel: String,
-
     @Column(nullable = false)
     val unitPrice: Int,
 
@@ -75,7 +72,6 @@ class PaymentItem(
                 section = bookingSeat.section,
                 rowNum = bookingSeat.row,
                 colNum = bookingSeat.col,
-                seatLabel = "${bookingSeat.section} ${bookingSeat.row}열 ${bookingSeat.col}번",
                 unitPrice = bookingSeat.price,
                 finalPrice = bookingSeat.price
             )
