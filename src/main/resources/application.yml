@@ -62,3 +62,6 @@ springdoc:
 
 migration:
   encrypt-phone-number: false  # true로 변경하면 서버 시작 시 기존 전화번호 암호화
+
+slack: #SlackServiceTest 를 위해 공통환경변수 설정.
+  webhook-url-deploy: ${SLACK_WEBHOOK_URL_DEPLOY:http://localhost}

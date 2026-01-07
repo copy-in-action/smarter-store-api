@@ -2,6 +2,13 @@
 
 ## 2026년 1월 7일 (수)
 
+*   **통계 배치 스케줄러 Slack 알림 기능 추가:**
+    *   **SlackService 구현**: Slack Webhook을 사용하여 메시지를 전송하는 공통 서비스 구현.
+    *   **DailyStatsAggregationScheduler에 Slack 알림 통합**: 일별 통계 집계 성공/실패/스킵 시 실시간 Slack 알림 발송.
+    *   **상세한 알림 메시지**: 집계 일자, 처리 건수, 완료/실패 시각, 오류 내용 등을 포함한 구조화된 메시지 제공.
+    *   **운영 모니터링 강화**: 배포 노티 채널(`SLACK_WEBHOOK_URL_DEPLOY`)과 동일한 채널로 통계 배치 결과를 받아 운영 가시성 향상.
+    *   **로컬 환경 SSL 검증 우회**: 개발 환경에서 발생하는 SSL 인증서 오류(`PKIX path building failed`) 해결을 위해 local 프로파일에서만 SSL 검증을 우회하는 RestTemplate 사용.
+
 *   **Swagger API 문서 권한 정보 보완:**
     *   **권한 정보 명시**: Swagger UI에서 각 API의 접근 권한을 명확히 파악할 수 있도록 `@Operation` 설명에 권한 정보를 추가했습니다.
 
