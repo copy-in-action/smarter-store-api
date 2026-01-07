@@ -21,7 +21,7 @@ class StatsController(
     private val salesStatsService: SalesStatsService
 ) {
 
-    @Operation(summary = "일별 매출 통계 조회")
+    @Operation(summary = "일별 매출 통계 조회", description = "지정된 날짜의 매출 통계를 조회합니다.\n\n**권한: ADMIN**")
     @GetMapping("/daily")
     fun getDailySales(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
@@ -30,7 +30,7 @@ class StatsController(
         return ResponseEntity.ok(stats)
     }
 
-    @Operation(summary = "공연별 매출 통계 조회")
+    @Operation(summary = "공연별 매출 통계 조회", description = "특정 공연의 전체 매출 통계를 조회합니다.\n\n**권한: ADMIN**")
     @GetMapping("/performance/{id}")
     fun getPerformanceSales(
         @PathVariable id: Long
@@ -39,7 +39,7 @@ class StatsController(
         return ResponseEntity.ok(stats)
     }
 
-    @Operation(summary = "결제 수단별 통계 조회")
+    @Operation(summary = "결제 수단별 통계 조회", description = "지정된 날짜의 결제 수단별 통계를 조회합니다.\n\n**권한: ADMIN**")
     @GetMapping("/payment-methods")
     fun getPaymentMethodStats(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
@@ -48,7 +48,7 @@ class StatsController(
         return ResponseEntity.ok(stats)
     }
 
-    @Operation(summary = "할인 종류별 통계 조회")
+    @Operation(summary = "할인 종류별 통계 조회", description = "지정된 날짜의 할인 종류별 통계를 조회합니다.\n\n**권한: ADMIN**")
     @GetMapping("/discounts")
     fun getDiscountStats(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate

@@ -26,7 +26,7 @@ class CouponController(
     private val couponService: CouponService
 ) {
 
-    @Operation(summary = "사용 가능한 쿠폰 목록 조회", description = "현재 사용 가능한 쿠폰 목록을 조회합니다. 남은 사용 횟수가 0인 쿠폰은 제외됩니다.")
+    @Operation(summary = "사용 가능한 쿠폰 목록 조회", description = "현재 사용 가능한 쿠폰 목록을 조회합니다. 남은 사용 횟수가 0인 쿠폰은 제외됩니다.\n\n**권한: USER**")
     @GetMapping
     fun getAvailableCoupons(
         @AuthenticationPrincipal userDetails: CustomUserDetails
@@ -35,7 +35,7 @@ class CouponController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "좌석별 쿠폰 적용 검증", description = "좌석별로 적용된 쿠폰의 유효성을 검증하고 할인 금액을 계산합니다.")
+    @Operation(summary = "좌석별 쿠폰 적용 검증", description = "좌석별로 적용된 쿠폰의 유효성을 검증하고 할인 금액을 계산합니다.\n\n**권한: USER**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "검증 완료"),
         ApiResponse(responseCode = "400", description = "잘못된 요청", content = [Content(schema = Schema(implementation = ErrorResponse::class))])

@@ -55,6 +55,25 @@ class CouponService(
     }
 
     /**
+     * 쿠폰 수정 (관리자)
+     */
+    @Transactional
+    fun updateCoupon(couponId: Long, request: CouponUpdateRequest): CouponResponse {
+        val coupon = couponRepository.findById(couponId)
+            .orElseThrow { CustomException(ErrorCode.RESOURCE_NOT_FOUND) }
+
+        coupon.update(
+            name = request.name,
+            discountRate = request.discountRate,
+            validFrom = request.validFrom,
+            validUntil = request.validUntil,
+            isActive = request.isActive
+        )
+
+        return CouponResponse.from(coupon)
+    }
+
+    /**
      * 쿠폰 비활성화 (관리자)
      */
     @Transactional

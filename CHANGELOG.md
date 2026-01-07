@@ -2,6 +2,16 @@
 
 ## 2026년 1월 7일 (수)
 
+*   **Swagger API 문서 권한 정보 보완:**
+    *   **권한 정보 명시**: Swagger UI에서 각 API의 접근 권한을 명확히 파악할 수 있도록 `@Operation` 설명에 권한 정보를 추가했습니다.
+
+*   **쿠폰 수정 API 구현:**
+    *   **관리자용 쿠폰 수정 API 추가**: `PUT /api/admin/coupons/{id}` 엔드포인트 구현으로 쿠폰 정보 전체 수정 기능 제공.
+    *   **CouponUpdateRequest DTO 추가**: 쿠폰명, 할인율, 유효기간, 활성화 여부를 포함한 수정 요청 DTO 구현 (Bean Validation 적용).
+    *   **Coupon 도메인 강화**: `update()` 메서드를 도메인 엔티티에 추가하여 DDD 원칙 준수 (상태 변경 로직 캡슐화).
+    *   **필드 수정 가능성 확보**: Coupon 엔티티의 `name`, `discountRate`, `validFrom`, `validUntil` 필드를 `val`에서 `var`로 변경.
+    *   **트랜잭션 관리**: `CouponService.updateCoupon()` 메서드에 `@Transactional` 적용으로 데이터 정합성 보장.
+
 *   **PostgreSQL UUID 타입 통일 및 호환성 개선:**
     *   **BINARY(16) 타입 제거**: `CouponUsage` 엔티티의 `paymentId` 컬럼에서 PostgreSQL에서 지원하지 않는 `BINARY(16)` columnDefinition을 제거하여 테이블 생성 오류 해결.
     *   **UUID 컬럼 명시적 타입 지정**: 프로젝트 전체의 UUID 타입 컬럼에 `columnDefinition = "uuid"`를 명시적으로 지정하여 PostgreSQL 네이티브 UUID 타입 사용 통일.

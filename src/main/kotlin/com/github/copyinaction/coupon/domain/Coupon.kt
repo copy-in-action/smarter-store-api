@@ -12,16 +12,16 @@ class Coupon(
     val id: Long = 0,
 
     @Column(nullable = false, length = 100)
-    val name: String,
+    var name: String,
 
     @Column(nullable = false)
-    val discountRate: Int,
+    var discountRate: Int,
 
     @Column(nullable = false)
-    val validFrom: LocalDateTime,
+    var validFrom: LocalDateTime,
 
     @Column(nullable = false)
-    val validUntil: LocalDateTime,
+    var validUntil: LocalDateTime,
 
     @Column(nullable = false)
     var isActive: Boolean = true
@@ -40,6 +40,20 @@ class Coupon(
 
         // 정률 할인 계산 (원 단위 절삭 등 정책 필요 시 적용, 여기선 단순 계산)
         return (orderAmount * discountRate / 100)
+    }
+
+    fun update(
+        name: String,
+        discountRate: Int,
+        validFrom: LocalDateTime,
+        validUntil: LocalDateTime,
+        isActive: Boolean
+    ) {
+        this.name = name
+        this.discountRate = discountRate
+        this.validFrom = validFrom
+        this.validUntil = validUntil
+        this.isActive = isActive
     }
 
     companion object {

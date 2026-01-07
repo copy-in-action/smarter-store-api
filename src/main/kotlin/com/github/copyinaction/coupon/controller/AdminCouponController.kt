@@ -2,6 +2,7 @@ package com.github.copyinaction.coupon.controller
 
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.coupon.dto.CouponCreateRequest
+import com.github.copyinaction.coupon.dto.CouponUpdateRequest
 import com.github.copyinaction.coupon.dto.CouponResponse
 import com.github.copyinaction.coupon.service.CouponService
 import io.swagger.v3.oas.annotations.Operation
@@ -25,7 +26,7 @@ class AdminCouponController(
     private val couponService: CouponService
 ) {
 
-    @Operation(summary = "쿠폰 생성", description = "새로운 쿠폰을 생성합니다.")
+    @Operation(summary = "쿠폰 생성", description = "새로운 쿠폰을 생성합니다.\n\n**권한: ADMIN**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "쿠폰 생성 성공"),
         ApiResponse(responseCode = "400", description = "잘못된 입력값", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
@@ -38,14 +39,14 @@ class AdminCouponController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "쿠폰 목록 조회", description = "전체 쿠폰 목록을 조회합니다.")
+    @Operation(summary = "쿠폰 목록 조회", description = "전체 쿠폰 목록을 조회합니다.\n\n**권한: ADMIN**")
     @GetMapping
     fun getAllCoupons(): ResponseEntity<List<CouponResponse>> {
         val response = couponService.getAllCoupons()
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "쿠폰 상세 조회", description = "특정 쿠폰의 상세 정보를 조회합니다.")
+    @Operation(summary = "쿠폰 상세 조회", description = "특정 쿠폰의 상세 정보를 조회합니다.\n\n**권한: ADMIN**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "조회 성공"),
         ApiResponse(responseCode = "404", description = "쿠폰을 찾을 수 없음", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
@@ -58,7 +59,22 @@ class AdminCouponController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "쿠폰 비활성화", description = "쿠폰을 비활성화합니다. 비활성화된 쿠폰은 사용이 불가합니다.")
+    @Operation(summary = "쿠폰 수정", description = "쿠폰 정보를 수정합니다.\n\n**권한: ADMIN**")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "수정 성공"),
+        ApiResponse(responseCode = "400", description = "잘못된 입력값", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+        ApiResponse(responseCode = "404", description = "쿠폰을 찾을 수 없음", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+    )
+    @PutMapping("/{id}")
+    fun updateCoupon(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: CouponUpdateRequest
+    ): ResponseEntity<CouponResponse> {
+        val response = couponService.updateCoupon(id, request)
+        return ResponseEntity.ok(response)
+    }
+
+    @Operation(summary = "쿠폰 비활성화", description = "쿠폰을 비활성화합니다. 비활성화된 쿠폰은 사용이 불가합니다.\n\n**권한: ADMIN**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "비활성화 성공"),
         ApiResponse(responseCode = "404", description = "쿠폰을 찾을 수 없음", content = [Content(schema = Schema(implementation = ErrorResponse::class))])

@@ -151,7 +151,7 @@ class AdminDashboardController(
     }
 
     @GetMapping("/bookings/recent")
-    @Operation(summary = "최근 예매 내역 조회")
+    @Operation(summary = "최근 예매 내역 조회", description = "최근 발생한 예매 내역들을 조회합니다.\n\n**권한: ADMIN**")
     fun getRecentBookings(
         @RequestParam(defaultValue = "10") limit: Int,
         @RequestParam(required = false) bookingStatus: BookingStatus?,

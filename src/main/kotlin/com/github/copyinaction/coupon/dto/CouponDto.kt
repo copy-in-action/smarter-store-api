@@ -30,6 +30,29 @@ data class CouponCreateRequest(
     val validUntil: LocalDateTime
 )
 
+@Schema(description = "쿠폰 수정 요청 (관리자)")
+data class CouponUpdateRequest(
+    @field:NotBlank(message = "쿠폰명은 필수입니다")
+    @Schema(description = "쿠폰명", example = "신년 맞이 할인 쿠폰")
+    val name: String,
+
+    @field:Min(value = 1, message = "할인율은 1 이상이어야 합니다")
+    @Schema(description = "할인율 (%)", example = "10")
+    val discountRate: Int,
+
+    @field:NotNull(message = "유효 시작일은 필수입니다")
+    @Schema(description = "유효 시작일")
+    val validFrom: LocalDateTime,
+
+    @field:NotNull(message = "유효 종료일은 필수입니다")
+    @Schema(description = "유효 종료일")
+    val validUntil: LocalDateTime,
+
+    @field:NotNull(message = "활성화 여부는 필수입니다")
+    @Schema(description = "활성화 여부", example = "true")
+    val isActive: Boolean
+)
+
 @Schema(description = "쿠폰 응답 (관리자)")
 data class CouponResponse(
     @Schema(description = "쿠폰 ID")

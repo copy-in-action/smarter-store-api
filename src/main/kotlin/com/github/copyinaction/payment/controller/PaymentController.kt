@@ -27,7 +27,7 @@ class PaymentController(
     private val paymentService: PaymentService
 ) {
 
-    @Operation(summary = "결제 요청 생성", description = "예매 정보를 기반으로 새로운 결제 요청을 생성합니다.")
+    @Operation(summary = "결제 요청 생성", description = "예매 정보를 기반으로 새로운 결제 요청을 생성합니다.\n\n**권한: USER**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "결제 요청 생성 성공"),
         ApiResponse(responseCode = "404", description = "예매 정보를 찾을 수 없음", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
@@ -41,7 +41,7 @@ class PaymentController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "결제 완료 승인", description = "PG사 결제 완료 후 승인 처리를 수행합니다.")
+    @Operation(summary = "결제 완료 승인", description = "PG사 결제 완료 후 승인 처리를 수행합니다.\n\n**권한: USER**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "결제 승인 성공"),
         ApiResponse(responseCode = "404", description = "결제 정보를 찾을 수 없음", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
@@ -55,7 +55,7 @@ class PaymentController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "결제 취소", description = "결제 완료된 건에 대해 취소를 요청합니다.")
+    @Operation(summary = "결제 취소", description = "결제 완료된 건에 대해 취소를 요청합니다.\n\n**권한: USER**")
     @PostMapping("/{id}/cancel")
     fun cancelPayment(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
@@ -66,7 +66,7 @@ class PaymentController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "결제 상세 조회", description = "특정 결제 건의 상세 내역과 항목을 조회합니다.")
+    @Operation(summary = "결제 상세 조회", description = "특정 결제 건의 상세 내역과 항목을 조회합니다.\n\n**권한: USER**")
     @GetMapping("/{id}")
     fun getPayment(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
@@ -76,7 +76,7 @@ class PaymentController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "내 결제 목록 조회", description = "로그인한 사용자의 전체 결제 내역을 조회합니다.")
+    @Operation(summary = "내 결제 목록 조회", description = "로그인한 사용자의 전체 결제 내역을 조회합니다.\n\n**권한: USER**")
     @GetMapping("/me")
     fun getMyPayments(
         @AuthenticationPrincipal userDetails: CustomUserDetails

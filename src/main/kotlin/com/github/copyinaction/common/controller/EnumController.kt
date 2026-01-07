@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 class EnumController {
 
     @GetMapping
-    @Operation(summary = "전체 Enum 목록", description = "모든 공통 Enum을 한번에 조회합니다. 앱 초기화 시 호출하여 캐싱해서 사용하세요.")
+    @Operation(summary = "전체 Enum 목록", description = "모든 공통 Enum을 한번에 조회합니다. 앱 초기화 시 호출하여 캐싱해서 사용하세요.\n\n**권한: 누구나**")
     fun getAllEnums(): Map<String, List<EnumResponse>> {
         return mapOf(
             "seatGrades" to SeatGrade.entries.map { EnumResponse(it.name, it.description) },
