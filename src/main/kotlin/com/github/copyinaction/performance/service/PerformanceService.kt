@@ -1,7 +1,9 @@
 package com.github.copyinaction.performance.service
 
+import com.github.copyinaction.common.service.FrontendRevalidationService
 import com.github.copyinaction.performance.dto.CreatePerformanceRequest
 import com.github.copyinaction.performance.dto.PerformanceResponse
+import com.github.copyinaction.performance.dto.PerformanceSitemapResponse
 import com.github.copyinaction.performance.dto.UpdatePerformanceRequest
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
@@ -17,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional
 class PerformanceService(
     private val performanceRepository: PerformanceRepository,
     private val venueRepository: VenueRepository,
-    private val companyRepository: CompanyRepository
+    private val companyRepository: CompanyRepository,
+    private val frontendRevalidationService: FrontendRevalidationService
 ) {
 
     @Transactional
@@ -52,6 +55,7 @@ class PerformanceService(
             shippingGuide = request.shippingGuide
         )
         val savedPerformance = performanceRepository.save(performance)
+        frontendRevalidationService.revalidateCache("performance-sitemap")
         return PerformanceResponse.from(savedPerformance)
     }
 
@@ -62,6 +66,10 @@ class PerformanceService(
 
     fun getAllPerformances(): List<PerformanceResponse> {
         return performanceRepository.findAll().map { PerformanceResponse.Companion.from(it) }
+    }
+
+    fun getAllSitemapData(): List<PerformanceSitemapResponse> {
+        return performanceRepository.findAllSitemapData()
     }
 
     @Transactional
@@ -96,6 +104,7 @@ class PerformanceService(
             bookingFee = request.bookingFee,
             shippingGuide = request.shippingGuide
         )
+        frontendRevalidationService.revalidateCache("performance-sitemap")
         return PerformanceResponse.from(performance)
     }
 

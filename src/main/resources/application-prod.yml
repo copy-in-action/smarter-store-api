@@ -22,6 +22,9 @@ cors:
 
 app:
   frontend-url: ${FRONTEND_URL:https://ticket.devhong.cc}
+  frontend:
+    revalidate-url: ${FRONTEND_REVALIDATE_URL:https://ticket.devhong.cc/api/revalidate}
+    revalidate-token: ${FRONTEND_REVALIDATE_TOKEN}
 
 slack: # prod에만 설정
   webhook-url: ${SLACK_WEBHOOK_URL:http://localhost}

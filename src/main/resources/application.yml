@@ -54,6 +54,9 @@ management:
 app:
   cookie:
     domain: .devhong.cc
+  frontend:
+    revalidate-url: ${FRONTEND_REVALIDATE_URL:}
+    revalidate-token: ${FRONTEND_REVALIDATE_TOKEN:}
 
 springdoc:
   swagger-ui:

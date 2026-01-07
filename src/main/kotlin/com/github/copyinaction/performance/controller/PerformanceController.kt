@@ -3,10 +3,12 @@ package com.github.copyinaction.performance.controller
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.performance.dto.AvailableScheduleResponse
 import com.github.copyinaction.performance.dto.PerformanceResponse
+import com.github.copyinaction.performance.dto.PerformanceSitemapResponse
 import com.github.copyinaction.performance.service.PerformanceScheduleService
 import com.github.copyinaction.performance.service.PerformanceService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -54,8 +56,21 @@ class PerformanceController(
         return ResponseEntity.ok(performances)
     }
 
-    // === 사용자용 회차 조회 API ===
+    @Operation(summary = "사이트맵용 공연 데이터 조회", description = "사이트맵 생성에 필요한 공개된 모든 공연의 ID와 수정 시각을 조회합니다.\n\n**권한: 누구나**")
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "조회 성공",
+            content = [Content(array = ArraySchema(schema = Schema(implementation = PerformanceSitemapResponse::class)))]
+        )
+    )
+    @GetMapping("/sitemap")
+    fun getSitemapData(): ResponseEntity<List<PerformanceSitemapResponse>> {
+        val sitemapData = performanceService.getAllSitemapData()
+        return ResponseEntity.ok(sitemapData)
+    }
 
+    // === 사용자용 회차 조회 API ===
     @Operation(
         summary = "예매 가능 회차 날짜 목록 조회",
         description = "해당 공연의 예매 가능한 회차 날짜 목록을 조회합니다.\n\n" +
