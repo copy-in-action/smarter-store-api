@@ -2,6 +2,13 @@
 
 ## 2026년 1월 8일 (목)
 
+*   **navigator.sendBeacon 지원을 위한 POST 방식 예매 해제 API 추가 [CCS-130]:**
+    *   **ReleaseBookingRequest DTO 생성**: `bookingId`(UUID) 필드를 포함한 POST 요청용 DTO 구현 (Bean Validation 적용).
+    *   **POST /api/bookings/released 엔드포인트 추가**: 페이지 unload 시 `navigator.sendBeacon`을 통한 예매 해제 전용 엔드포인트 구현.
+    *   **기존 서비스 로직 재사용**: `cancelBooking` 서비스 메서드를 재사용하여 기능적으로 `DELETE /api/bookings/{bookingId}`와 동일하게 동작.
+    *   **Audit Log 기록**: `BOOKING_CANCEL` 액션으로 감사 로그에 기록되도록 설정.
+    *   **프론트엔드 협업 강화**: sendBeacon이 POST만 지원하는 제약사항을 해결하여 브라우저 페이지 이탈 시에도 안정적인 예매 해제 가능.
+
 *   **쿠폰 검증 API 단순화:**
     *   **couponIds 자동 매핑 방식 제거**: `CouponValidateRequest`에서 `couponIds` 필드 제거 및 `autoMapCoupons` 로직 삭제.
     *   **seatCoupons 단일 방식 채택**: 좌석별 쿠폰을 명시적으로 매핑하는 `seatCoupons` 방식만 지원하도록 단순화.

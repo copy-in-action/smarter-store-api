@@ -6,6 +6,7 @@ import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.dto.BookingTimeResponse
+import com.github.copyinaction.booking.dto.ReleaseBookingRequest
 import com.github.copyinaction.booking.dto.StartBookingRequest
 import com.github.copyinaction.booking.service.BookingService
 import com.github.copyinaction.common.exception.ErrorResponse
@@ -135,6 +136,41 @@ class BookingController(
         @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
         val response = bookingService.cancelBooking(bookingId, user.id)
+        return ResponseEntity.ok(response)
+    }
+
+    @Operation(
+        summary = "예매 해제 (POST 방식)",
+        description = """
+            페이지 unload 시 navigator.sendBeacon을 통한 예매 해제용 POST 엔드포인트입니다.
+
+            - sendBeacon은 POST 방식만 지원하므로 별도 엔드포인트 제공
+            - 기능은 DELETE /api/bookings/{bookingId}와 동일
+            - 진행 중인 예매 건을 취소하고 좌석 점유를 해제합니다.
+
+            **권한: USER**
+
+            **[Audit Log]** 이 작업은 감사 로그에 기록됩니다.
+        """
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "예매 해제 성공"),
+        ApiResponse(
+            responseCode = "404", description = "예매를 찾을 수 없음",
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+        )
+    )
+    @PostMapping("/released")
+    @Auditable(
+        action = AuditAction.BOOKING_CANCEL,
+        targetType = AuditTargetType.BOOKING,
+        includeRequestBody = true
+    )
+    fun releaseBooking(
+        @Valid @RequestBody request: ReleaseBookingRequest,
+        @AuthenticationPrincipal user: CustomUserDetails
+    ): ResponseEntity<BookingResponse> {
+        val response = bookingService.cancelBooking(request.bookingId, user.id)
         return ResponseEntity.ok(response)
     }
 }
