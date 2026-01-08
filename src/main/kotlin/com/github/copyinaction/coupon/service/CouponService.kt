@@ -16,8 +16,7 @@ import java.util.*
 @Transactional(readOnly = true)
 class CouponService(
     private val couponRepository: CouponRepository,
-    private val couponUsageRepository: CouponUsageRepository,
-    private val bookingRepository: com.github.copyinaction.booking.repository.BookingRepository
+    private val couponUsageRepository: CouponUsageRepository
 ) {
 
     // ==================== 관리자용 메서드 ====================
@@ -102,17 +101,9 @@ class CouponService(
      * 좌석별 쿠폰 적용 검증
      */
     fun validateSeatCoupons(userId: Long, request: CouponValidateRequest): CouponValidateResponse {
-        val targetSeatCoupons = if (request.seatCoupons.isNotEmpty()) {
-            request.seatCoupons
-        } else if (request.couponIds.isNotEmpty()) {
-            autoMapCoupons(request.bookingId, request.couponIds)
-        } else {
-            emptyList()
-        }
-
         val results = mutableListOf<SeatCouponResult>()
 
-        for (seatCoupon in targetSeatCoupons) {
+        for (seatCoupon in request.seatCoupons) {
             val result = validateSingleSeatCoupon(seatCoupon)
             results.add(result)
         }
@@ -128,29 +119,6 @@ class CouponService(
             totalFinalPrice = totalFinalPrice,
             allValid = results.all { it.isValid }
         )
-    }
-
-    private fun autoMapCoupons(bookingId: UUID, couponIds: List<Long>): List<SeatCouponRequest> {
-        val booking = bookingRepository.findById(bookingId)
-            .orElseThrow { CustomException(ErrorCode.BOOKING_NOT_FOUND) }
-
-        // 좌석 가격 내림차순 정렬
-        val seats = booking.bookingSeats.sortedByDescending { it.price }
-        val coupons = couponIds.mapNotNull { couponRepository.findById(it).orElse(null) }
-
-        val result = mutableListOf<SeatCouponRequest>()
-        val minSize = minOf(seats.size, coupons.size)
-
-        for (i in 0 until minSize) {
-            val seat = seats[i]
-            val coupon = coupons[i]
-            result.add(SeatCouponRequest(
-                bookingSeatId = seat.id,
-                couponId = coupon.id,
-                originalPrice = seat.price
-            ))
-        }
-        return result
     }
 
     private fun validateSingleSeatCoupon(

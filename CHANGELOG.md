@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026년 1월 8일 (목)
+
+*   **쿠폰 검증 API 단순화:**
+    *   **couponIds 자동 매핑 방식 제거**: `CouponValidateRequest`에서 `couponIds` 필드 제거 및 `autoMapCoupons` 로직 삭제.
+    *   **seatCoupons 단일 방식 채택**: 좌석별 쿠폰을 명시적으로 매핑하는 `seatCoupons` 방식만 지원하도록 단순화.
+    *   **API 명확성 향상**: 프론트엔드에서 혼란을 줄 수 있는 두 가지 방식(seatCoupons vs couponIds)을 제거하고 단일 방식으로 통일.
+    *   **불필요한 의존성 제거**: `CouponService`에서 사용되지 않는 `bookingRepository` 의존성 제거.
+    *   **문서 업데이트**: `쿠폰_적용_가이드.md`에서 couponIds 관련 설명 제거 및 seatCoupons 중심으로 재작성.
+
 ## 2026년 1월 7일 (수)
 
 *   **통계 배치 스케줄러 Slack 알림 기능 추가:**

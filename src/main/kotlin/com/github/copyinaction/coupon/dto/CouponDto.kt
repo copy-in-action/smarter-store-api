@@ -131,11 +131,8 @@ data class CouponValidateRequest(
     val bookingId: java.util.UUID,
 
     @field:Valid
-    @Schema(description = "좌석별 쿠폰 적용 목록 (명시적 매핑 시)")
-    val seatCoupons: List<SeatCouponRequest> = emptyList(),
-
-    @Schema(description = "적용할 쿠폰 ID 목록 (자동 매핑 시)")
-    val couponIds: List<Long> = emptyList()
+    @Schema(description = "좌석별 쿠폰 적용 목록")
+    val seatCoupons: List<SeatCouponRequest> = emptyList()
 )
 
 @Schema(description = "좌석별 쿠폰 적용 결과")
