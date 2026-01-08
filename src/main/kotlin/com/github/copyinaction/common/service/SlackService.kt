@@ -102,6 +102,22 @@ class SlackService(
     }
 
     /**
+     * 테스트 메시지 전송
+     */
+    fun sendTestMessage(message: String = "Slack 연동 테스트 메시지입니다.") {
+        val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        val testMessage = """
+            :test_tube: *Slack 연동 테스트*
+
+            • 메시지: `$message`
+            • 전송 시각: `$now`
+            • 프로파일: `$activeProfile`
+        """.trimIndent()
+
+        sendDeployMessage(testMessage)
+    }
+
+    /**
      * 일별 통계 집계 성공 알림
      */
     fun sendDailyStatsSuccess(date: LocalDate, paymentCount: Int) {

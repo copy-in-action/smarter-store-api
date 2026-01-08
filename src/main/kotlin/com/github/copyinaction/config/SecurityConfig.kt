@@ -61,6 +61,7 @@ class SecurityConfig(
                     "/api/auth/confirm-otp",
                     "/api/auth/logout",
                     "/api/admin/auth/**",
+                    "/api/test/**",  // 테스트 API (Slack 등)
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health",
