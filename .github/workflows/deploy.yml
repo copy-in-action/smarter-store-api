@@ -149,6 +149,7 @@ jobs:
             -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
             -e SPRING_MAIL_PASSWORD="${{ secrets.SPRING_MAIL_PASSWORD }}" \
             -e SLACK_WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -e SLACK_WEBHOOK_URL_DEPLOY="${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}" \
             -e ENCRYPTION_SECRET_PROD="${{ secrets.ENCRYPTION_SECRET_PROD }}" \
             ${{ env.DOCKER_IMAGE_PATH }}:latest
           
