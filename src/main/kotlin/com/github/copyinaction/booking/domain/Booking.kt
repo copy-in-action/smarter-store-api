@@ -6,6 +6,7 @@ import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.domain.PerformanceSchedule
 import com.github.copyinaction.venue.domain.SeatGrade
+import com.github.copyinaction.common.policy.BookingPolicy
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 import java.time.Duration
@@ -58,7 +59,6 @@ class Booking(
         private set
 
     companion object {
-        const val BOOKING_VALIDITY_MINUTES = 5L
         const val MAX_SEAT_COUNT = 4
 
         fun create(
@@ -71,7 +71,7 @@ class Booking(
                 siteUser = user,
                 schedule = schedule,
                 bookingNumber = generateBookingNumber(),
-                expiresAt = LocalDateTime.now().plusMinutes(BOOKING_VALIDITY_MINUTES)
+                expiresAt = LocalDateTime.now().plusMinutes(BookingPolicy.BOOKING_HOLD_MINUTES)
             )
         }
 

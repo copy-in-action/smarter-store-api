@@ -1,6 +1,7 @@
 package com.github.copyinaction.seat.domain
 
 import com.github.copyinaction.common.domain.BaseEntity
+import com.github.copyinaction.common.policy.BookingPolicy
 import com.github.copyinaction.performance.domain.PerformanceSchedule
 import com.github.copyinaction.venue.domain.SeatGrade
 import jakarta.persistence.*
@@ -66,8 +67,6 @@ class ScheduleSeatStatus(
 ) : BaseEntity() {
 
     companion object {
-        private const val HOLD_DURATION_MINUTES = 1L
-
         /**
          * 좌석 점유 생성
          */
@@ -85,7 +84,7 @@ class ScheduleSeatStatus(
                 seatGrade = seatGrade,
                 seatStatus = SeatStatus.PENDING,
                 heldBy = userId,
-                heldUntil = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES)
+                heldUntil = LocalDateTime.now().plusMinutes(BookingPolicy.BOOKING_HOLD_MINUTES)
             )
         }
     }
@@ -112,7 +111,7 @@ class ScheduleSeatStatus(
      */
     fun extendHold() {
         if (seatStatus == SeatStatus.PENDING) {
-            this.heldUntil = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES)
+            this.heldUntil = LocalDateTime.now().plusMinutes(BookingPolicy.BOOKING_HOLD_MINUTES)
         }
     }
 }

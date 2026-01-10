@@ -27,7 +27,10 @@ data class CouponCreateRequest(
 
     @field:NotNull(message = "유효 종료일은 필수입니다")
     @Schema(description = "유효 종료일")
-    val validUntil: LocalDateTime
+    val validUntil: LocalDateTime,
+
+    @Schema(description = "정렬 순서 (낮을수록 먼저 표시)", example = "0")
+    val sortOrder: Int = 0
 )
 
 @Schema(description = "쿠폰 수정 요청 (관리자)")
@@ -48,6 +51,9 @@ data class CouponUpdateRequest(
     @Schema(description = "유효 종료일")
     val validUntil: LocalDateTime,
 
+    @Schema(description = "정렬 순서 (낮을수록 먼저 표시)", example = "0")
+    val sortOrder: Int,
+
     @field:NotNull(message = "활성화 여부는 필수입니다")
     @Schema(description = "활성화 여부", example = "true")
     val isActive: Boolean
@@ -65,6 +71,8 @@ data class CouponResponse(
     val validFrom: LocalDateTime,
     @Schema(description = "유효 종료일")
     val validUntil: LocalDateTime,
+    @Schema(description = "정렬 순서")
+    val sortOrder: Int,
     @Schema(description = "활성화 여부")
     val isActive: Boolean
 ) {
@@ -76,6 +84,7 @@ data class CouponResponse(
                 discountRate = coupon.discountRate,
                 validFrom = coupon.validFrom,
                 validUntil = coupon.validUntil,
+                sortOrder = coupon.sortOrder,
                 isActive = coupon.isActive
             )
         }
@@ -93,7 +102,9 @@ data class AvailableCouponResponse(
     @Schema(description = "할인율")
     val discountRate: Int,
     @Schema(description = "유효 종료일")
-    val validUntil: LocalDateTime
+    val validUntil: LocalDateTime,
+    @Schema(description = "정렬 순서")
+    val sortOrder: Int
 ) {
     companion object {
         fun from(coupon: Coupon): AvailableCouponResponse {
@@ -101,7 +112,8 @@ data class AvailableCouponResponse(
                 id = coupon.id,
                 name = coupon.name,
                 discountRate = coupon.discountRate,
-                validUntil = coupon.validUntil
+                validUntil = coupon.validUntil,
+                sortOrder = coupon.sortOrder
             )
         }
     }

@@ -1,6 +1,7 @@
 package com.github.copyinaction.booking.domain
 
 import com.github.copyinaction.common.domain.BaseEntity
+import com.github.copyinaction.common.policy.BookingPolicy
 import com.github.copyinaction.performance.domain.PerformanceSchedule
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
@@ -68,7 +69,7 @@ class SeatLock(
                 section = section,
                 rowName = rowName,
                 seatNumber = seatNumber,
-                expiresAt = LocalDateTime.now().plusMinutes(Booking.BOOKING_VALIDITY_MINUTES)
+                expiresAt = LocalDateTime.now().plusMinutes(BookingPolicy.BOOKING_HOLD_MINUTES)
             )
         }
     }

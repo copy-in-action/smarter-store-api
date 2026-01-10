@@ -24,6 +24,9 @@ class Coupon(
     var validUntil: LocalDateTime,
 
     @Column(nullable = false)
+    var sortOrder: Int = 0,
+
+    @Column(nullable = false)
     var isActive: Boolean = true
 
 ) : BaseEntity() {
@@ -47,12 +50,14 @@ class Coupon(
         discountRate: Int,
         validFrom: LocalDateTime,
         validUntil: LocalDateTime,
+        sortOrder: Int,
         isActive: Boolean
     ) {
         this.name = name
         this.discountRate = discountRate
         this.validFrom = validFrom
         this.validUntil = validUntil
+        this.sortOrder = sortOrder
         this.isActive = isActive
     }
 
@@ -61,13 +66,15 @@ class Coupon(
             name: String,
             discountRate: Int,
             validFrom: LocalDateTime,
-            validUntil: LocalDateTime
+            validUntil: LocalDateTime,
+            sortOrder: Int = 0
         ): Coupon {
             return Coupon(
                 name = name,
                 discountRate = discountRate,
                 validFrom = validFrom,
-                validUntil = validUntil
+                validUntil = validUntil,
+                sortOrder = sortOrder
             )
         }
     }

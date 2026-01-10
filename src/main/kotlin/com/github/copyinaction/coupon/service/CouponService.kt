@@ -30,7 +30,8 @@ class CouponService(
             name = request.name,
             discountRate = request.discountRate,
             validFrom = request.validFrom,
-            validUntil = request.validUntil
+            validUntil = request.validUntil,
+            sortOrder = request.sortOrder
         )
 
         val saved = couponRepository.save(coupon)
@@ -41,7 +42,7 @@ class CouponService(
      * 쿠폰 목록 조회 (관리자)
      */
     fun getAllCoupons(): List<CouponResponse> {
-        return couponRepository.findAll().map { CouponResponse.from(it) }
+        return couponRepository.findAll().sortedBy { it.sortOrder }.map { CouponResponse.from(it) }
     }
 
     /**
@@ -66,6 +67,7 @@ class CouponService(
             discountRate = request.discountRate,
             validFrom = request.validFrom,
             validUntil = request.validUntil,
+            sortOrder = request.sortOrder,
             isActive = request.isActive
         )
 
@@ -92,9 +94,26 @@ class CouponService(
         val now = LocalDateTime.now()
         val activeCoupons = couponRepository.findAllByIsActiveTrueAndValidUntilAfter(now)
 
-        return activeCoupons
+        val couponList = activeCoupons
             .filter { it.isValid() }
+            .sortedBy { it.sortOrder }
             .map { AvailableCouponResponse.from(it) }
+            .toMutableList()
+
+        // '일반' (쿠폰 미적용) 항목 추가
+        val defaultCoupon = AvailableCouponResponse(
+            id = 0L,
+            name = "일반",
+            discountRate = 0,
+            validUntil = now.plusYears(99), // 무기한
+            sortOrder = 0
+        )
+        
+        // 정렬 순서가 0인 경우를 고려하여 재정렬하거나, 일반 쿠폰을 최상단에 배치
+        // 여기서는 일반 쿠폰을 무조건 맨 앞에 둡니다.
+        couponList.add(0, defaultCoupon)
+
+        return couponList
     }
 
     /**
@@ -124,6 +143,18 @@ class CouponService(
     private fun validateSingleSeatCoupon(
         seatCoupon: SeatCouponRequest
     ): SeatCouponResult {
+        // 일반(미적용) 쿠폰 처리
+        if (seatCoupon.couponId == 0L) {
+             return SeatCouponResult(
+                bookingSeatId = seatCoupon.bookingSeatId,
+                couponId = seatCoupon.couponId,
+                originalPrice = seatCoupon.originalPrice,
+                discountAmount = 0,
+                finalPrice = seatCoupon.originalPrice,
+                isValid = true
+            )
+        }
+
         val coupon = couponRepository.findById(seatCoupon.couponId).orElse(null)
 
         // 쿠폰 존재 여부 확인
@@ -169,6 +200,8 @@ class CouponService(
      * 할인 금액 계산 (단순 계산)
      */
     fun calculateDiscount(couponId: Long, originalPrice: Int): Int {
+        if (couponId == 0L) return 0
+
         val coupon = couponRepository.findById(couponId)
             .orElseThrow { CustomException(ErrorCode.RESOURCE_NOT_FOUND) }
         
@@ -181,6 +214,8 @@ class CouponService(
     @Transactional
     fun useCoupons(userId: Long, paymentId: UUID, seatCoupons: List<SeatCouponRequest>) {
         for (seatCoupon in seatCoupons) {
+            if (seatCoupon.couponId == 0L) continue
+
             val coupon = couponRepository.findById(seatCoupon.couponId)
                 .orElseThrow { CustomException(ErrorCode.RESOURCE_NOT_FOUND) }
 
