@@ -42,13 +42,13 @@ data class PaymentCreateRequest(
 data class AppliedDiscountDto(
     @Schema(description = "할인 유형 (COUPON, POINT, PROMOTION)")
     val type: DiscountType,
-    @Schema(description = "할인명", example = "신규 가입 쿠폰")
+    @Schema(description = "할인 명칭 (통계 및 스냅샷 보존용)", example = "신규 가입 10% 쿠폰")
     val name: String,
-    @Schema(description = "할인 금액", example = "5000")
+    @Schema(description = "적용된 할인 금액 (수량이 아닌 KRW 단위 금액)", example = "5000")
     val amount: Int,
-    @Schema(description = "적용 쿠폰 ID (쿠폰 할인인 경우)")
+    @Schema(description = "적용된 쿠폰 ID (쿠폰 할인인 경우 필수)")
     val couponId: Long? = null,
-    @Schema(description = "적용 좌석 ID (특정 좌석 할인인 경우)")
+    @Schema(description = "할인이 적용된 단일 좌석 ID (1좌석 1할인 원칙에 따라 단일 ID 사용)")
     val bookingSeatId: Long? = null // 특정 좌석(BookingSeat)에 적용된 할인인 경우
 )
 
