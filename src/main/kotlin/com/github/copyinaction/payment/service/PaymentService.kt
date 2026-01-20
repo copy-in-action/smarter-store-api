@@ -80,7 +80,10 @@ class PaymentService(
             if (discountDto.type == DiscountType.COUPON && discountDto.couponId != null) {
                 val targetPrice = if (discountDto.bookingSeatId != null) {
                     booking.bookingSeats.find { it.id == discountDto.bookingSeatId }?.price
-                        ?: throw CustomException(ErrorCode.INVALID_INPUT_VALUE)
+                        ?: throw CustomException(
+                            ErrorCode.INVALID_INPUT_VALUE,
+                            "예매에 해당 좌석이 존재하지 않습니다. (bookingSeatId: ${discountDto.bookingSeatId})"
+                        )
                 } else {
                     // 좌석 지정 없는 쿠폰은 일단 원가 기준 (정책에 따라 다를 수 있음)
                     request.originalPrice

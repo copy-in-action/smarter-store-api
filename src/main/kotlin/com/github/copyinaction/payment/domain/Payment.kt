@@ -2,6 +2,8 @@ package com.github.copyinaction.payment.domain
 
 import com.github.copyinaction.booking.domain.Booking
 import com.github.copyinaction.common.domain.BaseEntity
+import com.github.copyinaction.common.exception.CustomException
+import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.discount.domain.PaymentDiscount
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -161,7 +163,10 @@ class Payment(
 
     fun validateAmount(expectedAmount: Int) {
         if (this.finalPrice != expectedAmount) {
-            throw com.github.copyinaction.common.exception.CustomException(com.github.copyinaction.common.exception.ErrorCode.INVALID_INPUT_VALUE)
+            throw CustomException(
+                ErrorCode.INVALID_INPUT_VALUE,
+                "결제 금액이 일치하지 않습니다. (서버 계산: $finalPrice, 요청: $expectedAmount, 원가: $originalPrice, 수수료: $bookingFee, 할인: $discountAmount)"
+            )
         }
     }
 }
