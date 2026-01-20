@@ -118,7 +118,15 @@ class Payment(
     }
 
     fun complete(pgProvider: String, pgTransactionId: String) {
-        check(paymentStatus == PaymentStatus.PENDING) { "결제 대기 상태에서만 완료 처리가 가능합니다." }
+        if (paymentStatus == PaymentStatus.COMPLETED) {
+            throw CustomException(ErrorCode.PAYMENT_ALREADY_COMPLETED)
+        }
+        if (paymentStatus != PaymentStatus.PENDING) {
+            throw CustomException(
+                ErrorCode.INVALID_INPUT_VALUE,
+                "결제 대기 상태에서만 완료 처리가 가능합니다. (현재: $paymentStatus)"
+            )
+        }
         this.paymentStatus = PaymentStatus.COMPLETED
         this.pgProvider = pgProvider
         this.pgTransactionId = pgTransactionId
