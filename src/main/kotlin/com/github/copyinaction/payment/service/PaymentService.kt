@@ -43,14 +43,24 @@ class PaymentService(
             throw CustomException(ErrorCode.INVALID_INPUT_VALUE)
         }
 
-        // 1. Payment 엔티티 생성
-        val payment = Payment.create(
-            booking = booking,
-            userId = userId,
-            paymentMethod = request.paymentMethod,
-            originalPrice = request.originalPrice,
-            bookingFee = request.bookingFee
-        )
+        // 1. Payment 엔티티 조회 또는 생성 (재결제 지원)
+        val existingPayment = paymentRepository.findByBookingId(request.bookingId)
+        val payment = if (existingPayment != null) {
+            // 기존 결제 시도가 있는 경우: 쿠폰 복구 및 상태 초기화 후 재사용
+            // (PENDING/FAILED 상태인 경우만 update 메서드 내에서 허용됨)
+            couponService.restoreCoupons(existingPayment.id)
+            existingPayment.update(request.paymentMethod)
+            existingPayment
+        } else {
+            // 신규 결제 생성
+            Payment.create(
+                booking = booking,
+                userId = userId,
+                paymentMethod = request.paymentMethod,
+                originalPrice = request.originalPrice,
+                bookingFee = request.bookingFee
+            )
+        }
 
         // 2. PaymentItem 상세 생성 (BookingSeat 기반 스냅샷)
         booking.bookingSeats.forEach { seat ->

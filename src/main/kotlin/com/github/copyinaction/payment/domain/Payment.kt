@@ -177,4 +177,17 @@ class Payment(
             )
         }
     }
+
+    fun update(paymentMethod: PaymentMethod) {
+        if (paymentStatus == PaymentStatus.COMPLETED) {
+            throw CustomException(ErrorCode.PAYMENT_ALREADY_COMPLETED)
+        }
+        
+        this.paymentMethod = paymentMethod
+        this.paymentItems.clear()
+        this.discounts.clear()
+        this.discountAmount = 0
+        this.finalPrice = originalPrice + bookingFee
+        this.paymentStatus = PaymentStatus.PENDING // 실패 상태였을 수도 있으므로 대기로 변경
+    }
 }
