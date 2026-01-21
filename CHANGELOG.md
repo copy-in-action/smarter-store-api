@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026년 1월 21일 (수)
+
+*   **통계 시스템 긴급 수정 (Hotfix):**
+    *   **LazyInitializationException 해결:** 일별 통계 집계(`DailyStatsAggregationScheduler`) 수행 중 발생한 `failed to lazily initialize` 오류 해결을 위해 스케줄러 메서드에 `@Transactional`을 적용하고 `PaymentRepository`에 Fetch Join을 추가했습니다.
+    *   **성능 최적화 (N+1 방지):** `application.yml`에 `hibernate.default_batch_fetch_size: 100` 설정을 추가하여 컬렉션 지연 로딩 성능을 개선했습니다.
+    *   **로깅 강화:** 통계 재집계 실패 시, 어떤 결제 건(`paymentId`)에서 오류가 발생했는지 명확히 파악할 수 있도록 `SalesStatsService`에 상세 에러 로깅을 추가했습니다.
+    *   **기술 문서 작성:** 문제 원인 및 해결 과정을 담은 기술 노트(`통계_집계_오류_해결_및_최적화.md`)를 작성했습니다.
+
 ## 2026년 1월 11일 (일)
 
 *   **예매 시스템 점유 시간 단축 및 정책 일원화:**
