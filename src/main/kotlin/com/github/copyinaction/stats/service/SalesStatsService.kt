@@ -11,6 +11,7 @@ import com.github.copyinaction.stats.repository.DailySalesStatsRepository
 import com.github.copyinaction.stats.repository.DiscountStatsRepository
 import com.github.copyinaction.stats.repository.PaymentMethodStatsRepository
 import com.github.copyinaction.stats.repository.PerformanceSalesStatsRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +24,7 @@ class SalesStatsService(
     private val paymentMethodStatsRepository: PaymentMethodStatsRepository,
     private val discountStatsRepository: DiscountStatsRepository
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun updateAllStats(payment: Payment) {
@@ -129,7 +131,13 @@ class SalesStatsService(
 
         // 새로 집계
         payments.forEach { payment ->
-            updateAllStats(payment)
+            try {
+                updateAllStats(payment)
+            } catch (e: Exception) {
+                log.error("통계 재집계 중 오류 발생 - date: {}, paymentId: {}, paymentNumber: {}", 
+                    date, payment.id, payment.paymentNumber, e)
+                throw e
+            }
         }
     }
 }

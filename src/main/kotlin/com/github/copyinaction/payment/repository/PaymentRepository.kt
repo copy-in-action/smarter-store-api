@@ -18,6 +18,7 @@ interface PaymentRepository : JpaRepository<Payment, UUID> {
 
     @Query("""
         SELECT p FROM Payment p
+        LEFT JOIN FETCH p.paymentItems
         WHERE p.paymentStatus = :status
         AND p.completedAt >= :startDateTime
         AND p.completedAt < :endDateTime

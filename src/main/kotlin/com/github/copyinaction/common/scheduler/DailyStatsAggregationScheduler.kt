@@ -8,6 +8,7 @@ import com.github.copyinaction.stats.service.SalesStatsService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -24,6 +25,7 @@ class DailyStatsAggregationScheduler(
      * - 실시간 이벤트 처리에서 누락된 데이터가 있을 수 있으므로 전일 데이터 재집계
      */
     @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
     fun aggregateYesterdayStats() {
         val yesterday = LocalDate.now().minusDays(1)
         log.info("일별 통계 집계 시작: {}", yesterday)
