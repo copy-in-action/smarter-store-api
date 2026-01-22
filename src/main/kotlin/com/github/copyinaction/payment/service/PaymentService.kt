@@ -43,6 +43,15 @@ class PaymentService(
             throw CustomException(ErrorCode.INVALID_INPUT_VALUE)
         }
 
+        // 0-1. 원가 검증 (클라이언트 요청 vs 서버 좌석 가격)
+        val actualOriginalPrice = booking.bookingSeats.sumOf { it.price }
+        if (actualOriginalPrice != request.originalPrice) {
+            throw CustomException(
+                ErrorCode.INVALID_INPUT_VALUE,
+                "원가가 일치하지 않습니다. (서버: $actualOriginalPrice, 요청: ${request.originalPrice})"
+            )
+        }
+
         // 1. Payment 엔티티 조회 또는 생성 (재결제 지원)
         val existingPayment = paymentRepository.findByBookingId(request.bookingId)
         val payment = if (existingPayment != null) {

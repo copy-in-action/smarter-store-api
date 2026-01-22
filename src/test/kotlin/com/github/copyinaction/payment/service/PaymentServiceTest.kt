@@ -1,6 +1,7 @@
 package com.github.copyinaction.payment.service
 
 import com.github.copyinaction.booking.domain.Booking
+import com.github.copyinaction.booking.domain.BookingSeat
 import com.github.copyinaction.booking.repository.BookingRepository
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
@@ -79,11 +80,18 @@ class PaymentServiceTest {
         every { bookingRepository.findByIdOrNull(bookingId) } returns booking
         every { paymentRepository.findByBookingId(bookingId) } returns null // No existing payment
         every { paymentRepository.save(any()) } answers { firstArg() }
-        
-        // Mock BookingSeats for PaymentItem generation
-        every { booking.bookingSeats } returns mutableListOf()
-        every { booking.schedule.performance } returns mockk(relaxed = true)
-        every { booking.schedule.showDateTime } returns LocalDateTime.now()
+
+        // Mock BookingSeats for PaymentItem generation and price validation
+        val bookingSeat = mockk<BookingSeat> {
+            every { id } returns 1L
+            every { price } returns originalPrice
+            every { grade } returns com.github.copyinaction.venue.domain.SeatGrade.R
+            every { section } returns "A"
+            every { row } returns 1
+            every { col } returns 1
+        }
+        every { booking.bookingSeats } returns mutableListOf(bookingSeat)
+        every { booking.schedule } returns mockk(relaxed = true)
         every { couponService.calculateDiscount(any(), any()) } returns 5000
 
         // Act
@@ -144,10 +152,18 @@ class PaymentServiceTest {
         every { bookingRepository.findByIdOrNull(bookingId) } returns booking
         every { paymentRepository.findByBookingId(bookingId) } returns existingPayment
         every { paymentRepository.save(any()) } answers { firstArg() }
-        
-        every { booking.bookingSeats } returns mutableListOf()
-        every { booking.schedule.performance } returns mockk(relaxed = true)
-        every { booking.schedule.showDateTime } returns LocalDateTime.now()
+
+        // Mock BookingSeats for price validation
+        val bookingSeat = mockk<BookingSeat> {
+            every { id } returns 1L
+            every { price } returns 50000
+            every { grade } returns com.github.copyinaction.venue.domain.SeatGrade.R
+            every { section } returns "A"
+            every { row } returns 1
+            every { col } returns 1
+        }
+        every { booking.bookingSeats } returns mutableListOf(bookingSeat)
+        every { booking.schedule } returns mockk(relaxed = true)
 
         // Act
         val response = paymentService.createPayment(userId, request)
@@ -197,10 +213,61 @@ class PaymentServiceTest {
         every { bookingRepository.findByIdOrNull(bookingId) } returns booking
         every { paymentRepository.findByBookingId(bookingId) } returns existingPayment
 
+        // Mock BookingSeats for price validation
+        val bookingSeat = mockk<BookingSeat> {
+            every { id } returns 1L
+            every { price } returns 50000
+        }
+        every { booking.bookingSeats } returns mutableListOf(bookingSeat)
+
         // Act & Assert
         val exception = assertThrows<CustomException> {
             paymentService.createPayment(userId, request)
         }
         assertThat(exception.errorCode).isEqualTo(ErrorCode.PAYMENT_ALREADY_COMPLETED)
+    }
+
+    @Test
+    @DisplayName("클라이언트 원가와 서버 좌석 가격이 불일치하면 예외가 발생한다")
+    fun createPaymentThrowsIfOriginalPriceMismatch() {
+        val bookingId = UUID.randomUUID()
+        val userId = 1L
+
+        val siteUser = mockk<com.github.copyinaction.auth.domain.User> { every { id } returns userId }
+        val booking = mockk<Booking> {
+            every { id } returns bookingId
+            every { this@mockk.siteUser } returns siteUser
+        }
+
+        // 클라이언트가 50,000원으로 요청하지만 실제 좌석 가격은 140,000원
+        val request = PaymentCreateRequest(
+            bookingId = bookingId,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
+            originalPrice = 50000,  // 클라이언트 전송 값
+            bookingFee = 2000,
+            totalAmount = 42000,
+            ticketAmount = 40000,
+            isAgreed = true,
+            discounts = emptyList()
+        )
+
+        every { bookingRepository.findByIdOrNull(bookingId) } returns booking
+        every { paymentRepository.findByBookingId(bookingId) } returns null
+
+        // 실제 좌석 가격은 140,000원
+        val bookingSeat = mockk<BookingSeat> {
+            every { id } returns 701L
+            every { price } returns 140000  // 서버 실제 가격
+        }
+        every { booking.bookingSeats } returns mutableListOf(bookingSeat)
+
+        // Act & Assert
+        val exception = assertThrows<CustomException> {
+            paymentService.createPayment(userId, request)
+        }
+        assertThat(exception.errorCode).isEqualTo(ErrorCode.INVALID_INPUT_VALUE)
+        assertThat(exception.message).contains("원가가 일치하지 않습니다")
+        assertThat(exception.message).contains("서버: 140000")
+        assertThat(exception.message).contains("요청: 50000")
     }
 }

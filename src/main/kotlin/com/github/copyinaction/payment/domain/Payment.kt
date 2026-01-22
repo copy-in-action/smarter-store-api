@@ -171,9 +171,25 @@ class Payment(
 
     fun validateAmount(expectedAmount: Int) {
         if (this.finalPrice != expectedAmount) {
+            val diff = expectedAmount - finalPrice
+            val diffSign = if (diff > 0) "+" else ""
             throw CustomException(
                 ErrorCode.INVALID_INPUT_VALUE,
-                "결제 금액이 일치하지 않습니다. (서버 계산: $finalPrice, 요청: $expectedAmount, 원가: $originalPrice, 수수료: $bookingFee, 할인: $discountAmount)"
+                """
+                |결제 금액이 일치하지 않습니다.
+                |
+                |[서버 계산]
+                |  원가:     ${"%,10d".format(originalPrice)}원
+                |  수수료:   ${"%,10d".format(bookingFee)}원
+                |  할인:    -${"%,10d".format(discountAmount)}원
+                |  ─────────────────
+                |  최종가:   ${"%,10d".format(finalPrice)}원
+                |
+                |[클라이언트 요청]
+                |  최종가:   ${"%,10d".format(expectedAmount)}원
+                |
+                |[차이] $diffSign${"%,d".format(diff)}원
+                """.trimMargin()
             )
         }
     }
