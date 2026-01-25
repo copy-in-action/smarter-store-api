@@ -13,5 +13,8 @@ interface PerformanceRepository : JpaRepository<Performance, Long> {
     @EntityGraph(attributePaths = ["venue", "company"])
     override fun findAll(): List<Performance>
 
+    @EntityGraph(attributePaths = ["venue", "company"])
+    fun findAllByVisible(visible: Boolean): List<Performance>
+
     fun existsByVenueId(venueId: Long): Boolean
 }

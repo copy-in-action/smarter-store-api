@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -34,6 +35,16 @@ import java.net.URI
 class AdminPerformanceController(
     private val performanceService: PerformanceService
 ) {
+    @Operation(summary = "전체 공연 목록 조회", description = "모든 공연 목록(비공개 포함)을 조회합니다.\n\n**권한: ADMIN**")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "공연 목록 조회 성공")
+    )
+    @GetMapping
+    fun getAllPerformances(): ResponseEntity<List<PerformanceResponse>> {
+        val performances = performanceService.getAllPerformances()
+        return ResponseEntity.ok(performances)
+    }
+
     @Operation(summary = "공연 생성", description = "새로운 공연 정보를 생성합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "공연 생성 성공"),

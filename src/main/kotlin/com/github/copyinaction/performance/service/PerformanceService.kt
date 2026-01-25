@@ -64,6 +64,10 @@ class PerformanceService(
         return performanceRepository.findAll().map { PerformanceResponse.Companion.from(it) }
     }
 
+    fun getVisiblePerformances(): List<PerformanceResponse> {
+        return performanceRepository.findAllByVisible(true).map { PerformanceResponse.Companion.from(it) }
+    }
+
     @Transactional
     fun updatePerformance(id: Long, request: UpdatePerformanceRequest): PerformanceResponse {
         val performance = findPerformanceById(id)

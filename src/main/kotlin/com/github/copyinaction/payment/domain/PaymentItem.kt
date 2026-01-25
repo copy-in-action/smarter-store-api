@@ -64,9 +64,9 @@ class PaymentItem(
         ): PaymentItem {
             return PaymentItem(
                 payment = payment,
-                performanceId = performance.id!!,
+                performanceId = performance.id,
                 performanceTitle = performance.title,
-                scheduleId = schedule.id!!,
+                scheduleId = schedule.id,
                 showDateTime = schedule.showDateTime,
                 seatGrade = bookingSeat.grade,
                 section = bookingSeat.section,

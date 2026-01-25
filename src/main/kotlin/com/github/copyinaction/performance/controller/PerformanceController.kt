@@ -44,13 +44,13 @@ class PerformanceController(
         return ResponseEntity.ok(performance)
     }
 
-    @Operation(summary = "모든 공연 조회", description = "모든 공연 목록을 조회합니다.\n\n**권한: 누구나**")
+    @Operation(summary = "모든 공연 조회", description = "모든 공연 목록을 조회합니다. (노출 설정된 공연만 조회)\n\n**권한: 누구나**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "공연 목록 조회 성공")
     )
     @GetMapping
     fun getAllPerformances(): ResponseEntity<List<PerformanceResponse>> {
-        val performances = performanceService.getAllPerformances()
+        val performances = performanceService.getVisiblePerformances()
         return ResponseEntity.ok(performances)
     }
 
