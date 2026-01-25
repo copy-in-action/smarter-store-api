@@ -1,6 +1,32 @@
 # Changelog
 
+## 2026년 1월 25일 (토)
+
+*   **홈 화면 카테고리 시스템 구현 [CCS-145]:**
+    *   **도메인 모델 설계:** 홈 화면 배너 노출을 위한 섹션/태그 기반 카테고리 시스템을 구현했습니다.
+        *   `HomeSection` enum: 대분류 섹션 (인기티켓, 데이트코스, 이런 티켓은 어때요?, 어디로 떠나볼까요?)
+        *   `HomeSectionTag` enum: 하위 태그 (뮤지컬, 콘서트, 연극, 금주오픈티켓, 한정특가, 지역별 등 총 18개)
+        *   `PerformanceHomeTag` 엔티티: 공연-태그 N:N 매핑 테이블 (순서 관리 포함)
+    *   **지역 자동 매핑:** 공연장 주소를 기반으로 지역 태그를 자동 부여하는 `RegionMapper` 유틸리티를 구현했습니다. (서울/경기/부산/대구/대전/전국)
+    *   **관리자 API 구현:**
+        *   `GET /api/admin/home/sections/metadata`: 섹션/태그 메타 정보 조회
+        *   `POST /api/admin/performances/{id}/home-tags`: 공연에 태그 추가
+        *   `GET /api/admin/performances/{id}/home-tags`: 공연의 태그 목록 조회
+        *   `DELETE /api/admin/performances/{id}/home-tags/{tag}`: 태그 삭제
+        *   `GET /api/admin/home-tags/{tag}/performances`: 태그별 공연 목록 조회
+        *   `PATCH /api/admin/home-tags/{tag}/performances/order`: 태그 내 공연 순서 변경
+    *   **사용자 API 구현:**
+        *   `GET /api/home/sections`: 홈 전체 섹션 및 공연 목록 조회 (visible=true만 노출)
+        *   `GET /api/home/sections/{section}`: 특정 섹션 조회
+        *   `GET /api/home/tags/{tag}/performances`: 특정 태그의 공연 목록 조회
+    *   **설계 원칙:** 지역 태그는 자동 태깅만 허용하고 수동 추가를 차단하여 데이터 정합성을 보장합니다.
+
 ## 2026년 1월 25일 (일)
+
+*   **예매 시 좌석 등급 및 가격 오매핑 오류 긴급 수정 (Hotfix) [CCS-140]:**
+    *   **좌석별 정확한 가격 적용:** 예매 시작(`startBooking`) 시 좌석 위치와 무관하게 첫 번째 티켓 옵션의 가격이 일괄 적용되던 심각한 버그를 수정했습니다.
+    *   **배치도 기반 등급 판별:** `SeatingChartParser`를 연동하여 각 좌석의 행/열 위치에 맞는 정확한 등급(`SeatGrade`)을 판별하고, 해당 등급에 설정된 `TicketOption` 가격이 적용되도록 개선했습니다.
+    *   **데이터 정합성 강화:** 유효하지 않은 좌석 위치나 가격 정보가 없는 등급에 대한 예매 시도를 사전에 차단하도록 예외 처리를 강화했습니다.
 
 *   **사용자/관리자용 공연 조회 API 분리 및 노출 필터링 적용 [CCS-144]:**
     *   **사용자용 API (/api/performances):** `visible=true`인 공연만 조회하도록 변경하여 보안을 강화하고 메인 페이지 요구사항을 반영했습니다.

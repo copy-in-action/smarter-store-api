@@ -16,6 +16,8 @@ import com.github.copyinaction.performance.repository.PerformanceScheduleReposit
 import com.github.copyinaction.performance.repository.TicketOptionRepository
 import com.github.copyinaction.seat.domain.SeatPosition
 import com.github.copyinaction.seat.domain.SeatSelection
+import com.github.copyinaction.booking.domain.BookingSeat
+import com.github.copyinaction.venue.util.SeatingChartParser
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -30,7 +32,8 @@ class BookingService(
     private val bookingRepository: BookingRepository,
     private val userRepository: UserRepository,
     private val performanceScheduleRepository: PerformanceScheduleRepository,
-    private val ticketOptionRepository: TicketOptionRepository
+    private val ticketOptionRepository: TicketOptionRepository,
+    private val seatingChartParser: SeatingChartParser
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -91,13 +94,35 @@ class BookingService(
         seats: List<SeatPositionRequest>
     ): Booking {
         val newBooking = Booking.create(user, schedule)
+        val venue = schedule.performance.venue ?: throw CustomException(ErrorCode.VENUE_NOT_FOUND)
+        val ticketOptions = ticketOptionRepository.findByPerformanceScheduleId(schedule.id)
+        
+        seats.forEach { seatRequest ->
+            // 좌석 등급 파싱
+            val grade = seatingChartParser.getSeatGrade(venue.seatingChart, seatRequest.row, seatRequest.col)
+                ?: throw CustomException(
+                    ErrorCode.INVALID_REQUEST,
+                    "유효하지 않은 좌석입니다. (row: ${seatRequest.row}, col: ${seatRequest.col})"
+                )
 
-        val defaultTicketOption = ticketOptionRepository.findByPerformanceScheduleId(schedule.id).firstOrNull()
-        val seatGrade = defaultTicketOption?.seatGrade ?: com.github.copyinaction.venue.domain.SeatGrade.R
-        val seatPrice = defaultTicketOption?.price ?: 0
+            // 해당 등급의 티켓 옵션(가격) 찾기
+            val ticketOption = ticketOptions.find { it.seatGrade == grade }
+                ?: throw CustomException(
+                    ErrorCode.INVALID_REQUEST,
+                    "해당 좌석 등급(${grade.name})에 대한 가격 정보가 없습니다."
+                )
 
-        val seatDetails = seats.map { it.row to it.col }
-        newBooking.addSeats(seatDetails, seatGrade, seatPrice)
+            // BookingSeat 생성 및 추가
+            val bookingSeat = BookingSeat.create(
+                booking = newBooking,
+                section = BookingSeat.DEFAULT_SECTION,
+                row = seatRequest.row,
+                col = seatRequest.col,
+                grade = grade,
+                price = ticketOption.price
+            )
+            newBooking.addSeat(bookingSeat)
+        }
 
         return bookingRepository.saveAndFlush(newBooking)
     }
