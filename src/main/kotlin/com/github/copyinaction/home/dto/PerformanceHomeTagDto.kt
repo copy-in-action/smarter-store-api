@@ -11,60 +11,60 @@ import java.time.LocalDateTime
 
 // ========== Request DTOs ==========
 
-@Schema(description = "홈 태그 추가 요청")
+@Schema(description = "홈 태그 추가 요청 DTO")
 data class AddHomeTagRequest(
     @field:NotNull(message = "태그는 필수입니다")
-    @Schema(description = "홈 섹션 태그", example = "MUSICAL")
+    @Schema(description = "추가할 홈 섹션 태그 (예: MUSICAL, WEEKLY_OPEN)", example = "MUSICAL")
     val tag: HomeSectionTag,
 
     @field:Min(value = 0, message = "순서는 0 이상이어야 합니다")
-    @Schema(description = "노출 순서 (미입력 시 마지막에 추가)", example = "1")
+    @Schema(description = "해당 태그 내에서의 노출 순서. 입력하지 않으면 마지막 순서로 자동 지정됩니다.", example = "1")
     val displayOrder: Int? = null
 )
 
-@Schema(description = "태그 내 공연 순서 변경 요청")
+@Schema(description = "태그 내 공연 순서 변경 요청 DTO")
 data class UpdateDisplayOrderRequest(
     @field:Valid
     @field:NotNull(message = "순서 목록은 필수입니다")
-    @Schema(description = "공연 순서 목록")
+    @Schema(description = "순서를 변경할 공연 목록")
     val performanceOrders: List<PerformanceOrderItem>
 )
 
 @Schema(description = "공연 순서 항목")
 data class PerformanceOrderItem(
     @field:NotNull(message = "공연 ID는 필수입니다")
-    @Schema(description = "공연 ID", example = "1")
+    @Schema(description = "순서를 변경할 공연의 ID", example = "100")
     val performanceId: Long,
 
     @field:NotNull(message = "순서는 필수입니다")
     @field:Min(value = 0, message = "순서는 0 이상이어야 합니다")
-    @Schema(description = "노출 순서", example = "1")
+    @Schema(description = "변경할 노출 순서 (낮을수록 먼저 표시)", example = "1")
     val displayOrder: Int
 )
 
 // ========== Response DTOs ==========
 
-@Schema(description = "홈 태그 응답")
+@Schema(description = "홈 태그 매핑 응답 (관리자용)")
 data class PerformanceHomeTagResponse(
-    @Schema(description = "태그 ID", example = "1")
+    @Schema(description = "태그 매핑 고유 ID", example = "1")
     val id: Long,
 
-    @Schema(description = "홈 섹션 태그")
+    @Schema(description = "홈 섹션 태그 코드")
     val tag: HomeSectionTag,
 
-    @Schema(description = "태그 화면 표시명", example = "뮤지컬")
+    @Schema(description = "태그 화면 표시명 (한글)", example = "뮤지컬")
     val tagDisplayName: String,
 
-    @Schema(description = "섹션")
+    @Schema(description = "상위 섹션 코드")
     val section: HomeSection,
 
-    @Schema(description = "섹션 화면 표시명", example = "인기티켓")
+    @Schema(description = "섹션 화면 표시명 (한글)", example = "인기티켓")
     val sectionDisplayName: String,
 
-    @Schema(description = "노출 순서", example = "1")
+    @Schema(description = "태그 내 노출 순서", example = "1")
     val displayOrder: Int,
 
-    @Schema(description = "자동 태깅 여부", example = "false")
+    @Schema(description = "자동 태깅 여부 (지역 태그 등 시스템에 의해 자동 생성된 경우 true)", example = "false")
     val isAutoTagged: Boolean,
 
     @Schema(description = "생성일시")
@@ -86,12 +86,12 @@ data class PerformanceHomeTagResponse(
     }
 }
 
-@Schema(description = "태그 내 공연 응답 (관리자용)")
+@Schema(description = "태그 내 공연 목록 응답 (관리자용)")
 data class TagPerformanceResponse(
-    @Schema(description = "태그 매핑 ID", example = "1")
+    @Schema(description = "태그 매핑 고유 ID (삭제 시 사용)", example = "10")
     val tagId: Long,
 
-    @Schema(description = "공연 ID", example = "1")
+    @Schema(description = "공연 ID", example = "100")
     val performanceId: Long,
 
     @Schema(description = "공연 제목", example = "뮤지컬 위키드")
@@ -100,13 +100,13 @@ data class TagPerformanceResponse(
     @Schema(description = "공연 메인 이미지 URL")
     val mainImageUrl: String?,
 
-    @Schema(description = "노출 순서", example = "1")
+    @Schema(description = "태그 내 노출 순서", example = "1")
     val displayOrder: Int,
 
     @Schema(description = "자동 태깅 여부", example = "false")
     val isAutoTagged: Boolean,
 
-    @Schema(description = "공연 노출 여부", example = "true")
+    @Schema(description = "공연 노출 여부 (false인 경우 사용자 홈 화면에는 노출되지 않음)", example = "true")
     val visible: Boolean
 ) {
     companion object {

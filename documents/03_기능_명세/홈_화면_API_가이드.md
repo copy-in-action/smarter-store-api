@@ -4,6 +4,7 @@
 | 버전 | 일자 | 작성자 | 내용 |
 |------|------|--------|------|
 | 1.0 | 2026-01-25 | Claude | 최초 작성 |
+| 1.1 | 2026-01-25 | Claude | 관리자용 페이지 구성 가이드 추가 |
 
 ---
 
@@ -534,7 +535,48 @@ const fetchWithErrorHandling = async () => {
 
 ---
 
-## 9. 참고 자료
+## 9. 관리자용 페이지 가이드 (Admin Guide)
+
+어드민(Admin) 페이지 기획 및 개발을 위한 가이드입니다.
+
+### 9.1 홈 전시 관리 (대시보드)
+홈 화면의 전체 구조를 파악하고 관리하는 페이지입니다.
+
+- **API**: `GET /api/admin/home/sections/metadata`
+- **UI 구조 추천**:
+    - **상단 탭**: 섹션별 탭 (인기티켓 / 데이트코스 / 추천 / 지역)
+    - **좌측 사이드바**: 선택된 섹션 하위의 태그 목록
+    - **메인 영역**: 선택된 태그의 공연 리스트 (Drag & Drop 지원)
+
+### 9.2 공연 상세 - 홈 노출 설정 (개별 설정)
+공연 등록/수정 페이지에서 해당 공연을 홈 화면 어디에 노출할지 설정합니다.
+
+- **API**:
+    - 조회: `GET /api/admin/performances/{id}/home-tags`
+    - 추가: `POST /api/admin/performances/{id}/home-tags`
+    - 삭제: `DELETE /api/admin/performances/{id}/home-tags/{tag}`
+- **UI 구조 추천**:
+    - **섹션명**: "홈 화면 노출 설정"
+    - **추가 버튼**: 클릭 시 모달 오픈 -> `HomeSectionTag` Dropdown 선택
+    - **태그 칩(Chip)**: 등록된 태그 표시 (삭제 버튼 포함)
+    - **주의**: `REGION_`으로 시작하는 태그는 **수동 추가 불가** 처리 (비활성화 또는 목록에서 제외)
+
+### 9.3 순서 변경 UX 가이드 (Drag & Drop)
+태그 내 공연 노출 순서를 변경하는 UX입니다.
+
+- **API**: `PATCH /api/admin/home-tags/{tag}/performances/order`
+- **프로세스**:
+    1.  리스트에서 공연 카드를 드래그하여 순서 변경
+    2.  "순서 저장" 버튼 클릭
+    3.  변경된 전체 리스트(`[{id:1, order:1}, {id:5, order:2}...]`)를 서버로 전송
+
+### 9.4 주의사항
+- **메타 데이터 활용**: `HomeSection`, `HomeSectionTag` 구조는 하드코딩하지 말고 `metadata` API를 통해 동적으로 받아와서 렌더링하세요.
+- **지역 태그**: 지역 태그는 공연장 주소 변경 시 자동 갱신되므로, 관리자가 수동으로 수정할 수 없도록 UI를 제어해야 합니다.
+
+---
+
+## 10. 참고 자료
 
 - **API 명세**: Swagger UI (`/swagger-ui/index.html`)
 - **설계 문서**: `documents/CCS-145_HOME_CATEGORY_DESIGN.md`
@@ -542,3 +584,4 @@ const fetchWithErrorHandling = async () => {
   - `HomeController.kt`: 사용자용 홈 API
   - `HomeService.kt`: 홈 화면 비즈니스 로직
   - `HomeSection.kt`, `HomeSectionTag.kt`: Enum 정의
+  - `AdminHomeTagController.kt`: 관리자용 API

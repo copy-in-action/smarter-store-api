@@ -1,5 +1,6 @@
 package com.github.copyinaction.performance.service
 
+import com.github.copyinaction.home.service.PerformanceHomeTagService
 import com.github.copyinaction.performance.dto.CreatePerformanceRequest
 import com.github.copyinaction.performance.dto.PerformanceResponse
 import com.github.copyinaction.performance.dto.UpdatePerformanceRequest
@@ -17,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional
 class PerformanceService(
     private val performanceRepository: PerformanceRepository,
     private val venueRepository: VenueRepository,
-    private val companyRepository: CompanyRepository
+    private val companyRepository: CompanyRepository,
+    private val performanceHomeTagService: PerformanceHomeTagService
 ) {
 
     @Transactional
@@ -52,6 +54,10 @@ class PerformanceService(
             shippingGuide = request.shippingGuide
         )
         val savedPerformance = performanceRepository.save(performance)
+        
+        // 지역 태그 자동 갱신
+        performanceHomeTagService.refreshRegionTag(savedPerformance.id)
+        
         return PerformanceResponse.from(savedPerformance)
     }
 
@@ -100,6 +106,10 @@ class PerformanceService(
             bookingFee = request.bookingFee,
             shippingGuide = request.shippingGuide
         )
+        
+        // 지역 태그 자동 갱신
+        performanceHomeTagService.refreshRegionTag(id)
+        
         return PerformanceResponse.from(performance)
     }
 
