@@ -16,4 +16,6 @@ interface PerformanceSalesStatsRepository : JpaRepository<PerformanceSalesStats,
     fun findByPerformanceIdAndDateWithLock(performanceId: Long, date: LocalDate): Optional<PerformanceSalesStats>
     
     fun findAllByPerformanceIdOrderByDateDesc(performanceId: Long): List<PerformanceSalesStats>
+
+    fun findAllByDate(date: LocalDate): List<PerformanceSalesStats>
 }

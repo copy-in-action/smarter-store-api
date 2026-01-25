@@ -22,6 +22,7 @@ class StatsRecalculationScheduler(
      * - 데이터 정합성 보장을 위한 주간 재계산
      */
     @Scheduled(cron = "0 0 3 * * SUN")
+    @org.springframework.transaction.annotation.Transactional
     fun recalculateWeeklyStats() {
         val today = LocalDate.now()
         val startDate = today.minusDays(7)

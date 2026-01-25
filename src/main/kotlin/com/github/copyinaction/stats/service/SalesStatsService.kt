@@ -124,8 +124,7 @@ class SalesStatsService(
     fun recalculateDailyStats(date: LocalDate, payments: List<Payment>) {
         // 기존 통계 삭제
         dailySalesStatsRepository.findById(date).ifPresent { dailySalesStatsRepository.delete(it) }
-        performanceSalesStatsRepository.findAllByPerformanceIdOrderByDateDesc(0).filter { it.date == date }
-            .forEach { performanceSalesStatsRepository.delete(it) }
+        performanceSalesStatsRepository.findAllByDate(date).forEach { performanceSalesStatsRepository.delete(it) }
         paymentMethodStatsRepository.findAllByDate(date).forEach { paymentMethodStatsRepository.delete(it) }
         discountStatsRepository.findAllByDate(date).forEach { discountStatsRepository.delete(it) }
 
