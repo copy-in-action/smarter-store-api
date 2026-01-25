@@ -51,7 +51,7 @@ class PaymentService(
             }
             throw CustomException(
                 ErrorCode.INVALID_INPUT_VALUE,
-                "결제 요청 원가가 서버에서 계산된 값과 일치하지 않습니다. (예매ID: ${request.bookingId}, 요청: ${request.originalPrice}원, 서버 합계: $actualOriginalPrice원). 상세 내역: $seatDetails"
+                "결제 요청 원가가 서버에서 계산된 값과 일치하지 않습니다. (예매ID: ${request.bookingId}, 요청: ${request.originalPrice}원, 서버 합계: ${actualOriginalPrice}원). 상세 내역: $seatDetails"
             )
         }
 
