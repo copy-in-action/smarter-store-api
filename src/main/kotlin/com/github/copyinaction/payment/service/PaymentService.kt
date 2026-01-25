@@ -46,9 +46,12 @@ class PaymentService(
         // 0-1. 원가 검증 (클라이언트 요청 vs 서버 좌석 가격)
         val actualOriginalPrice = booking.bookingSeats.sumOf { it.price }
         if (actualOriginalPrice != request.originalPrice) {
+            val seatDetails = booking.bookingSeats.joinToString(", ") {
+                "[좌석ID: ${it.id}] ${it.section}구역 ${it.row}행 ${it.col}열: ${it.price}원"
+            }
             throw CustomException(
                 ErrorCode.INVALID_INPUT_VALUE,
-                "원가가 일치하지 않습니다. (서버: $actualOriginalPrice, 요청: ${request.originalPrice})"
+                "결제 요청 원가가 서버에서 계산된 값과 일치하지 않습니다. (예매ID: ${request.bookingId}, 요청: ${request.originalPrice}원, 서버 합계: $actualOriginalPrice원). 상세 내역: $seatDetails"
             )
         }
 
@@ -101,7 +104,7 @@ class PaymentService(
                     booking.bookingSeats.find { it.id == discountDto.bookingSeatId }?.price
                         ?: throw CustomException(
                             ErrorCode.INVALID_INPUT_VALUE,
-                            "예매에 해당 좌석이 존재하지 않습니다. (bookingSeatId: ${discountDto.bookingSeatId})"
+                            "예매에 해당 좌석이 존재하지 않습니다. (요청된 좌석ID: ${discountDto.bookingSeatId}, 현재 예매 좌석ID 목록: ${booking.bookingSeats.map { it.id }})"
                         )
                 } else {
                     // 좌석 지정 없는 쿠폰은 일단 원가 기준 (정책에 따라 다를 수 있음)
