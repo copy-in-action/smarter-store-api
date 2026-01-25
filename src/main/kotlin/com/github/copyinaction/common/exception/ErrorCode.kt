@@ -82,4 +82,9 @@ enum class ErrorCode(
     // Scheduler - Slack 알림 대상
     STATS_DAILY_AGGREGATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "일별 통계 집계 중 오류가 발생했습니다.", LogLevel.ERROR),
     STATS_RECALCULATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "통계 재계산 중 오류가 발생했습니다.", LogLevel.ERROR),
+
+    // Home Tag
+    HOME_TAG_ALREADY_EXISTS(HttpStatus.CONFLICT, "해당 공연에 이미 등록된 태그입니다."),
+    HOME_TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 홈 태그를 찾을 수 없습니다."),
+    REGION_TAG_MANUAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "지역 태그는 수동으로 추가할 수 없습니다."),
 }
