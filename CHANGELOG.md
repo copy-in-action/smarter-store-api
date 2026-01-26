@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026년 1월 26일 (월)
+
+*   **예매 시작 API 좌석 정보 중복 반환 버그 수정 [CCS-140]:**
+    *   **원인:** `BookingSeat.create()` 내부에서 이미 `booking.addSeat(seat)`를 호출하는데, `BookingService.createAndSaveBooking()`에서 동일한 좌석을 다시 `addSeat()` 호출하여 각 좌석이 2번씩 추가되는 문제
+    *   **수정:** `BookingService.kt`에서 중복 `addSeat()` 호출 제거
+
 ## 2026년 1월 25일 (일)
 
 *   **홈 화면 카테고리 시스템 구현 [CCS-145]:**

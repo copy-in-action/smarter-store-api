@@ -112,8 +112,8 @@ class BookingService(
                     "해당 좌석 등급(${grade.name})에 대한 가격 정보가 없습니다."
                 )
 
-            // BookingSeat 생성 및 추가
-            val bookingSeat = BookingSeat.create(
+            // BookingSeat 생성 (create 내부에서 booking.addSeat 호출)
+            BookingSeat.create(
                 booking = newBooking,
                 section = BookingSeat.DEFAULT_SECTION,
                 row = seatRequest.row,
@@ -121,7 +121,6 @@ class BookingService(
                 grade = grade,
                 price = ticketOption.price
             )
-            newBooking.addSeat(bookingSeat)
         }
 
         return bookingRepository.saveAndFlush(newBooking)
