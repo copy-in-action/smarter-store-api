@@ -1,5 +1,6 @@
 package com.github.copyinaction.common.service
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,6 +14,7 @@ import java.time.LocalDate
  * 실제 Slack으로 메시지를 발송하는 테스트입니다.
  * .env 파일에 SLACK_WEBHOOK_URL_DEPLOY가 설정되어 있어야 합니다.
  */
+@Disabled("실제 Slack으로 메시지를 전송하는 테스트 - 수동 실행 전용")
 @SpringBootTest
 @ActiveProfiles("local")
 class SlackServiceTest {
