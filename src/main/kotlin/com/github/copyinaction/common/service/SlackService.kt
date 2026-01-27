@@ -154,4 +154,42 @@ class SlackService(
 
         sendDeployMessage(message)
     }
+
+    /**
+     * 주간 통계 재계산 성공 알림
+     */
+    fun sendWeeklyStatsSuccess(startDate: LocalDate, endDate: LocalDate, paymentCount: Int) {
+        val startStr = startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val endStr = endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
+        val message = """
+            :white_check_mark: *주간 통계 재계산 완료*
+
+            • 재계산 기간: `$startStr` ~ `$endStr`
+            • 처리 건수: `$paymentCount`건
+            • 완료 시각: `$now`
+        """.trimIndent()
+
+        sendDeployMessage(message)
+    }
+
+    /**
+     * 주간 통계 재계산 실패 알림
+     */
+    fun sendWeeklyStatsFailure(startDate: LocalDate, endDate: LocalDate, errorMessage: String) {
+        val startStr = startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val endStr = endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
+        val message = """
+            :x: *주간 통계 재계산 실패*
+
+            • 재계산 기간: `$startStr` ~ `$endStr`
+            • 실패 시각: `$now`
+            • 오류 내용: `$errorMessage`
+        """.trimIndent()
+
+        sendDeployMessage(message)
+    }
 }
