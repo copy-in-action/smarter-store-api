@@ -19,29 +19,25 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/admin/notices")
 @Tag(name = "admin-notice", description = "관리자 공지사항 API")
+@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('ADMIN')")
 class AdminNoticeController(
     private val noticeService: NoticeService
 ) {
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "[관리자] 전체 공지사항 목록 조회", description = "비활성화된 항목을 포함한 전체 목록을 조회합니다.\n\n**권한: ADMIN**")
     fun getAllNotices(): ResponseEntity<List<NoticeResponse>> {
         return ResponseEntity.ok(noticeService.getAllNotices())
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "[관리자] 공지사항 상세 조회", description = "특정 공지사항의 상세 정보를 조회합니다.\n\n**권한: ADMIN**")
     fun getNoticeById(@PathVariable id: Long): ResponseEntity<NoticeResponse> {
         return ResponseEntity.ok(noticeService.getNoticeById(id))
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "[관리자] 공지사항 생성", description = "새로운 공지사항을 생성합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @Auditable(
         action = AuditAction.NOTICE_CREATE,
@@ -56,8 +52,6 @@ class AdminNoticeController(
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "[관리자] 공지사항 수정", description = "기존 공지사항을 수정합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @Auditable(
         action = AuditAction.NOTICE_UPDATE,
@@ -73,8 +67,6 @@ class AdminNoticeController(
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "[관리자] 공지사항 삭제", description = "공지사항을 삭제합니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
     @Auditable(
         action = AuditAction.NOTICE_DELETE,

@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 
@@ -21,6 +22,7 @@ import java.net.URI
 @RestController
 @RequestMapping("/api/admin/companies")
 @SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('ADMIN')")
 class AdminCompanyController(
     private val companyService: CompanyService
 ) {

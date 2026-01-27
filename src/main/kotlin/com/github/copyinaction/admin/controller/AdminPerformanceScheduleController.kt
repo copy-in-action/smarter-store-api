@@ -14,12 +14,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "admin-performance-schedule", description = "관리자용 공연 회차 CRUD API")
 @RestController
 @RequestMapping("/api/admin/performances")
 @SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('ADMIN')")
 class AdminPerformanceScheduleController(
     private val performanceScheduleService: PerformanceScheduleService
 ) {

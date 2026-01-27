@@ -24,6 +24,35 @@ class SecurityConfig(
     private val jwtTokenProvider: JwtTokenProvider,
     @Value("\${cors.allowed-origins:}") private val allowedOrigins: String
 ) {
+    companion object {
+        // 모든 HTTP 메서드 허용 (인증 불필요)
+        private val PUBLIC_URLS = arrayOf(
+            "/api/auth/signup",
+            "/api/auth/login",
+            "/api/auth/refresh",
+            "/api/auth/email-verification/request",
+            "/api/auth/confirm-otp",
+            "/api/auth/logout",
+            "/api/admin/auth/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/actuator/health",
+            "/actuator/prometheus",
+            "/.well-known/**",
+            "/admin/**",
+        )
+
+        // GET만 허용 (인증 불필요) - 조회용 공개 API
+        private val PUBLIC_GET_URLS = arrayOf(
+            "/api/venues/**",
+            "/api/performances/**",
+            "/api/enums/**",
+            "/api/schedules/**",
+            "/api/home/**",
+            "/api/notices/**",
+        )
+    }
+
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
@@ -45,44 +74,28 @@ class SecurityConfig(
         return source
     }
 
+    /**
+     * Spring Security 필터 체인 설정
+     *
+     * 권한 체계:
+     * - 인증(Authentication): "누구야?" → 여기서 관리 (permitAll / authenticated)
+     * - 인가(Authorization): "뭘 할 수 있어?" → 컨트롤러 @PreAuthorize에서 관리 (ADMIN, USER)
+     *
+     * permitAll() 매칭 안 되면 → authenticated() → JWT 토큰 필요 (없으면 401)
+     */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .cors { it.configurationSource(corsConfigurationSource()) }
-            .csrf { it.disable() } // CSRF 보호 비활성화 (Stateless API)
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) } // 세션 사용 안함
+            .csrf { it.disable() } // Stateless API이므로 CSRF 비활성화
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
-                // 인증 없이 접근을 허용할 경로
-                it.requestMatchers(
-                    "/api/auth/signup",
-                    "/api/auth/login",
-                    "/api/auth/refresh",
-                    "/api/auth/email-verification/request",
-                    "/api/auth/confirm-otp",
-                    "/api/auth/logout",
-                    "/api/admin/auth/**",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/actuator/health",
-                    "/actuator/prometheus",
-                    "/.well-known/**",  // Chrome DevTools 요청 무시
-                    "/admin/**",  // 관리자 대시보드 정적 파일
-                ).permitAll()
-                it.requestMatchers("/api/auth/me").authenticated()
-                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/venues", "/api/venues/**").permitAll()
-                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/performances", "/api/performances/**").permitAll()
-                // 공통 Enum 조회 (인증 불필요)
-                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/enums", "/api/enums/**").permitAll()
-                // 회차 조회, 좌석 상태 조회 및 SSE 구독 (인증 불필요)
-                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/*").permitAll()
-                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/*/seat-status").permitAll()
-                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/schedules/*/seats/stream").permitAll()
-                // 관리자 API는 ADMIN 권한 필수 (경로 기반 보안)
-                it.requestMatchers("/api/admin/**").hasRole("ADMIN")
-                // 그 외 모든 경로는 인증 필요
-                .anyRequest().authenticated()
+                // 공개 API (인증 불필요)
+                it.requestMatchers(*PUBLIC_URLS).permitAll()
+                it.requestMatchers(org.springframework.http.HttpMethod.GET, *PUBLIC_GET_URLS).permitAll()
+                // 그 외 모든 요청은 인증 필요
+                it.anyRequest().authenticated()
             }
-            // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
             .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()

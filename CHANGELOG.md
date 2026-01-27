@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026년 1월 27일 (화)
+
+*   **Spring Security 권한 체계 리팩토링:**
+    *   **역할 분리:** SecurityConfig와 @PreAuthorize의 책임을 명확히 분리했습니다.
+        *   `SecurityConfig`: 인증(Authentication) 여부만 관리 - "로그인 했는가?" (permitAll / authenticated)
+        *   `@PreAuthorize`: 인가(Authorization) 역할 체크 - "무슨 권한인가?" (ADMIN, USER)
+    *   **중복 설정 제거:** SecurityConfig의 `hasRole("ADMIN")` 제거하고 컨트롤러 레벨 @PreAuthorize로 통일
+    *   **Admin 컨트롤러 권한 추가:** @PreAuthorize가 누락된 Admin 컨트롤러에 클래스 레벨 어노테이션 추가
+        *   AdminCompanyController, AdminVenueController, AdminPerformanceController
+        *   AdminPerformanceScheduleController, AdminHomeTagController
+    *   **AdminNoticeController 정리:** 메서드별 @PreAuthorize → 클래스 레벨로 통일
+    *   **공개 API 설정 추가:** `/api/home/**`, `/api/notices/**` GET 요청 permitAll 추가
+    *   **코드 정리:** SecurityConfig 내 URL 패턴을 상수(`PUBLIC_URLS`, `PUBLIC_GET_URLS`)로 추출하여 가독성 개선
+
 ## 2026년 1월 26일 (월)
 
 *   **예매 시작 API 좌석 정보 중복 반환 버그 수정 [CCS-140]:**
