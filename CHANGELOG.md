@@ -9,6 +9,26 @@
     *   **관리자용 회차별 목록 조회**: 특정 회차의 전체 예매 및 결제 상세 현황을 조회하는 `GET /api/admin/bookings/schedules/{id}` API를 구축했습니다. (N+1 문제 해결 및 성능 최적화)
     *   **문서 통합 및 최신화**: `예매_취소_및_환불_워크플로우.md`에 FE 테스트 가이드를 통합하고, `예매_내역_조회_가이드.md`를 신규 작성했습니다.
 
+## 2026년 1월 27일 (화)
+
+*   **Spring Security 권한 체계 리팩토링:**
+    *   **역할 분리:** SecurityConfig와 @PreAuthorize의 책임을 명확히 분리했습니다.
+        *   `SecurityConfig`: 인증(Authentication) 여부만 관리 - "로그인 했는가?" (permitAll / authenticated)
+        *   `@PreAuthorize`: 인가(Authorization) 역할 체크 - "무슨 권한인가?" (ADMIN, USER)
+    *   **중복 설정 제거:** SecurityConfig의 `hasRole("ADMIN")` 제거하고 컨트롤러 레벨 @PreAuthorize로 통일
+    *   **Admin 컨트롤러 권한 추가:** @PreAuthorize가 누락된 Admin 컨트롤러에 클래스 레벨 어노테이션 추가
+        *   AdminCompanyController, AdminVenueController, AdminPerformanceController
+        *   AdminPerformanceScheduleController, AdminHomeTagController
+    *   **AdminNoticeController 정리:** 메서드별 @PreAuthorize → 클래스 레벨로 통일
+    *   **공개 API 설정 추가:** `/api/home/**`, `/api/notices/**` GET 요청 permitAll 추가
+    *   **코드 정리:** SecurityConfig 내 URL 패턴을 상수(`PUBLIC_URLS`, `PUBLIC_GET_URLS`)로 추출하여 가독성 개선
+
+## 2026년 1월 26일 (월)
+
+*   **예매 시작 API 좌석 정보 중복 반환 버그 수정 [CCS-140]:**
+    *   **원인:** `BookingSeat.create()` 내부에서 이미 `booking.addSeat(seat)`를 호출하는데, `BookingService.createAndSaveBooking()`에서 동일한 좌석을 다시 `addSeat()` 호출하여 각 좌석이 2번씩 추가되는 문제
+    *   **수정:** `BookingService.kt`에서 중복 `addSeat()` 호출 제거
+
 ## 2026년 1월 25일 (일)
 
 *   **홈 화면 카테고리 시스템 구현 [CCS-145]:**

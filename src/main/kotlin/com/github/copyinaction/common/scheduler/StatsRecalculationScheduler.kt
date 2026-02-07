@@ -1,6 +1,7 @@
 package com.github.copyinaction.common.scheduler
 
 import com.github.copyinaction.common.exception.ErrorCode
+import com.github.copyinaction.common.service.SlackService
 import com.github.copyinaction.payment.domain.PaymentStatus
 import com.github.copyinaction.payment.repository.PaymentRepository
 import com.github.copyinaction.stats.service.SalesStatsService
@@ -13,7 +14,8 @@ import java.time.LocalTime
 @Component
 class StatsRecalculationScheduler(
     private val paymentRepository: PaymentRepository,
-    private val salesStatsService: SalesStatsService
+    private val salesStatsService: SalesStatsService,
+    private val slackService: SlackService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -50,9 +52,11 @@ class StatsRecalculationScheduler(
             }
 
             log.info("주간 통계 재계산 완료: 총 {}건 처리", totalRecalculated)
+            slackService.sendWeeklyStatsSuccess(startDate, today.minusDays(1), totalRecalculated)
         } catch (e: Exception) {
             val errorCode = ErrorCode.STATS_RECALCULATION_FAILED
             log.error("[{}] {}: period={} ~ {}", errorCode.name, errorCode.message, startDate, today.minusDays(1), e)
+            slackService.sendWeeklyStatsFailure(startDate, today.minusDays(1), e.message ?: "알 수 없는 오류")
         }
     }
 }
