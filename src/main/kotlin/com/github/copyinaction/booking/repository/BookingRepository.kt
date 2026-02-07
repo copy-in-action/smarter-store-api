@@ -59,4 +59,16 @@ interface BookingRepository : JpaRepository<Booking, UUID> {
         ORDER BY b.createdAt DESC
     """)
     fun findAllByScheduleIdForAdmin(scheduleId: Long): List<Booking>
+    /**
+     * 예매 상세 정보를 조회합니다. (공연, 회차, 사용자, 좌석 정보 포함)
+     */
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT b FROM Booking b
+        JOIN FETCH b.schedule s
+        JOIN FETCH s.performance p
+        JOIN FETCH b.siteUser u
+        LEFT JOIN FETCH b.bookingSeats
+        WHERE b.id = :bookingId
+    """)
+    fun findByIdWithDetails(bookingId: UUID): Booking?
 }

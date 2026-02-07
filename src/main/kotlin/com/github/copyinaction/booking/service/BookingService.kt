@@ -7,6 +7,7 @@ import com.github.copyinaction.booking.domain.BookingConfirmedEvent
 import com.github.copyinaction.booking.domain.BookingStartedEvent
 import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.booking.dto.AdminBookingResponse
+import com.github.copyinaction.booking.dto.BookingDetailResponse
 import com.github.copyinaction.booking.dto.BookingHistoryResponse
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.dto.BookingTimeResponse
@@ -250,6 +251,23 @@ class BookingService(
         return bookings.map { booking ->
             AdminBookingResponse.from(booking, payments[booking.id])
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun getBookingDetail(bookingId: UUID, userId: Long): BookingDetailResponse {
+        val booking = bookingRepository.findByIdWithDetails(bookingId) ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
+        validateBookingOwner(booking, userId)
+
+        val payment = paymentRepository.findByBookingId(bookingId)
+        return BookingDetailResponse.from(booking, payment, isAdmin = false)
+    }
+
+    @Transactional(readOnly = true)
+    fun getBookingDetailForAdmin(bookingId: UUID): BookingDetailResponse {
+        val booking = bookingRepository.findByIdWithDetails(bookingId) ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
+        val payment = paymentRepository.findByBookingId(bookingId)
+        
+        return BookingDetailResponse.from(booking, payment, isAdmin = true)
     }
 
     private fun validateBookingOwner(booking: Booking, userId: Long) {

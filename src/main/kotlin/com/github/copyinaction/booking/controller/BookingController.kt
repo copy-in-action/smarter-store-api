@@ -83,6 +83,20 @@ class BookingController(
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "내 예매 상세 조회", description = "특정 예매 건의 상세 내역과 결제 정보를 조회합니다.\n\n**권한: USER**")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "조회 성공"),
+        ApiResponse(responseCode = "404", description = "예매 정보를 찾을 수 없음")
+    )
+    @GetMapping("/{bookingId}")
+    fun getBookingDetail(
+        @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
+        @AuthenticationPrincipal user: CustomUserDetails
+    ): ResponseEntity<BookingDetailResponse> {
+        val response = bookingService.getBookingDetail(bookingId, user.id)
+        return ResponseEntity.ok(response)
+    }
+
     @Operation(summary = "예매 남은 시간 조회", description = "진행 중인 예매의 남은 시간(초)을 조회합니다.\n\n**권한: USER**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "조회 성공"),

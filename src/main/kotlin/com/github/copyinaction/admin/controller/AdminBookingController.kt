@@ -4,6 +4,7 @@ import com.github.copyinaction.audit.annotation.Auditable
 import com.github.copyinaction.audit.domain.AuditAction
 import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.booking.dto.AdminBookingResponse
+import com.github.copyinaction.booking.dto.BookingDetailResponse
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.service.BookingService
 import io.swagger.v3.oas.annotations.Operation
@@ -32,6 +33,19 @@ class AdminBookingController(
         @Parameter(description = "회차 ID", required = true, example = "1") @PathVariable scheduleId: Long
     ): ResponseEntity<List<AdminBookingResponse>> {
         val response = bookingService.getScheduleBookingsForAdmin(scheduleId)
+        return ResponseEntity.ok(response)
+    }
+
+    @Operation(summary = "예매 상세 조회", description = "특정 예매 건의 상세 내역과 결제 정보를 조회합니다.\n\n**권한: ADMIN**")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "조회 성공"),
+        ApiResponse(responseCode = "404", description = "예매 정보를 찾을 수 없음")
+    )
+    @GetMapping("/{bookingId}")
+    fun getBookingDetail(
+        @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID
+    ): ResponseEntity<BookingDetailResponse> {
+        val response = bookingService.getBookingDetailForAdmin(bookingId)
         return ResponseEntity.ok(response)
     }
 
