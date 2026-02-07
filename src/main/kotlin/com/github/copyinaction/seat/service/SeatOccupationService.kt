@@ -104,6 +104,31 @@ class SeatOccupationService(
         }
     }
 
+    /**
+     * 예매 취소/환불 시 RESERVED 좌석 해제
+     */
+    @Transactional
+    fun releaseReservedSeats(scheduleId: Long, userId: Long, seats: List<SeatPosition>) {
+        // RESERVED 상태인 좌석을 찾아서 삭제 (또는 상태 변경)
+        // 현재 구현에서는 좌석 row가 존재하면 점유된 것으로 간주하므로 삭제 처리
+        for (seat in seats) {
+             val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(
+                scheduleId, seat.row, seat.col
+            )
+            
+            if (existingSeat != null) {
+                // 본인의 예매인지, 그리고 상태가 RESERVED인지 확인
+                if (existingSeat.heldBy == userId && existingSeat.seatStatus == SeatStatus.RESERVED) {
+                    scheduleSeatStatusRepository.delete(existingSeat)
+                }
+            }
+        }
+
+        if (seats.isNotEmpty()) {
+            sseService.sendReleased(scheduleId, seats)
+        }
+    }
+
     private fun releaseSeats(scheduleId: Long, userId: Long, seats: Set<SeatPosition>) {
         for (seat in seats) {
             val existingSeat = scheduleSeatStatusRepository.findByScheduleIdAndRowNumAndColNum(

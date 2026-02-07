@@ -31,4 +31,32 @@ interface BookingRepository : JpaRepository<Booking, UUID> {
      * 특정 회차에 특정 상태 목록에 포함되는 예매가 존재하는지 확인합니다.
      */
     fun existsBySchedule_IdAndBookingStatusIn(scheduleId: Long, bookingStatuses: Collection<BookingStatus>): Boolean
+
+    /**
+     * 사용자의 예매 내역을 조회합니다. (공연 및 회차 정보 포함)
+     */
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT DISTINCT b FROM Booking b
+        JOIN FETCH b.schedule s
+        JOIN FETCH s.performance p
+        LEFT JOIN FETCH b.bookingSeats
+        WHERE b.siteUser.id = :userId
+        AND b.bookingStatus IN (
+            com.github.copyinaction.booking.domain.BookingStatus.CONFIRMED,
+            com.github.copyinaction.booking.domain.BookingStatus.CANCELLED
+        )
+        ORDER BY b.createdAt DESC
+    """)
+    fun findAllMyBookings(userId: Long): List<Booking>
+    /**
+     * 특정 회차의 모든 예매 내역을 조회합니다. (관리자용)
+     */
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT DISTINCT b FROM Booking b
+        JOIN FETCH b.siteUser u
+        LEFT JOIN FETCH b.bookingSeats
+        WHERE b.schedule.id = :scheduleId
+        ORDER BY b.createdAt DESC
+    """)
+    fun findAllByScheduleIdForAdmin(scheduleId: Long): List<Booking>
 }

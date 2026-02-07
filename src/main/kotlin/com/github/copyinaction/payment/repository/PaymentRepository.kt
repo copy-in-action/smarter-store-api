@@ -16,6 +16,8 @@ interface PaymentRepository : JpaRepository<Payment, UUID> {
 
     fun findByBookingId(bookingId: UUID): Payment?
 
+    fun findAllByBookingIdIn(bookingIds: Collection<UUID>): List<Payment>
+
     @Query("""
         SELECT p FROM Payment p
         LEFT JOIN FETCH p.paymentItems

@@ -6,6 +6,8 @@ import com.github.copyinaction.booking.domain.BookingCancelledEvent
 import com.github.copyinaction.booking.domain.BookingConfirmedEvent
 import com.github.copyinaction.booking.domain.BookingStartedEvent
 import com.github.copyinaction.booking.domain.BookingStatus
+import com.github.copyinaction.booking.dto.AdminBookingResponse
+import com.github.copyinaction.booking.dto.BookingHistoryResponse
 import com.github.copyinaction.booking.dto.BookingResponse
 import com.github.copyinaction.booking.dto.BookingTimeResponse
 import com.github.copyinaction.booking.dto.SeatPositionRequest
@@ -17,6 +19,10 @@ import com.github.copyinaction.performance.repository.TicketOptionRepository
 import com.github.copyinaction.seat.domain.SeatPosition
 import com.github.copyinaction.seat.domain.SeatSelection
 import com.github.copyinaction.booking.domain.BookingSeat
+import com.github.copyinaction.payment.domain.PaymentStatus
+import com.github.copyinaction.payment.domain.Payment
+import com.github.copyinaction.payment.repository.PaymentRepository
+import com.github.copyinaction.payment.service.PaymentService
 import com.github.copyinaction.venue.util.SeatingChartParser
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
@@ -33,7 +39,9 @@ class BookingService(
     private val userRepository: UserRepository,
     private val performanceScheduleRepository: PerformanceScheduleRepository,
     private val ticketOptionRepository: TicketOptionRepository,
-    private val seatingChartParser: SeatingChartParser
+    private val seatingChartParser: SeatingChartParser,
+    private val paymentRepository: PaymentRepository,
+    private val paymentService: PaymentService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -174,31 +182,75 @@ class BookingService(
     }
 
     @Transactional
-    fun cancelBooking(bookingId: UUID, userId: Long): BookingResponse {
+    fun cancelBookingByAdmin(bookingId: UUID, cancelReason: String? = null): BookingResponse {
+        val booking = bookingRepository.findByIdOrNull(bookingId) ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
+        
+        // 관리자 취소는 소유권 검증(validateBookingOwner)을 건너뜁니다.
+        return processCancellation(booking, booking.siteUser.id, cancelReason ?: "관리자에 의한 강제 취소")
+    }
+
+    @Transactional
+    fun cancelBooking(bookingId: UUID, userId: Long, cancelReason: String? = null): BookingResponse {
         val booking = bookingRepository.findByIdOrNull(bookingId) ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
         validateBookingOwner(booking, userId)
 
+        return processCancellation(booking, userId, cancelReason)
+    }
+
+    private fun processCancellation(booking: Booking, userId: Long, cancelReason: String?): BookingResponse {
+        val bookingId = booking.id!!
         val scheduleId = booking.schedule.id
         val seatPositions = booking.bookingSeats.map {
             SeatPosition(it.row, it.col)
         }
+        val currentStatus = booking.bookingStatus
 
-        // PENDING 상태인 경우 좌석 점유 해제를 위한 이벤트 등록
-        if (booking.bookingStatus == BookingStatus.PENDING) {
-            booking.registerEvent(BookingCancelledEvent(
-                bookingId = bookingId,
-                scheduleId = scheduleId,
-                userId = userId,
-                seats = seatPositions
-            ))
+        // 결제 상태 확인 및 환불 (CONFIRMED 상태일 때)
+        if (currentStatus == BookingStatus.CONFIRMED) {
+            val payment = paymentRepository.findByBookingId(bookingId)
+            if (payment != null && payment.paymentStatus == PaymentStatus.COMPLETED) {
+                paymentService.cancelPaymentInternal(bookingId, cancelReason ?: "사용자 예매 취소 요청")
+            }
         }
+
+        // 좌석 점유 해제를 위한 이벤트 등록 (PENDING, CONFIRMED 모두)
+        booking.registerEvent(BookingCancelledEvent(
+            bookingId = bookingId,
+            scheduleId = scheduleId,
+            userId = userId,
+            seats = seatPositions,
+            previousStatus = currentStatus
+        ))
 
         booking.cancel()
         bookingRepository.save(booking)
 
-        log.info("예매 취소 - bookingId: {}, scheduleId: {}", bookingId, scheduleId)
+        log.info("예매 취소 처리 완료 - bookingId: {}, 처리자ID: {}", bookingId, userId)
 
         return BookingResponse.from(booking)
+    }
+
+    @Transactional(readOnly = true)
+    fun getMyBookings(userId: Long): List<BookingHistoryResponse> {
+        return bookingRepository.findAllMyBookings(userId)
+            .map { BookingHistoryResponse.from(it) }
+    }
+
+    @Transactional(readOnly = true)
+    fun getScheduleBookingsForAdmin(scheduleId: Long): List<AdminBookingResponse> {
+        val bookings = bookingRepository.findAllByScheduleIdForAdmin(scheduleId)
+        val bookingIds = bookings.mapNotNull { it.id }
+        
+        // 결제 정보 한꺼번에 조회 (N+1 방지)
+        val payments = if (bookingIds.isNotEmpty()) {
+            paymentRepository.findAllByBookingIdIn(bookingIds).associateBy { it.booking.id }
+        } else {
+            emptyMap()
+        }
+
+        return bookings.map { booking ->
+            AdminBookingResponse.from(booking, payments[booking.id])
+        }
     }
 
     private fun validateBookingOwner(booking: Booking, userId: Long) {

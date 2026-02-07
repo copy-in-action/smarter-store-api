@@ -37,5 +37,6 @@ data class BookingCancelledEvent(
     val bookingId: UUID,
     val scheduleId: Long,
     val userId: Long,
-    val seats: List<SeatPosition>
+    val seats: List<SeatPosition>,
+    val previousStatus: BookingStatus
 ) : BookingEvent

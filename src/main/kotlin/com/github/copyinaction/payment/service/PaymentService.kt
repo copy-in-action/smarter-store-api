@@ -173,15 +173,11 @@ class PaymentService(
     }
 
     @Transactional
-    fun cancelPayment(paymentId: UUID, userId: Long, request: PaymentCancelRequest): PaymentResponse {
-        val payment = paymentRepository.findByIdOrNull(paymentId)
+    fun cancelPaymentInternal(bookingId: UUID, reason: String): PaymentResponse {
+        val payment = paymentRepository.findByBookingId(bookingId)
             ?: throw CustomException(ErrorCode.PAYMENT_NOT_FOUND)
 
-        if (payment.userId != userId) {
-            throw CustomException(ErrorCode.FORBIDDEN)
-        }
-
-        payment.cancel(request.reason)
+        payment.cancel(reason)
 
         // 쿠폰 복구 처리 (결제 ID 기준 전체 복구)
         couponService.restoreCoupons(payment.id)

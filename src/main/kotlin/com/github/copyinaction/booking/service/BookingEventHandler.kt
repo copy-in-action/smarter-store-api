@@ -3,6 +3,7 @@ package com.github.copyinaction.booking.service
 import com.github.copyinaction.booking.domain.BookingCancelledEvent
 import com.github.copyinaction.booking.domain.BookingConfirmedEvent
 import com.github.copyinaction.booking.domain.BookingStartedEvent
+import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.common.exception.CustomException
 import com.github.copyinaction.common.exception.ErrorCode
 import com.github.copyinaction.performance.repository.PerformanceScheduleRepository
@@ -52,8 +53,18 @@ class BookingEventHandler(
     @EventListener
     @Transactional
     fun handleBookingCancelled(event: BookingCancelledEvent) {
-        log.debug("이벤트 핸들러 - 예매 취소 처리: bookingId={}", event.bookingId)
+        log.debug("이벤트 핸들러 - 예매 취소 처리: bookingId={}, status={}", event.bookingId, event.previousStatus)
         
-        seatOccupationService.releaseUserPendingSeats(event.scheduleId, event.userId, event.seats)
+        when (event.previousStatus) {
+            BookingStatus.PENDING -> {
+                seatOccupationService.releaseUserPendingSeats(event.scheduleId, event.userId, event.seats)
+            }
+            BookingStatus.CONFIRMED -> {
+                seatOccupationService.releaseReservedSeats(event.scheduleId, event.userId, event.seats)
+            }
+            else -> {
+                log.warn("처리할 필요 없는 상태의 예매 취소 이벤트입니다: {}", event.previousStatus)
+            }
+        }
     }
 }

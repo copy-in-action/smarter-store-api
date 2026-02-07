@@ -4,10 +4,7 @@ import com.github.copyinaction.audit.annotation.Auditable
 import com.github.copyinaction.audit.domain.AuditAction
 import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.auth.service.CustomUserDetails
-import com.github.copyinaction.booking.dto.BookingResponse
-import com.github.copyinaction.booking.dto.BookingTimeResponse
-import com.github.copyinaction.booking.dto.ReleaseBookingRequest
-import com.github.copyinaction.booking.dto.StartBookingRequest
+import com.github.copyinaction.booking.dto.*
 import com.github.copyinaction.booking.service.BookingService
 import com.github.copyinaction.common.exception.ErrorResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -71,6 +68,18 @@ class BookingController(
         @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
         val response = bookingService.startBooking(request.scheduleId, request.seats, user.id)
+        return ResponseEntity.ok(response)
+    }
+
+    @Operation(summary = "내 예매 내역 조회", description = "로그인한 사용자의 전체 예매 내역(확정/취소)을 조회합니다.\n\n**권한: USER**")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "조회 성공")
+    )
+    @GetMapping("/me")
+    fun getMyBookings(
+        @AuthenticationPrincipal user: CustomUserDetails
+    ): ResponseEntity<List<BookingHistoryResponse>> {
+        val response = bookingService.getMyBookings(user.id)
         return ResponseEntity.ok(response)
     }
 
