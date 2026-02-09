@@ -14,20 +14,9 @@ data class CreateNoticeRequest(
     @Schema(description = "카테고리", example = "BOOKING_NOTICE")
     val category: NoticeCategory,
 
-    @field:NotBlank(message = "제목은 필수입니다")
-    @field:Size(max = 255, message = "제목은 255자 이내여야 합니다")
-    @Schema(description = "제목", example = "예매 전 확인사항")
-    val title: String,
-
     @field:NotBlank(message = "내용은 필수입니다")
     @Schema(description = "내용", example = "예매 전 반드시 공연 일시와 좌석을 확인해주세요.")
-    val content: String,
-
-    @Schema(description = "정렬 순서", example = "1", defaultValue = "0")
-    val displayOrder: Int = 0,
-
-    @Schema(description = "활성화 여부", example = "true", defaultValue = "true")
-    val isActive: Boolean = true
+    val content: String
 )
 
 @Schema(description = "공지사항 수정 요청")
@@ -36,18 +25,14 @@ data class UpdateNoticeRequest(
     @Schema(description = "카테고리", example = "BOOKING_NOTICE")
     val category: NoticeCategory,
 
-    @field:NotBlank(message = "제목은 필수입니다")
-    @field:Size(max = 255, message = "제목은 255자 이내여야 합니다")
-    @Schema(description = "제목", example = "예매 전 확인사항")
-    val title: String,
-
     @field:NotBlank(message = "내용은 필수입니다")
     @Schema(description = "내용", example = "예매 전 반드시 공연 일시와 좌석을 확인해주세요.")
-    val content: String,
+    val content: String
+)
 
-    @Schema(description = "정렬 순서", example = "1")
-    val displayOrder: Int,
-
+@Schema(description = "공지사항 상태 수정 요청")
+data class NoticeStatusRequest(
+    @field:NotNull(message = "활성화 여부는 필수입니다")
     @Schema(description = "활성화 여부", example = "true")
     val isActive: Boolean
 )
@@ -63,14 +48,8 @@ data class NoticeResponse(
     @Schema(description = "카테고리 설명", example = "예매 유의사항")
     val categoryDescription: String,
 
-    @Schema(description = "제목", example = "예매 전 확인사항")
-    val title: String,
-
     @Schema(description = "내용", example = "예매 전 반드시 공연 일시와 좌석을 확인해주세요.")
     val content: String,
-
-    @Schema(description = "정렬 순서", example = "1")
-    val displayOrder: Int,
 
     @Schema(description = "활성화 여부", example = "true")
     val isActive: Boolean,
@@ -87,9 +66,7 @@ data class NoticeResponse(
                 id = notice.id,
                 category = notice.category,
                 categoryDescription = notice.category.description,
-                title = notice.title,
                 content = notice.content,
-                displayOrder = notice.displayOrder,
                 isActive = notice.isActive,
                 createdAt = notice.createdAt,
                 updatedAt = notice.updatedAt

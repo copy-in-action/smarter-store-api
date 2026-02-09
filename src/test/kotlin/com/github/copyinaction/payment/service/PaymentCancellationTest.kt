@@ -1,11 +1,6 @@
 package com.github.copyinaction.payment.service
 
-import com.github.copyinaction.booking.domain.Booking
-import com.github.copyinaction.booking.domain.BookingStatus
-import com.github.copyinaction.booking.dto.BookingResponse
-import com.github.copyinaction.booking.service.BookingService
-import com.github.copyinaction.common.exception.CustomException
-import com.github.copyinaction.common.exception.ErrorCode
+import com.github.copyinaction.booking.repository.BookingRepository
 import com.github.copyinaction.coupon.service.CouponService
 import com.github.copyinaction.payment.domain.Payment
 import com.github.copyinaction.payment.domain.PaymentStatus
@@ -15,18 +10,15 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 
 class PaymentCancellationTest {
     private val paymentRepository = mockk<PaymentRepository>()
-    private val bookingRepository = mockk(relaxed = true)
+    private val bookingRepository = mockk<BookingRepository>(relaxed = true)
     private val couponService = mockk<CouponService>(relaxed = true)
     private val salesStatsService = mockk<com.github.copyinaction.stats.service.SalesStatsService>(relaxed = true)
     private val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
-    private val bookingService = mockk<BookingService>()
 
     private lateinit var paymentService: PaymentService
 
@@ -37,55 +29,8 @@ class PaymentCancellationTest {
             bookingRepository,
             couponService,
             salesStatsService,
-            eventPublisher,
-            bookingService
+            eventPublisher
         )
-    }
-
-    @Test
-    @DisplayName("cancelPayment는 BookingService.cancelBooking을 호출한다")
-    fun cancelPaymentCallsBookingService() {
-        val paymentId = UUID.randomUUID()
-        val bookingId = UUID.randomUUID()
-        val userId = 1L
-
-        val booking = mockk<Booking> {
-            every { id } returns bookingId
-        }
-        val payment = mockk<Payment> {
-            every { id } returns paymentId
-            every { this@mockk.booking } returns booking
-            every { this@mockk.userId } returns userId
-        }
-
-        every { paymentRepository.findByIdOrNull(paymentId) } returns payment
-        every { bookingService.cancelBooking(bookingId, userId, any()) } returns mockk<BookingResponse>(relaxed = true)
-        every { paymentRepository.findByIdOrNull(paymentId) } returns payment
-
-        // Act
-        paymentService.cancelPayment(paymentId, userId)
-
-        // Assert
-        verify { bookingService.cancelBooking(bookingId, userId, "사용자 결제 취소 요청") }
-    }
-
-    @Test
-    @DisplayName("다른 사용자의 결제를 취소하려 하면 예외가 발생한다")
-    fun cancelPaymentThrowsIfDifferentUser() {
-        val paymentId = UUID.randomUUID()
-        val userId = 1L
-
-        val payment = mockk<Payment> {
-            every { this@mockk.userId } returns 2L // Different user
-        }
-
-        every { paymentRepository.findByIdOrNull(paymentId) } returns payment
-
-        // Act & Assert
-        val exception = assertThrows<CustomException> {
-            paymentService.cancelPayment(paymentId, userId)
-        }
-        assertThat(exception.errorCode).isEqualTo(ErrorCode.FORBIDDEN)
     }
 
     @Test

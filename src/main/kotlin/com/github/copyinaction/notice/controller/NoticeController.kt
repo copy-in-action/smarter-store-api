@@ -16,23 +16,9 @@ class NoticeController(
     private val noticeService: NoticeService
 ) {
 
-    @GetMapping
-    @Operation(summary = "활성화된 공지사항 목록 조회", description = "활성화된 모든 공지사항을 정렬 순서대로 조회합니다.\n\n**권한: 누구나**")
-    fun getActiveNotices(): ResponseEntity<List<NoticeResponse>> {
-        return ResponseEntity.ok(noticeService.getActiveNotices())
-    }
-
     @GetMapping("/grouped")
     @Operation(summary = "카테고리별 그룹화된 공지사항 조회", description = "활성화된 공지사항을 카테고리별로 그룹화하여 조회합니다.\n\n**권한: 누구나**")
     fun getActiveNoticesGrouped(): ResponseEntity<List<NoticeGroupResponse>> {
         return ResponseEntity.ok(noticeService.getActiveNoticesGroupedByCategory())
-    }
-
-    @GetMapping("/category/{category}")
-    @Operation(summary = "카테고리별 공지사항 조회", description = "특정 카테고리의 활성화된 공지사항을 조회합니다.\n\n**권한: 누구나**")
-    fun getActiveNoticesByCategory(
-        @PathVariable category: NoticeCategory
-    ): ResponseEntity<List<NoticeResponse>> {
-        return ResponseEntity.ok(noticeService.getActiveNoticesByCategory(category))
     }
 }

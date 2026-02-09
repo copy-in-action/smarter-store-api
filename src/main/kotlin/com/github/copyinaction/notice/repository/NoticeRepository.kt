@@ -5,7 +5,7 @@ import com.github.copyinaction.notice.domain.Notice
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface NoticeRepository : JpaRepository<Notice, Long> {
-    fun findByIsActiveTrueOrderByDisplayOrderAsc(): List<Notice>
-    fun findByCategoryAndIsActiveTrueOrderByDisplayOrderAsc(category: NoticeCategory): List<Notice>
-    fun findAllByOrderByDisplayOrderAsc(): List<Notice>
+    fun findByIsActiveTrueOrderByIdDesc(): List<Notice>
+    fun findByCategoryAndIsActiveTrue(category: NoticeCategory): List<Notice>
+    fun findAllByOrderByIdDesc(): List<Notice>
 }

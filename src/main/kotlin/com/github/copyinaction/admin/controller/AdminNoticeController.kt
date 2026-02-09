@@ -5,6 +5,7 @@ import com.github.copyinaction.audit.domain.AuditAction
 import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.notice.dto.CreateNoticeRequest
 import com.github.copyinaction.notice.dto.NoticeResponse
+import com.github.copyinaction.notice.dto.NoticeStatusRequest
 import com.github.copyinaction.notice.dto.UpdateNoticeRequest
 import com.github.copyinaction.notice.service.NoticeService
 import io.swagger.v3.oas.annotations.Operation
@@ -64,6 +65,21 @@ class AdminNoticeController(
         @Valid @RequestBody request: UpdateNoticeRequest
     ): ResponseEntity<NoticeResponse> {
         return ResponseEntity.ok(noticeService.updateNotice(id, request))
+    }
+
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "[관리자] 공지사항 상태 수정", description = "공지사항의 활성화 상태를 수정합니다. `isActive=true`로 전환 시 동일 카테고리의 다른 공지사항은 자동으로 비활성화됩니다.\n\n**권한: ADMIN**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
+    @Auditable(
+        action = AuditAction.NOTICE_UPDATE,
+        targetType = AuditTargetType.NOTICE,
+        targetIdParam = "id",
+        includeRequestBody = true
+    )
+    fun updateNoticeStatus(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: NoticeStatusRequest
+    ): ResponseEntity<NoticeResponse> {
+        return ResponseEntity.ok(noticeService.updateActiveStatus(id, request.isActive))
     }
 
     @DeleteMapping("/{id}")

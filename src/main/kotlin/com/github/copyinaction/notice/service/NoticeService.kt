@@ -19,22 +19,12 @@ class NoticeService(
 ) {
 
     fun getAllNotices(): List<NoticeResponse> {
-        return noticeRepository.findAllByOrderByDisplayOrderAsc()
-            .map { NoticeResponse.from(it) }
-    }
-
-    fun getActiveNotices(): List<NoticeResponse> {
-        return noticeRepository.findByIsActiveTrueOrderByDisplayOrderAsc()
-            .map { NoticeResponse.from(it) }
-    }
-
-    fun getActiveNoticesByCategory(category: NoticeCategory): List<NoticeResponse> {
-        return noticeRepository.findByCategoryAndIsActiveTrueOrderByDisplayOrderAsc(category)
+        return noticeRepository.findAllByOrderByIdDesc()
             .map { NoticeResponse.from(it) }
     }
 
     fun getActiveNoticesGroupedByCategory(): List<NoticeGroupResponse> {
-        val notices = noticeRepository.findByIsActiveTrueOrderByDisplayOrderAsc()
+        val notices = noticeRepository.findByIsActiveTrueOrderByIdDesc()
         return notices
             .groupBy { it.category }
             .map { (category, categoryNotices) ->
@@ -56,10 +46,8 @@ class NoticeService(
     fun createNotice(request: CreateNoticeRequest): NoticeResponse {
         val notice = Notice.create(
             category = request.category,
-            title = request.title,
             content = request.content,
-            displayOrder = request.displayOrder,
-            isActive = request.isActive
+            isActive = false // 신규 생성 시 기본값 비활성
         )
         val savedNotice = noticeRepository.save(notice)
         return NoticeResponse.from(savedNotice)
@@ -70,11 +58,22 @@ class NoticeService(
         val notice = findNoticeById(id)
         notice.update(
             category = request.category,
-            title = request.title,
             content = request.content,
-            displayOrder = request.displayOrder,
-            isActive = request.isActive
+            isActive = notice.isActive // 기존 상태 유지
         )
+        return NoticeResponse.from(notice)
+    }
+
+    @Transactional
+    fun updateActiveStatus(id: Long, isActive: Boolean): NoticeResponse {
+        val notice = findNoticeById(id)
+        
+        if (isActive) {
+            // true로 전환 시에만 시스템이 개입하여 동일 카테고리의 다른 항목을 비활성화
+            deactivateOtherNotices(notice.category, id)
+        }
+        
+        notice.isActive = isActive
         return NoticeResponse.from(notice)
     }
 
@@ -82,6 +81,15 @@ class NoticeService(
     fun deleteNotice(id: Long) {
         val notice = findNoticeById(id)
         noticeRepository.delete(notice)
+    }
+
+    private fun deactivateOtherNotices(category: NoticeCategory, excludeId: Long? = null) {
+        val activeNotices = noticeRepository.findByCategoryAndIsActiveTrue(category)
+        activeNotices.forEach {
+            if (excludeId == null || it.id != excludeId) {
+                it.isActive = false
+            }
+        }
     }
 
     private fun findNoticeById(id: Long): Notice {
