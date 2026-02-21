@@ -23,6 +23,20 @@ class NoticeService(
             .map { NoticeResponse.from(it) }
     }
 
+    fun getAllNoticesGroupedByCategory(): List<NoticeGroupResponse> {
+        val notices = noticeRepository.findAllByOrderByIdDesc()
+        return notices
+            .groupBy { it.category }
+            .map { (category, categoryNotices) ->
+                NoticeGroupResponse(
+                    category = category,
+                    categoryDescription = category.description,
+                    notices = categoryNotices.map { NoticeResponse.from(it) }
+                )
+            }
+            .sortedBy { it.category.ordinal }
+    }
+
     fun getActiveNoticesGroupedByCategory(): List<NoticeGroupResponse> {
         val notices = noticeRepository.findByIsActiveTrueOrderByIdDesc()
         return notices
@@ -57,9 +71,7 @@ class NoticeService(
     fun updateNotice(id: Long, request: UpdateNoticeRequest): NoticeResponse {
         val notice = findNoticeById(id)
         notice.update(
-            category = request.category,
-            content = request.content,
-            isActive = notice.isActive // 기존 상태 유지
+            content = request.content
         )
         return NoticeResponse.from(notice)
     }

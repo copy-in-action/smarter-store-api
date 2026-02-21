@@ -32,6 +32,12 @@ class AdminNoticeController(
         return ResponseEntity.ok(noticeService.getAllNotices())
     }
 
+    @GetMapping("/grouped")
+    @Operation(summary = "[관리자] 카테고리별 공지사항 목록 조회", description = "비활성화된 항목을 포함하여 카테고리별로 그룹화된 목록을 조회합니다.\n\n**권한: ADMIN**")
+    fun getAllNoticesGrouped(): ResponseEntity<List<com.github.copyinaction.notice.dto.NoticeGroupResponse>> {
+        return ResponseEntity.ok(noticeService.getAllNoticesGroupedByCategory())
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "[관리자] 공지사항 상세 조회", description = "특정 공지사항의 상세 정보를 조회합니다.\n\n**권한: ADMIN**")
     fun getNoticeById(@PathVariable id: Long): ResponseEntity<NoticeResponse> {

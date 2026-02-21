@@ -35,11 +35,11 @@ data class PaymentCreateRequest(
 
     // 할인 적용 상세 내역 (쿠폰, 포인트, 프로모션 등 통합)
     @Schema(description = "적용된 할인 목록")
-    val discounts: List<AppliedDiscountDto> = emptyList()
+    val discounts: List<PaymentDiscountRequest> = emptyList()
 )
 
 @Schema(description = "적용된 할인 정보")
-data class AppliedDiscountDto(
+data class PaymentDiscountRequest(
     @Schema(description = "할인 유형 (COUPON, POINT, PROMOTION)")
     val type: DiscountType,
     @Schema(description = "할인 명칭 (통계 및 스냅샷 보존용)", example = "신규 가입 10% 쿠폰")
@@ -93,6 +93,12 @@ data class PaymentResponse(
     val paymentMethod: PaymentMethod,
     @Schema(description = "결제 상태")
     val paymentStatus: PaymentStatus,
+    @Schema(description = "할인 전 금액 (원가)")
+    val originalPrice: Int,
+    @Schema(description = "총 할인 금액")
+    val discountAmount: Int,
+    @Schema(description = "예매 수수료")
+    val bookingFee: Int,
     @Schema(description = "최종 결제 금액")
     val finalPrice: Int,
     @Schema(description = "결제 요청 일시")
@@ -108,6 +114,9 @@ data class PaymentResponse(
                 paymentNumber = payment.paymentNumber,
                 paymentMethod = payment.paymentMethod,
                 paymentStatus = payment.paymentStatus,
+                originalPrice = payment.originalPrice,
+                discountAmount = payment.discountAmount,
+                bookingFee = payment.bookingFee,
                 finalPrice = payment.finalPrice,
                 requestedAt = payment.requestedAt,
                 completedAt = payment.completedAt
@@ -125,12 +134,16 @@ data class PaymentDetailResponse(
     val payment: PaymentResponse,
     @Schema(description = "결제 항목 목록 (티켓 등)")
     val items: List<PaymentItemResponse>,
+    @Schema(description = "할인 적용 상세 내역")
+    val discounts: List<PaymentDiscountResponse>,
     @Schema(description = "PG 결제 정보")
     val pgInfo: PgInfoResponse?
 )
 
 @Schema(description = "결제 항목 정보")
 data class PaymentItemResponse(
+    @Schema(description = "공연 ID")
+    val performanceId: Long,
     @Schema(description = "공연명")
     val performanceTitle: String,
     @Schema(description = "좌석 등급")
@@ -141,9 +154,39 @@ data class PaymentItemResponse(
     val row: Int,
     @Schema(description = "열 번호")
     val col: Int,
+    @Schema(description = "좌석 원가")
+    val unitPrice: Int,
+    @Schema(description = "항목 할인 금액")
+    val discountAmount: Int,
     @Schema(description = "항목 최종 금액 (할인 적용 후)")
     val finalPrice: Int
 )
+
+@Schema(description = "할인 정보 응답")
+data class PaymentDiscountResponse(
+    @Schema(description = "할인 유형")
+    val type: DiscountType,
+    @Schema(description = "할인 명칭")
+    val name: String,
+    @Schema(description = "할인 금액")
+    val amount: Int,
+    @Schema(description = "쿠폰 ID")
+    val couponId: Long? = null,
+    @Schema(description = "적용된 좌석 ID")
+    val bookingSeatId: Long? = null
+) {
+    companion object {
+        fun from(discount: com.github.copyinaction.discount.domain.PaymentDiscount): PaymentDiscountResponse {
+            return PaymentDiscountResponse(
+                type = discount.discountType,
+                name = discount.discountName,
+                amount = discount.discountAmount,
+                couponId = discount.couponId,
+                bookingSeatId = discount.bookingSeatId
+            )
+        }
+    }
+}
 
 @Schema(description = "PG 결제 정보")
 data class PgInfoResponse(

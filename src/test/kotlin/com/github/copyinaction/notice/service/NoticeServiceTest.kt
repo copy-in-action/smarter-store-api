@@ -81,4 +81,28 @@ class NoticeServiceTest {
         assertThat(targetNotice.isActive).isFalse()
         verify(exactly = 0) { noticeRepository.findByCategoryAndIsActiveTrue(any()) }
     }
+
+    @Test
+    @DisplayName("공지사항 수정 시 내용만 변경되며 카테고리와 상태는 유지된다")
+    fun updateNoticeChangesOnlyContent() {
+        // Given
+        val id = 1L
+        val originalCategory = NoticeCategory.BOOKING_NOTICE
+        val originalContent = "Original Content"
+        val originalIsActive = true
+        val targetNotice = Notice(id = id, category = originalCategory, content = originalContent, isActive = originalIsActive)
+        
+        val request = UpdateNoticeRequest(content = "Updated Content")
+
+        every { noticeRepository.findById(id) } returns Optional.of(targetNotice)
+
+        // When
+        val result = noticeService.updateNotice(id, request)
+
+        // Then
+        assertThat(result.content).isEqualTo("Updated Content")
+        assertThat(result.category).isEqualTo(originalCategory)
+        assertThat(result.isActive).isEqualTo(originalIsActive)
+        verify { noticeRepository.findById(id) }
+    }
 }

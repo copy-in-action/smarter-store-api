@@ -27,7 +27,11 @@ class PaymentDiscount(
 
     // 쿠폰인 경우 참조 ID (nullable)
     @Column
-    val couponId: Long? = null
+    val couponId: Long? = null,
+
+    // 특정 좌석에 적용된 경우 좌석 ID (nullable)
+    @Column
+    val bookingSeatId: Long? = null
 
 ) : BaseEntity() {
 
@@ -37,14 +41,16 @@ class PaymentDiscount(
             type: DiscountType,
             name: String,
             amount: Int,
-            couponId: Long? = null
+            couponId: Long? = null,
+            bookingSeatId: Long? = null
         ): PaymentDiscount {
             return PaymentDiscount(
                 payment = payment,
                 discountType = type,
                 discountName = name,
                 discountAmount = amount,
-                couponId = couponId
+                couponId = couponId,
+                bookingSeatId = bookingSeatId
             )
         }
     }

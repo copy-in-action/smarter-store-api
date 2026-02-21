@@ -4,6 +4,7 @@ import com.github.copyinaction.booking.domain.Booking
 import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.payment.domain.Payment
 import com.github.copyinaction.payment.dto.PaymentDetailResponse
+import com.github.copyinaction.payment.dto.PaymentDiscountResponse
 import com.github.copyinaction.payment.dto.PaymentItemResponse
 import com.github.copyinaction.payment.dto.PaymentResponse
 import com.github.copyinaction.payment.dto.PgInfoResponse
@@ -18,6 +19,9 @@ data class BookingDetailResponse(
 
     @Schema(description = "예매 번호")
     val bookingNumber: String,
+
+    @Schema(description = "공연 ID")
+    val performanceId: Long,
 
     @Schema(description = "공연 제목")
     val performanceTitle: String,
@@ -58,13 +62,19 @@ data class BookingDetailResponse(
             val paymentDetail = payment?.let { p ->
                 val items = p.paymentItems.map {
                     PaymentItemResponse(
+                        performanceId = it.performanceId,
                         performanceTitle = it.performanceTitle,
                         seatGrade = it.seatGrade,
                         section = it.section,
                         row = it.rowNum,
                         col = it.colNum,
+                        unitPrice = it.unitPrice,
+                        discountAmount = it.discountAmount,
                         finalPrice = it.finalPrice
                     )
+                }
+                val discounts = p.discounts.map {
+                    PaymentDiscountResponse.from(it)
                 }
                 val pgInfo = p.pgProvider?.let {
                     PgInfoResponse(
@@ -77,6 +87,7 @@ data class BookingDetailResponse(
                 PaymentDetailResponse(
                     payment = PaymentResponse.from(p),
                     items = items,
+                    discounts = discounts,
                     pgInfo = pgInfo
                 )
             }
@@ -84,6 +95,7 @@ data class BookingDetailResponse(
             return BookingDetailResponse(
                 bookingId = booking.id!!,
                 bookingNumber = booking.bookingNumber,
+                performanceId = performance.id,
                 performanceTitle = performance.title,
                 mainImageUrl = performance.mainImageUrl,
                 showDateTime = schedule.showDateTime,

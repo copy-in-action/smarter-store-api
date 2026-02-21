@@ -14,6 +14,9 @@ data class BookingHistoryResponse(
     @Schema(description = "예매 번호")
     val bookingNumber: String,
 
+    @Schema(description = "공연 ID")
+    val performanceId: Long,
+
     @Schema(description = "공연 제목")
     val performanceTitle: String,
 
@@ -47,6 +50,7 @@ data class BookingHistoryResponse(
             return BookingHistoryResponse(
                 bookingId = booking.id!!,
                 bookingNumber = booking.bookingNumber,
+                performanceId = performance.id,
                 performanceTitle = performance.title,
                 mainImageUrl = performance.mainImageUrl,
                 showDateTime = schedule.showDateTime,

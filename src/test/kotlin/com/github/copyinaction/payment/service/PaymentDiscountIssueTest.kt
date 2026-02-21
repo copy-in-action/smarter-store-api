@@ -9,7 +9,7 @@ import com.github.copyinaction.coupon.repository.CouponUsageRepository
 import com.github.copyinaction.coupon.service.CouponService
 import com.github.copyinaction.discount.domain.DiscountType
 import com.github.copyinaction.payment.domain.PaymentMethod
-import com.github.copyinaction.payment.dto.AppliedDiscountDto
+import com.github.copyinaction.payment.dto.PaymentDiscountRequest
 import com.github.copyinaction.payment.dto.PaymentCreateRequest
 import com.github.copyinaction.payment.repository.PaymentRepository
 import com.github.copyinaction.venue.domain.SeatGrade
@@ -93,7 +93,7 @@ class PaymentDiscountIssueTest {
         val expectedDiscount = 10000
         val totalAmount = 42000 // 50000 + 2000 - 10000
 
-        val discountDto = AppliedDiscountDto(
+        val discountDto = PaymentDiscountRequest(
             type = DiscountType.COUPON,
             name = "1월 20프로 할인",
             amount = expectedDiscount, // Client calculates 10000

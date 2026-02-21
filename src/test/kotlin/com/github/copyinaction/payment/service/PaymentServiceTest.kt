@@ -10,7 +10,7 @@ import com.github.copyinaction.discount.domain.DiscountType
 import com.github.copyinaction.payment.domain.Payment
 import com.github.copyinaction.payment.domain.PaymentMethod
 import com.github.copyinaction.payment.domain.PaymentStatus
-import com.github.copyinaction.payment.dto.AppliedDiscountDto
+import com.github.copyinaction.payment.dto.PaymentDiscountRequest
 import com.github.copyinaction.payment.dto.PaymentCreateRequest
 import com.github.copyinaction.payment.repository.PaymentRepository
 import io.mockk.*
@@ -59,7 +59,7 @@ class PaymentServiceTest {
         val discountAmount = 5000
         val finalPrice = originalPrice + bookingFee - discountAmount
         
-        val discountDto = AppliedDiscountDto(
+        val discountDto = PaymentDiscountRequest(
             type = DiscountType.COUPON,
             name = "Test Coupon",
             amount = discountAmount,

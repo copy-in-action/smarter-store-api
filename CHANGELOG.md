@@ -1,8 +1,23 @@
 # Changelog
 
+## 2026년 2월 21일 (토)
+
+*   **예매 상세 및 결제 정보 응답 데이터 고도화 [CCS-163]:**
+    *   **결제 상세 내역 강화**: 결제 응답(`PaymentResponse`)에 원가(`originalPrice`), 총 할인 금액(`discountAmount`), 예매 수수료(`bookingFee`) 필드를 추가하여 전체 결제 흐름을 명확히 했습니다.
+    *   **좌석별 할인 추적**: `PaymentDiscount` 엔티티와 DTO에 `bookingSeatId`를 추가하여, 어떤 좌석에 어떤 할인(쿠폰 등)이 적용되었는지 상세히 조회할 수 있도록 개선했습니다.
+    *   **공연 정보 연동 개선**: `BookingHistoryResponse` 및 `BookingDetailResponse`에 `performanceId`를 추가하여 마이페이지 목록 및 상세에서 공연 상세 페이지로의 접근성을 높였습니다.
+    *   **결제 항목 데이터 보완**: `PaymentItemResponse`에 공연 ID, 좌석 원가, 항목별 할인 금액을 추가하여 결제 금액과 항목 간의 정합성을 사용자가 쉽게 확인할 수 있도록 했습니다.
+    *   **할인 내역 통합**: `PaymentDetailResponse` 내에 전체 적용된 할인 목록(`discounts`)을 포함하여 쿠폰명과 할인 금액을 한눈에 볼 수 있도록 구조화했습니다.
+*   **DTO 네이밍 컨벤션 정규화**:
+    *   `AppliedDiscountDto`를 **`PaymentDiscountRequest`**로 변경하여 프로젝트 전체의 `Request/Response` 네이밍 규칙을 일원화했습니다.
+    *   관련된 결제 생성 API 및 테스트 코드의 참조를 모두 업데이트했습니다.
+*   **관리자 공지사항 API 고도화 [CCS-166]**:
+    *   **수정 제약 조건 강화**: 공지사항 수정 시 카테고리(`category`)와 상태(`isActive`)는 변경할 수 없도록 수정하고, 내용(`content`)만 업데이트 가능하도록 API 스펙을 고정했습니다.
+    *   **카테고리별 목록 조회 추가**: 관리자 대시보드에서 효율적인 관리를 위해 비활성화된 항목을 포함하여 카테고리별로 그룹화된 목록을 조회하는 API(`GET /api/admin/notices/grouped`)를 신설했습니다.
+
 ## 2026년 2월 9일 (월)
 
-    *   **공지사항(Notice) 및 관리자 공지사항 API 고도화 [CCS-55]:**
+*   **공지사항(Notice) 및 관리자 공지사항 API 고도화 [CCS-55]:**
     *   **카테고리 체계 개편**: `NoticeCategory`를 예매 유의사항, 무통장입금 주의사항, 티켓 수령안내, 모바일 티켓 안내, 환불 안내, 취소 및 환불 유의사항의 6종 체계로 전면 개편했습니다.
     *   **데이터 모델 간소화**: `Notice` 엔티티에서 불필요한 `title`과 `displayOrder` 필드를 제거하고, 카테고리 명칭을 제목으로 사용하도록 구조를 변경했습니다.
     *   **활성화 API 분리**: 등록/수정 시 `isActive` 상태가 부수적으로 변경되지 않도록 분리하고, 명시적인 상태 변경 API(`PATCH /api/admin/notices/{id}/status`)를 추가했습니다.

@@ -118,7 +118,8 @@ class PaymentService(
                 type = discountDto.type,
                 name = discountDto.name,
                 amount = discountAmount,
-                couponId = discountDto.couponId
+                couponId = discountDto.couponId,
+                bookingSeatId = discountDto.bookingSeatId
             )
             payment.addDiscount(discount)
 
@@ -205,13 +206,20 @@ class PaymentService(
 
         val items = payment.paymentItems.map {
             PaymentItemResponse(
+                performanceId = it.performanceId,
                 performanceTitle = it.performanceTitle,
                 seatGrade = it.seatGrade,
                 section = it.section,
                 row = it.rowNum,
                 col = it.colNum,
+                unitPrice = it.unitPrice,
+                discountAmount = it.discountAmount,
                 finalPrice = it.finalPrice
             )
+        }
+
+        val discounts = payment.discounts.map {
+            PaymentDiscountResponse.from(it)
         }
 
         val pgInfo = payment.pgProvider?.let {
@@ -226,6 +234,7 @@ class PaymentService(
         return PaymentDetailResponse(
             payment = PaymentResponse.from(payment),
             items = items,
+            discounts = discounts,
             pgInfo = pgInfo
         )
     }

@@ -43,12 +43,8 @@ class Notice(
     }
 
     fun update(
-        category: NoticeCategory,
-        content: String,
-        isActive: Boolean
+        content: String
     ) {
-        this.category = category
         this.content = content
-        this.isActive = isActive
     }
 }

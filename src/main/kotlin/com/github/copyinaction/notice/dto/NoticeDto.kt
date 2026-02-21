@@ -21,10 +21,6 @@ data class CreateNoticeRequest(
 
 @Schema(description = "공지사항 수정 요청")
 data class UpdateNoticeRequest(
-    @field:NotNull(message = "카테고리는 필수입니다")
-    @Schema(description = "카테고리", example = "BOOKING_NOTICE")
-    val category: NoticeCategory,
-
     @field:NotBlank(message = "내용은 필수입니다")
     @Schema(description = "내용", example = "예매 전 반드시 공연 일시와 좌석을 확인해주세요.")
     val content: String
