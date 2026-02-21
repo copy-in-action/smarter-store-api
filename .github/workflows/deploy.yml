@@ -146,11 +146,14 @@ jobs:
           # 1. 관리 경로로 이동
           cd ${{ vars.DOCKER_COMPOSE_PATH }}
           
-          # 2. 최신 이미지 pull 및 ticket-be 재시작
+          # 2. 기존 서비스 정리
+          docker compose down ticket-be || true
+          
+          # 3. 최신 이미지 pull 및 ticket-be 재시작
           docker compose pull ticket-be
           docker compose up -d ticket-be
           
-          # 3. 사용하지 않는 Docker 이미지 정리
+          # 4. 사용하지 않는 Docker 이미지 정리
           docker image prune -f
 
       - name: Notify Slack on Success
