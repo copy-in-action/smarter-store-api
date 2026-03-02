@@ -78,6 +78,9 @@ data class PerformanceResponse(
     @Schema(description = "배송 안내", example = "현장 수령만 가능합니다.")
     val shippingGuide: String?,
 
+    @Schema(description = "현재 사용자의 찜 여부", example = "false")
+    val isWishlisted: Boolean = false,
+
     @Schema(description = "공연 정보 생성일시", example = "2023-01-01T12:00:00")
     val createdAt: LocalDateTime?,
 
@@ -85,7 +88,7 @@ data class PerformanceResponse(
     val updatedAt: LocalDateTime?
 ) {
     companion object {
-        fun from(performance: Performance): PerformanceResponse {
+        fun from(performance: Performance, isWishlisted: Boolean = false): PerformanceResponse {
             return PerformanceResponse(
                 id = performance.id,
                 title = performance.title,
@@ -109,6 +112,7 @@ data class PerformanceResponse(
                 company = performance.company?.let { CompanyResponse.from(it) },
                 bookingFee = performance.bookingFee,
                 shippingGuide = performance.shippingGuide,
+                isWishlisted = isWishlisted,
                 createdAt = performance.createdAt,
                 updatedAt = performance.updatedAt
             )

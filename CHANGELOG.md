@@ -2,6 +2,10 @@
 
 ## 2026년 3월 2일 (월)
 
+*   **찜(Wishlist) 기능 신규 구현 [CCS-168]**:
+    *   **찜 관리 API**: 사용자가 관심 있는 공연을 찜 목록에 등록(`POST /api/wishlists/{id}`) 및 해제(`DELETE /api/wishlists/{id}`)할 수 있는 기능을 구현했습니다.
+    *   **인피니티 스크롤 대응 목록 조회**: FE의 Tanstack Query(useInfiniteQuery) 사용에 최적화된 페이징 목록 조회 API(`GET /api/wishlists/me`)를 제공합니다. `meta` 정보를 통해 전체 개수와 다음 페이지 존재 여부(`hasNextPage`)를 반환합니다.
+    *   **공연 상세 정보 연동**: 공연 상세 조회 시 현재 사용자의 찜 여부(`isWishlisted`)를 불리언 필드로 함께 제공하여 UX를 개선했습니다.
 *   **예매 상태 관리 및 이력 필터링 개선**:
     *   **점유 해제 전용 상태 도입**: 결제 전(`PENDING`) 단계에서 페이지 이탈이나 좌석 변경 시 호출되는 API가 예매 취소 이력을 남기지 않도록 `RELEASED` 상태를 신설했습니다.
     *   **예매 내역 조회 최적화**: 사용자의 예매 내역(`GET /api/bookings/me`) 조회 시, 단순 점유 해제(`RELEASED`) 및 시간 만료(`EXPIRED`) 건은 제외하고 실제 결제 완료(`CONFIRMED`) 또는 결제 후 취소(`CANCELLED`) 건만 표시되도록 개선했습니다.

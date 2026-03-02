@@ -5,6 +5,7 @@ import com.github.copyinaction.performance.dto.AvailableScheduleResponse
 import com.github.copyinaction.performance.dto.PerformanceResponse
 import com.github.copyinaction.performance.service.PerformanceScheduleService
 import com.github.copyinaction.performance.service.PerformanceService
+import com.github.copyinaction.auth.service.CustomUserDetails
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -29,7 +31,7 @@ class PerformanceController(
     private val performanceService: PerformanceService,
     private val performanceScheduleService: PerformanceScheduleService
 ) {
-    @Operation(summary = "단일 공연 조회", description = "ID로 특정 공연의 정보를 조회합니다.\n\n**권한: 누구나**")
+    @Operation(summary = "단일 공연 조회", description = "ID로 특정 공연의 정보를 조회합니다.\n\n**권한: 누구나 (로그인 시 찜 여부 포함)**")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "공연 조회 성공"),
         ApiResponse(
@@ -39,8 +41,11 @@ class PerformanceController(
         )
     )
     @GetMapping("/{id}")
-    fun getPerformance(@Parameter(description = "조회할 공연의 ID", required = true, example = "1") @PathVariable id: Long): ResponseEntity<PerformanceResponse> {
-        val performance = performanceService.getPerformance(id)
+    fun getPerformance(
+        @Parameter(description = "조회할 공연의 ID", required = true, example = "1") @PathVariable id: Long,
+        @AuthenticationPrincipal user: CustomUserDetails?
+    ): ResponseEntity<PerformanceResponse> {
+        val performance = performanceService.getPerformance(id, user?.id)
         return ResponseEntity.ok(performance)
     }
 

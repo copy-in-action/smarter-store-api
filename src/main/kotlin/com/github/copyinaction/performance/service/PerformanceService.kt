@@ -10,6 +10,7 @@ import com.github.copyinaction.performance.domain.Performance
 import com.github.copyinaction.performance.repository.CompanyRepository
 import com.github.copyinaction.performance.repository.PerformanceRepository
 import com.github.copyinaction.venue.repository.VenueRepository
+import com.github.copyinaction.wishlist.repository.WishlistRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,7 +20,8 @@ class PerformanceService(
     private val performanceRepository: PerformanceRepository,
     private val venueRepository: VenueRepository,
     private val companyRepository: CompanyRepository,
-    private val performanceHomeTagService: PerformanceHomeTagService
+    private val performanceHomeTagService: PerformanceHomeTagService,
+    private val wishlistRepository: WishlistRepository
 ) {
 
     @Transactional
@@ -61,9 +63,12 @@ class PerformanceService(
         return PerformanceResponse.from(savedPerformance)
     }
 
-    fun getPerformance(id: Long): PerformanceResponse {
+    fun getPerformance(id: Long, userId: Long? = null): PerformanceResponse {
         val performance = findPerformanceById(id)
-        return PerformanceResponse.Companion.from(performance)
+        val isWishlisted = userId?.let {
+            wishlistRepository.existsBySiteUser_IdAndPerformance_Id(it, performance.id)
+        } ?: false
+        return PerformanceResponse.from(performance, isWishlisted)
     }
 
     fun getAllPerformances(): List<PerformanceResponse> {

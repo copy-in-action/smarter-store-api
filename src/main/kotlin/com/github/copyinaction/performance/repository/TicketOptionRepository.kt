@@ -6,4 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface TicketOptionRepository : JpaRepository<TicketOption, Long> {
     fun findByPerformanceScheduleId(performanceScheduleId: Long): List<TicketOption>
     fun deleteByPerformanceScheduleId(performanceScheduleId: Long)
+
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT MIN(to.price) 
+        FROM TicketOption to 
+        WHERE to.performanceSchedule.performance.id = :performanceId
+    """)
+    fun findMinPriceByPerformanceId(performanceId: Long): Int?
 }
