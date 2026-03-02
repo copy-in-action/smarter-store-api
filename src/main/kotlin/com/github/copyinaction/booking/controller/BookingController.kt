@@ -140,9 +140,18 @@ class BookingController(
         return ResponseEntity.ok(response)
     }
 
-    @Operation(summary = "예매 취소 (전체)", description = "진행 중인 예매 건 전체를 취소합니다.\n\n**권한: USER**\n\n**[Audit Log]** 이 작업은 감사 로그에 기록됩니다.")
+    @Operation(summary = "예매 취소 (전체)", description = """
+        진행 중인 예매 건 전체를 취소하거나 점유를 해제합니다.
+
+        - 결제 전(PENDING): 점유를 즉시 해제하며, 사용자의 예매 이력에 남지 않습니다. (RELEASED 상태)
+        - 결제 후(CONFIRMED): 결제 환불을 진행하고, 사용자의 예매 이력에 '취소됨'으로 표시됩니다. (CANCELLED 상태)
+
+        **권한: USER**
+
+        **[Audit Log]** 이 작업은 감사 로그에 기록됩니다.
+    """)
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "예매 취소 성공"),
+        ApiResponse(responseCode = "200", description = "예매 취소/해제 성공"),
         ApiResponse(
             responseCode = "404", description = "예매를 찾을 수 없음",
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
@@ -168,8 +177,8 @@ class BookingController(
             페이지 unload 시 navigator.sendBeacon을 통한 예매 해제용 POST 엔드포인트입니다.
 
             - sendBeacon은 POST 방식만 지원하므로 별도 엔드포인트 제공
-            - 기능은 DELETE /api/bookings/{bookingId}와 동일
-            - 진행 중인 예매 건을 취소하고 좌석 점유를 해제합니다.
+            - 기능은 DELETE /api/bookings/{bookingId}와 동일하게 동작합니다.
+            - 결제 전(PENDING) 상태의 예매는 이력에 남지 않도록 즉시 해제합니다.
 
             **권한: USER**
 

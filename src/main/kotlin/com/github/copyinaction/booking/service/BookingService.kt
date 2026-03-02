@@ -62,7 +62,7 @@ class BookingService(
         val oldSeatSet = getOldSeatSet(existingBooking)
 
         if (existingBooking != null) {
-            existingBooking.cancel()
+            existingBooking.release()
             bookingRepository.save(existingBooking)
         }
 
@@ -222,7 +222,12 @@ class BookingService(
             previousStatus = currentStatus
         ))
 
-        booking.cancel()
+        if (currentStatus == BookingStatus.PENDING) {
+            booking.release()
+        } else {
+            booking.cancel()
+        }
+        
         bookingRepository.save(booking)
 
         log.info("예매 취소 처리 완료 - bookingId: {}, 처리자ID: {}", bookingId, userId)

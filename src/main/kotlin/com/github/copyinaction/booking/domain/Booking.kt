@@ -134,6 +134,13 @@ class Booking(
         this.bookingStatus = BookingStatus.CANCELLED
     }
 
+    fun release() {
+        if (this.bookingStatus != BookingStatus.PENDING) {
+            throw CustomException(ErrorCode.BOOKING_INVALID_STATUS, "점유 해제할 수 없는 예매 상태입니다.")
+        }
+        this.bookingStatus = BookingStatus.RELEASED
+    }
+
     fun expire() {
         if (this.bookingStatus != BookingStatus.PENDING) {
             return // 이미 처리된 경우 무시
