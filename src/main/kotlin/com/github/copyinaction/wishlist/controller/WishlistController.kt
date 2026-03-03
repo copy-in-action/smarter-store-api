@@ -3,6 +3,7 @@ package com.github.copyinaction.wishlist.controller
 import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.wishlist.dto.PagedWishlistResponse
+import com.github.copyinaction.wishlist.dto.WishlistStatusResponse
 import com.github.copyinaction.wishlist.service.WishlistService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -72,5 +73,18 @@ class WishlistController(
     ): ResponseEntity<Unit> {
         wishlistService.removeWishlist(user.id, performanceId)
         return ResponseEntity.ok().build()
+    }
+    
+    @Operation(summary = "공연 찜 여부 확인", description = "특정 공연의 찜 여부를 확인합니다.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "조회 성공")
+    )
+    @GetMapping("/{performanceId}")
+    fun checkWishlistStatus(
+        @AuthenticationPrincipal user: CustomUserDetails,
+        @Parameter(description = "공연 ID", required = true) @PathVariable performanceId: Long,
+    ): ResponseEntity<WishlistStatusResponse> {
+        val isWishlisted = wishlistService.isWishlisted(user.id, performanceId)
+        return ResponseEntity.ok(WishlistStatusResponse(isWishlisted))
     }
 }

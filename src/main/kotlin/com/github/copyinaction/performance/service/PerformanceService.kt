@@ -65,10 +65,7 @@ class PerformanceService(
 
     fun getPerformance(id: Long, userId: Long? = null): PerformanceResponse {
         val performance = findPerformanceById(id)
-        val isWishlisted = userId?.let {
-            wishlistRepository.existsBySiteUser_IdAndPerformance_Id(it, performance.id)
-        } ?: false
-        return PerformanceResponse.from(performance, isWishlisted)
+        return PerformanceResponse.from(performance)
     }
 
     fun getAllPerformances(): List<PerformanceResponse> {
