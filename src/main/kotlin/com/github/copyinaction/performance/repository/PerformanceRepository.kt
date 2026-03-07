@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.Optional
 
-interface PerformanceRepository : JpaRepository<Performance, Long> {
+interface PerformanceRepository : JpaRepository<Performance, Long>, PerformanceRepositoryCustom {
 
     @EntityGraph(attributePaths = ["venue", "company"])
     override fun findById(id: Long): Optional<Performance>

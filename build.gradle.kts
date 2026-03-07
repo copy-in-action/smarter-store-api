@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
     kotlin("plugin.jpa") version "1.9.24"
+    kotlin("kapt") version "1.9.24"
 }
 
 group = "com.github.copyinaction"
@@ -29,6 +30,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-webflux") // SSE 지원
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Querydsl
+    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
+    implementation("jakarta.persistence:jakarta.persistence-api")
+    implementation("jakarta.annotation:jakarta.annotation-api")
 
     // Logging (Slack Appender)
     implementation("com.github.maricn:logback-slack-appender:1.4.0")
@@ -63,6 +70,9 @@ dependencies {
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+    }
+    sourceSets.main {
+        kotlin.srcDir("build/generated/source/kapt/main")
     }
 }
 

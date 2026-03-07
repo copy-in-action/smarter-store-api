@@ -7,6 +7,9 @@ import com.github.copyinaction.auth.domain.Role
 import com.github.copyinaction.booking.domain.BookingStatus
 import com.github.copyinaction.common.dto.EnumResponse
 import com.github.copyinaction.notice.domain.NoticeCategory
+import com.github.copyinaction.performance.domain.Region
+import com.github.copyinaction.performance.dto.PerformanceSearchSort
+import com.github.copyinaction.performance.dto.PerformanceSearchStatus
 import com.github.copyinaction.seat.domain.SeatStatus
 import com.github.copyinaction.seat.dto.SeatEventAction
 import com.github.copyinaction.venue.domain.SeatGrade
@@ -33,7 +36,10 @@ class EnumController {
             "auditCategories" to AuditCategory.entries.map { EnumResponse(it.name, it.description) },
             "auditActions" to AuditAction.entries.map { EnumResponse(it.name, it.description) },
             "auditTargetTypes" to AuditTargetType.entries.map { EnumResponse(it.name, it.description) },
-            "seatEventActions" to SeatEventAction.entries.map { EnumResponse(it.name, it.description) }
+            "seatEventActions" to SeatEventAction.entries.map { EnumResponse(it.name, it.description) },
+            "regions" to Region.entries.map { EnumResponse(it.name, it.displayName) },
+            "performanceSearchStatuses" to PerformanceSearchStatus.entries.map { EnumResponse(it.name, it.label) },
+            "performanceSearchSorts" to PerformanceSearchSort.entries.map { EnumResponse(it.name, it.label) }
         )
     }
 }
