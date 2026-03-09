@@ -152,7 +152,16 @@ class PerformanceRepositoryImpl(
                 // Performance -> PerformanceSchedule -> Booking
                 query.leftJoin(performanceSchedule).on(performanceSchedule.performance.id.eq(performance.id))
                     .leftJoin(booking).on(booking.schedule.id.eq(performanceSchedule.id).and(booking.bookingStatus.eq(BookingStatus.CONFIRMED)))
-                    .groupBy(performance.id)
+                    .groupBy(
+                        performance.id,
+                        performance.title,
+                        performance.mainImageUrl,
+                        performance.category,
+                        venue.address,
+                        performance.startDate,
+                        performance.endDate,
+                        performance.createdAt
+                    )
                     .orderBy(booking.count().desc(), performance.createdAt.desc())
             }
             PerformanceSearchSort.END_DATE_ASC -> {

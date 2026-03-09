@@ -2,6 +2,9 @@
 
 ## 2026년 3월 9일 (월)
 
+*   **공연 검색 정렬 오류 수정 [CCS-171]**:
+    *   **SQL GROUP BY 오류 해결**: `sort=BOOKING_COUNT`로 공연 검색 시 PostgreSQL에서 발생하던 `InvalidDataAccessResourceUsageException`(GROUP BY 절 누락) 오류를 수정했습니다.
+    *   **쿼리 최적화**: `BOOKING_COUNT` 정렬 시 `SELECT` 및 `ORDER BY`에 사용된 모든 비집계 컬럼을 `GROUP BY` 절에 명시적으로 포함하여 표준 SQL 준수 및 런타임 안정성을 확보했습니다.
 *   **검색 API Swagger 설정 개선 및 Orval 연동 최적화 [CCS-170]**:
     *   **파라미터 평탄화 적용**: `GET /api/performances/search` API에서 `PerformanceSearchRequest` DTO가 단일 객체(`request`)로 래핑되어 OpenAPI 스펙에 정의되던 문제를 해결하기 위해 `@ParameterObject` 어노테이션을 적용했습니다.
     *   **표준 가이드 업데이트**: `Swagger_설정_가이드.md`에 `@ParameterObject` 사용법과 `GET` 요청 시 복합 객체 처리 주의사항을 추가하여 향후 유사 사례 재발을 방지했습니다.
