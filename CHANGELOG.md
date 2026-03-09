@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026년 3월 9일 (월)
+
+*   **검색 API Swagger 설정 개선 및 Orval 연동 최적화 [CCS-170]**:
+    *   **파라미터 평탄화 적용**: `GET /api/performances/search` API에서 `PerformanceSearchRequest` DTO가 단일 객체(`request`)로 래핑되어 OpenAPI 스펙에 정의되던 문제를 해결하기 위해 `@ParameterObject` 어노테이션을 적용했습니다.
+    *   **표준 가이드 업데이트**: `Swagger_설정_가이드.md`에 `@ParameterObject` 사용법과 `GET` 요청 시 복합 객체 처리 주의사항을 추가하여 향후 유사 사례 재발을 방지했습니다.
+    *   **FE 연동성 강화**: Orval을 통한 인터페이스 생성 시 비정상적인 파라미터 구조가 생성되던 문제를 해결하여 프론트엔드 연동 편의성을 높였습니다.
+
 ## 2026년 3월 7일 (토)
 
 *   **공연 검색 및 자동완성 시스템 구축 [CCS-170]**:

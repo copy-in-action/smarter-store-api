@@ -42,9 +42,24 @@ SpringDoc은 OpenAPI 3 사양을 따르며, 코드 내에 특정 어노테이션
 | `@ApiResponses` | API가 반환할 수 있는 모든 응답(성공/실패) 케이스를 정의하는 컨테이너 어노테이션입니다. | 컨트롤러 메서드 |
 | `@ApiResponse` | 개별 응답의 HTTP 상태 코드, 설명, 그리고 해당 응답에서 반환되는 데이터의 스키마(`content = [Content(schema = Schema(implementation = YourDto::class))]`)를 정의합니다. | `@ApiResponses` 내부 |
 | `@Parameter` | 경로 변수(Path Variable)나 쿼리 파라미터에 대한 설명, 필수 여부, 예시 값 등을 추가합니다. | 컨트롤러 메서드의 파라미터 |
+| `@ParameterObject` | `GET` 요청에서 DTO(객체)를 사용하여 여러 쿼리 파라미터를 받을 때, Swagger UI에서 이를 개별 필드로 평탄화(Flatten)하여 표시하도록 합니다. | 컨트롤러 메서드의 파라미터 |
 | `@Schema` | DTO(데이터 모델) 클래스나 그 필드에 대한 설명, 예시 값, 제약 조건 등을 추가합니다. 이는 요청/응답 데이터의 구조를 문서화합니다. | DTO 클래스 및 필드 |
 
-### 3.3. API 문서 접근
+### 3.3. GET 요청에서 DTO 사용 시 주의사항 (`@ParameterObject`)
+
+`GET` 요청 시 필터 조건이 많아 DTO를 사용하는 경우, 반드시 `@ParameterObject` 어노테이션을 붙여야 합니다. 이를 누락하면 Swagger UI와 Orval(FE 인터페이스 생성 도구)에서 해당 객체를 단일 `request` 파라미터로 인식하여 비정상적으로 호출될 수 있습니다.
+
+```kotlin
+// 예시: PerformanceSearchController.kt
+@GetMapping
+fun search(
+    @ParameterObject request: PerformanceSearchRequest // 개별 쿼리 파라미터로 노출됨
+): PerformanceSearchListResponse {
+    return performanceSearchService.searchPerformances(request)
+}
+```
+
+### 3.4. API 문서 접근
 
 애플리케이션을 실행한 후, 웹 브라우저에서 다음 URL로 접속하면 Swagger UI를 통해 자동으로 생성된 API 문서를 확인하고 직접 API 호출을 테스트해볼 수 있습니다.
 
