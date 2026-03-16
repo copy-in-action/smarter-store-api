@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026년 3월 17일 (화)
+
+*   **통계 집계 오류 해결 및 관리자용 수동 재집계 API 추가 [CCS-175]**:
+    *   **DB 스키마 정합성 확보**: `Payment` 엔티티에 도입된 낙관적 락(`@Version`)과 실제 DB 테이블 간의 불일치(컬럼 누락)로 인한 JDBC 예외를 진단하고 해결 방안(DDL)을 제시했습니다.
+    *   **수동 통계 재집계 API 구현**: 배치 작업 실패나 데이터 유실 시 관리자가 특정 날짜 또는 주간 단위로 통계를 강제 재집계할 수 있는 엔드포인트(`POST /api/admin/stats/daily/recalculate`, `POST /api/admin/stats/weekly/recalculate`)를 `StatsController`에 추가했습니다.
+    *   **데이터 멱등성 보장**: `SalesStatsService`의 '삭제 후 재생성' 로직을 활용하여, 중복 실행 시에도 데이터 중복 없이 정확한 통계 수치가 유지되도록 설계했습니다.
+
 ## 2026년 3월 16일 (월)
 
 *   **Facade(Use Case) 계층 도입을 통한 아키텍처 고도화 [CCS-174]**:
