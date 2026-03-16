@@ -67,6 +67,9 @@ class Payment(
     @Column(nullable = false)
     val requestedAt: LocalDateTime = LocalDateTime.now(),
 
+    @Version
+    val version: Long = 0L,
+
     @Column
     var completedAt: LocalDateTime? = null,
 
@@ -122,10 +125,7 @@ class Payment(
             throw CustomException(ErrorCode.PAYMENT_ALREADY_COMPLETED)
         }
         if (paymentStatus != PaymentStatus.PENDING) {
-            throw CustomException(
-                ErrorCode.INVALID_INPUT_VALUE,
-                "결제 대기 상태에서만 완료 처리가 가능합니다. (현재: $paymentStatus)"
-            )
+            throw CustomException(ErrorCode.PAYMENT_INVALID_STATUS)
         }
         this.paymentStatus = PaymentStatus.COMPLETED
         this.pgProvider = pgProvider
@@ -139,18 +139,22 @@ class Payment(
     }
 
     fun cancel(reason: String) {
-        check(paymentStatus == PaymentStatus.COMPLETED) { "결제 완료 상태에서만 취소가 가능합니다." }
+        if (paymentStatus != PaymentStatus.COMPLETED) {
+            throw CustomException(ErrorCode.PAYMENT_INVALID_STATUS)
+        }
         this.paymentStatus = PaymentStatus.CANCELLED
         this.cancelReason = reason
         this.cancelledAt = LocalDateTime.now()
     }
 
     fun refund(amount: Int, reason: String) {
-        check(paymentStatus == PaymentStatus.COMPLETED || paymentStatus == PaymentStatus.PARTIAL_REFUNDED) { 
-            "결제 완료 또는 부분 환불 상태에서만 환불이 가능합니다." 
+        if (paymentStatus != PaymentStatus.COMPLETED && paymentStatus != PaymentStatus.PARTIAL_REFUNDED) {
+            throw CustomException(ErrorCode.PAYMENT_INVALID_STATUS)
         }
         val currentRefundAmount = (refundAmount ?: 0) + amount
-        check(currentRefundAmount <= finalPrice) { "환불 금액이 최종 결제 금액을 초과할 수 없습니다." }
+        if (currentRefundAmount > finalPrice) {
+            throw CustomException(ErrorCode.PAYMENT_REFUND_EXCEEDED)
+        }
 
         this.paymentStatus = if (currentRefundAmount == finalPrice)
             PaymentStatus.REFUNDED else PaymentStatus.PARTIAL_REFUNDED
@@ -174,7 +178,7 @@ class Payment(
             val diff = expectedAmount - finalPrice
             val diffSign = if (diff > 0) "+" else ""
             throw CustomException(
-                ErrorCode.INVALID_INPUT_VALUE,
+                ErrorCode.PAYMENT_AMOUNT_MISMATCH,
                 """
                 |결제 금액이 일치하지 않습니다.
                 |

@@ -17,25 +17,29 @@ class PaymentCancellationTest {
     private val paymentRepository = mockk<PaymentRepository>()
     private val bookingRepository = mockk<BookingRepository>(relaxed = true)
     private val couponService = mockk<CouponService>(relaxed = true)
-    private val salesStatsService = mockk<com.github.copyinaction.stats.service.SalesStatsService>(relaxed = true)
     private val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
     private lateinit var paymentService: PaymentService
+    private lateinit var paymentFacade: PaymentFacade
 
     @BeforeEach
     fun setUp() {
         paymentService = PaymentService(
             paymentRepository,
             bookingRepository,
+            couponService
+        )
+        paymentFacade = PaymentFacade(
+            paymentService,
             couponService,
-            salesStatsService,
+            bookingRepository,
             eventPublisher
         )
     }
 
     @Test
-    @DisplayName("cancelPaymentInternal은 결제 상태를 취소로 변경하고 쿠폰을 복구한다")
-    fun cancelPaymentInternalUpdatesStatus() {
+    @DisplayName("cancelPayment은 결제 상태를 취소로 변경하고 쿠폰을 복구한다")
+    fun cancelPaymentUpdatesStatus() {
         val bookingId = UUID.randomUUID()
         val paymentId = UUID.randomUUID()
         val userId = 1L
@@ -55,7 +59,7 @@ class PaymentCancellationTest {
         every { paymentRepository.save(any()) } answers { firstArg() }
 
         // Act
-        paymentService.cancelPaymentInternal(bookingId, "테스트 취소")
+        paymentFacade.cancelPayment(bookingId, "테스트 취소")
 
         // Assert
         assertThat(payment.paymentStatus).isEqualTo(PaymentStatus.CANCELLED)

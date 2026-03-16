@@ -32,15 +32,19 @@ class PaymentDiscountIssueTest {
     // Use real CouponService
     private val couponService = CouponService(couponRepository, couponUsageRepository)
     
-    private val salesStatsService = mockk<com.github.copyinaction.stats.service.SalesStatsService>(relaxed = true)
     private val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
     
     // Use real PaymentService
     private val paymentService = PaymentService(
         paymentRepository, 
         bookingRepository, 
-        couponService, 
-        salesStatsService,
+        couponService
+    )
+
+    private val paymentFacade = PaymentFacade(
+        paymentService,
+        couponService,
+        bookingRepository,
         eventPublisher
     )
 
@@ -85,6 +89,7 @@ class PaymentDiscountIssueTest {
         )
         // Reflection set ID or just mock findById
         every { couponRepository.findById(couponId) } returns java.util.Optional.of(coupon)
+        every { couponRepository.findByIdWithLock(couponId) } returns java.util.Optional.of(coupon)
 
         // 2. Request Setup
         val originalPrice = 50000
@@ -118,7 +123,7 @@ class PaymentDiscountIssueTest {
         every { couponUsageRepository.save(any()) } answers { firstArg() }
 
         // 3. Act
-        val response = paymentService.createPayment(userId, request)
+        val response = paymentFacade.createPayment(userId, request)
 
         // 4. Assert
         assertThat(response.finalPrice).isEqualTo(totalAmount)

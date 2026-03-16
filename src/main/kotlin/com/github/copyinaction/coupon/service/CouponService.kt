@@ -216,7 +216,7 @@ class CouponService(
         for (seatCoupon in seatCoupons) {
             if (seatCoupon.couponId == 0L) continue
 
-            val coupon = couponRepository.findById(seatCoupon.couponId)
+            val coupon = couponRepository.findByIdWithLock(seatCoupon.couponId)
                 .orElseThrow { CustomException(ErrorCode.RESOURCE_NOT_FOUND) }
 
             val discountAmount = coupon.calculateDiscount(seatCoupon.originalPrice)

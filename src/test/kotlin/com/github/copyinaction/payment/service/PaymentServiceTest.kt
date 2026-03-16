@@ -27,14 +27,18 @@ class PaymentServiceTest {
     private val paymentRepository = mockk<PaymentRepository>()
     private val bookingRepository = mockk<BookingRepository>()
     private val couponService = mockk<CouponService>(relaxed = true)
-    private val salesStatsService = mockk<com.github.copyinaction.stats.service.SalesStatsService>(relaxed = true)
     private val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
     
     private val paymentService = PaymentService(
         paymentRepository, 
         bookingRepository, 
-        couponService, 
-        salesStatsService,
+        couponService
+    )
+
+    private val paymentFacade = PaymentFacade(
+        paymentService,
+        couponService,
+        bookingRepository,
         eventPublisher
     )
 
@@ -95,7 +99,7 @@ class PaymentServiceTest {
         every { couponService.calculateDiscount(any(), any()) } returns 5000
 
         // Act
-        val response = paymentService.createPayment(userId, request)
+        val response = paymentFacade.createPayment(userId, request)
 
         // Assert
         assertThat(response.finalPrice).isEqualTo(finalPrice)
@@ -166,7 +170,7 @@ class PaymentServiceTest {
         every { booking.schedule } returns mockk(relaxed = true)
 
         // Act
-        val response = paymentService.createPayment(userId, request)
+        val response = paymentFacade.createPayment(userId, request)
 
         // Assert
         assertThat(response.id).isEqualTo(existingPaymentId)
@@ -222,7 +226,7 @@ class PaymentServiceTest {
 
         // Act & Assert
         val exception = assertThrows<CustomException> {
-            paymentService.createPayment(userId, request)
+            paymentFacade.createPayment(userId, request)
         }
         assertThat(exception.errorCode).isEqualTo(ErrorCode.PAYMENT_ALREADY_COMPLETED)
     }
@@ -263,9 +267,9 @@ class PaymentServiceTest {
 
         // Act & Assert
         val exception = assertThrows<CustomException> {
-            paymentService.createPayment(userId, request)
+            paymentFacade.createPayment(userId, request)
         }
-        assertThat(exception.errorCode).isEqualTo(ErrorCode.INVALID_INPUT_VALUE)
+        assertThat(exception.errorCode).isEqualTo(ErrorCode.PAYMENT_AMOUNT_MISMATCH)
         assertThat(exception.message).contains("원가가 일치하지 않습니다")
         assertThat(exception.message).contains("서버: 140000")
         assertThat(exception.message).contains("요청: 50000")

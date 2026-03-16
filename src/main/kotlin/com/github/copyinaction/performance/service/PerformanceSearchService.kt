@@ -24,7 +24,7 @@ class PerformanceSearchService(
         // 2. 지역명 매핑 및 응답 변환
         val content = searchResult.content.map { item ->
             val region = Region.findFromAddress(item.venueAddress)
-            item.copy(regionName = region?.displayName)
+            PerformanceSearchResponse.from(item, region?.displayName)
         }
 
         return PerformanceSearchListResponse(
@@ -43,9 +43,14 @@ class PerformanceSearchService(
         val results = performanceRepository.autocompletePerformances(keyword)
 
         return results.map { item ->
-            // item.regionName에 임시로 담긴 주소에서 Region 추출
             val region = Region.findFromAddress(item.regionName)
-            item.copy(regionName = region?.displayName)
+            PerformanceAutocompleteResponse(
+                id = item.id,
+                title = item.title,
+                mainImageUrl = item.mainImageUrl,
+                category = item.category,
+                regionName = region?.displayName
+            )
         }
     }
 }

@@ -129,14 +129,14 @@ class Booking(
 
     fun cancel() {
         if (this.bookingStatus != BookingStatus.PENDING && this.bookingStatus != BookingStatus.CONFIRMED) {
-             throw CustomException(ErrorCode.BOOKING_INVALID_STATUS, "취소할 수 없는 예매 상태입니다.")
+             throw CustomException(ErrorCode.BOOKING_NOT_CANCELABLE)
         }
         this.bookingStatus = BookingStatus.CANCELLED
     }
 
     fun release() {
         if (this.bookingStatus != BookingStatus.PENDING) {
-            throw CustomException(ErrorCode.BOOKING_INVALID_STATUS, "점유 해제할 수 없는 예매 상태입니다.")
+            throw CustomException(ErrorCode.BOOKING_NOT_RELEASABLE)
         }
         this.bookingStatus = BookingStatus.RELEASED
     }

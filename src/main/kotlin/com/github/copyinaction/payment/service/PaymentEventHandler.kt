@@ -36,7 +36,7 @@ class PaymentEventHandler(
         salesStatsService.recordDailyCancel(event.cancelledAt.toLocalDate())
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handlePaymentRefunded(event: PaymentRefundedEvent) {
         log.info("환불 완료 이벤트 수신: paymentId={}, amount={}", 
             event.paymentId, event.refundAmount)

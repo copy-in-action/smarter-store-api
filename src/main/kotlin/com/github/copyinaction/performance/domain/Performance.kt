@@ -83,6 +83,22 @@ class Performance(
 
 ) : BaseEntity() {
 
+    /**
+     * 현재 날짜를 기준으로 공연의 판매 상태를 반환합니다.
+     */
+    fun getStatus(now: LocalDate = LocalDate.now()): com.github.copyinaction.performance.dto.PerformanceSearchStatus {
+        return when {
+            startDate.isAfter(now) -> com.github.copyinaction.performance.dto.PerformanceSearchStatus.UPCOMING
+            endDate.isBefore(now) -> com.github.copyinaction.performance.dto.PerformanceSearchStatus.CLOSED
+            else -> com.github.copyinaction.performance.dto.PerformanceSearchStatus.ON_SALE
+        }
+    }
+
+    /**
+     * 현재 판매 중인지 여부를 확인합니다.
+     */
+    fun isOnSale(now: LocalDate = LocalDate.now()): Boolean = getStatus(now) == com.github.copyinaction.performance.dto.PerformanceSearchStatus.ON_SALE
+
     companion object {
         fun create(
             title: String,
@@ -184,16 +200,16 @@ class Performance(
 
     private fun validate() {
         if (endDate.isBefore(startDate)) {
-            throw CustomException(ErrorCode.INVALID_INPUT_VALUE, "종료일은 시작일 이후여야 합니다.")
+            throw CustomException(ErrorCode.INVALID_PERFORMANCE_PERIOD)
         }
         runningTime?.let {
             if (it <= 0) {
-                throw CustomException(ErrorCode.INVALID_INPUT_VALUE, "러닝타임은 0보다 커야 합니다.")
+                throw CustomException(ErrorCode.INVALID_RUNNING_TIME)
             }
         }
         bookingFee?.let {
             if (it < 0) {
-                throw CustomException(ErrorCode.INVALID_INPUT_VALUE, "예매 수수료는 0 이상이어야 합니다.")
+                throw CustomException(ErrorCode.INVALID_BOOKING_FEE)
             }
         }
     }

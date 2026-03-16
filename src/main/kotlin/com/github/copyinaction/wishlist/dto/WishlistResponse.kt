@@ -19,4 +19,17 @@ data class WishlistResponse(
 
     @Schema(description = "가격 정보 (예: '70,000원~')")
     val priceInfo: String
-)
+) {
+    companion object {
+        fun from(wishlist: com.github.copyinaction.wishlist.domain.Wishlist, minPrice: Int?): WishlistResponse {
+            val performance = wishlist.performance
+            return WishlistResponse(
+                performanceId = performance.id,
+                title = performance.title,
+                mainImageUrl = performance.mainImageUrl,
+                location = performance.venue?.name ?: "미정",
+                priceInfo = minPrice?.let { "${"%,d".format(it)}원~" } ?: "가격 정보 없음"
+            )
+        }
+    }
+}

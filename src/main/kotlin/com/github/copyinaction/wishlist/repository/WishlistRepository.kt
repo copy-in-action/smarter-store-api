@@ -25,7 +25,7 @@ interface WishlistRepository : JpaRepository<Wishlist, UUID> {
      * JOIN FETCH를 사용하여 N+1 문제를 방지하며, 페이징을 위해 countQuery를 별도로 작성합니다.
      */
     @Query(
-        value = "SELECT w FROM Wishlist w JOIN FETCH w.performance p WHERE w.siteUser.id = :userId",
+        value = "SELECT w FROM Wishlist w JOIN FETCH w.performance p LEFT JOIN FETCH p.venue WHERE w.siteUser.id = :userId",
         countQuery = "SELECT count(w) FROM Wishlist w WHERE w.siteUser.id = :userId"
     )
     fun findBySiteUser_Id(userId: Long, pageable: Pageable): Page<Wishlist>

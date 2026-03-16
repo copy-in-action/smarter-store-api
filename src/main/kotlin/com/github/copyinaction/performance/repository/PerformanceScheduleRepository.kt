@@ -20,8 +20,10 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
      * - 공연이 아직 시작하지 않은 (showDateTime > now)
      */
     @Query("""
-        SELECT ps FROM PerformanceSchedule ps
-        WHERE ps.performance.id = :performanceId
+        SELECT DISTINCT ps FROM PerformanceSchedule ps
+        JOIN FETCH ps.performance p
+        LEFT JOIN FETCH ps.ticketOptions
+        WHERE p.id = :performanceId
         AND ps.saleStartDateTime <= :now
         AND ps.showDateTime > :now
         ORDER BY ps.showDateTime ASC
@@ -36,8 +38,10 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
      * - 해당 날짜의 00:00:00 ~ 23:59:59 범위 내 회차
      */
     @Query("""
-        SELECT ps FROM PerformanceSchedule ps
-        WHERE ps.performance.id = :performanceId
+        SELECT DISTINCT ps FROM PerformanceSchedule ps
+        JOIN FETCH ps.performance p
+        LEFT JOIN FETCH ps.ticketOptions
+        WHERE p.id = :performanceId
         AND ps.saleStartDateTime <= :now
         AND ps.showDateTime > :now
         AND ps.showDateTime >= :dateStart
@@ -56,8 +60,10 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
      * - 공연이 아직 시작하지 않은 회차만 대상
      */
     @Query("""
-        SELECT ps FROM PerformanceSchedule ps
-        WHERE ps.performance.venue.id = :venueId
+        SELECT DISTINCT ps FROM PerformanceSchedule ps
+        JOIN FETCH ps.performance p
+        JOIN FETCH p.venue v
+        WHERE v.id = :venueId
         AND ps.showDateTime > :now
     """)
     fun findFutureSchedulesByVenueId(

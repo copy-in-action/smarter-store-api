@@ -6,6 +6,7 @@ import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.booking.dto.AdminBookingResponse
 import com.github.copyinaction.booking.dto.BookingDetailResponse
 import com.github.copyinaction.booking.dto.BookingResponse
+import com.github.copyinaction.booking.service.BookingFacade
 import com.github.copyinaction.booking.service.BookingService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -24,7 +25,8 @@ import java.util.*
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
 class AdminBookingController(
-    private val bookingService: BookingService
+    private val bookingService: BookingService,
+    private val bookingFacade: BookingFacade
 ) {
 
     @Operation(summary = "공연 회차별 예매 목록 조회", description = "특정 공연 회차의 모든 예매 내역을 조회합니다.\n\n**권한: ADMIN**")
@@ -64,7 +66,7 @@ class AdminBookingController(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
         @RequestParam(required = false) cancelReason: String?
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.cancelBookingByAdmin(bookingId, cancelReason)
+        val response = bookingFacade.cancelBookingByAdmin(bookingId, cancelReason)
         return ResponseEntity.ok(response)
     }
 }

@@ -28,8 +28,11 @@ enum class ErrorCode(
 
     // Booking
     BOOKING_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 예매를 찾을 수 없습니다."),
+    BOOKING_SEAT_NOT_FOUND(HttpStatus.NOT_FOUND, "예매 내역에 해당 좌석이 존재하지 않습니다."),
     BOOKING_EXPIRED(HttpStatus.GONE, "예매 시간이 만료되었습니다."),
-    BOOKING_INVALID_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 예매 상태입니다."),
+    BOOKING_INVALID_STATUS(HttpStatus.BAD_REQUEST, "현재 상태에서는 변경할 수 없는 예매입니다."),
+    BOOKING_NOT_CANCELABLE(HttpStatus.BAD_REQUEST, "취소할 수 없는 예매 상태입니다."),
+    BOOKING_NOT_RELEASABLE(HttpStatus.BAD_REQUEST, "점유 해제할 수 없는 예매 상태입니다."),
 
     // Venue
     VENUE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연장을 찾을 수 없습니다."),
@@ -37,6 +40,9 @@ enum class ErrorCode(
 
     // Performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
+    INVALID_PERFORMANCE_PERIOD(HttpStatus.BAD_REQUEST, "종료일은 시작일 이후여야 합니다."),
+    INVALID_RUNNING_TIME(HttpStatus.BAD_REQUEST, "러닝타임은 0보다 커야 합니다."),
+    INVALID_BOOKING_FEE(HttpStatus.BAD_REQUEST, "예매 수수료는 0 이상이어야 합니다."),
 
     // Company
     COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 판매자를 찾을 수 없습니다."),
@@ -78,6 +84,9 @@ enum class ErrorCode(
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 결제 정보를 찾을 수 없습니다."),
     PAYMENT_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 결제입니다."),
     PAYMENT_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "결제 취소에 실패했습니다."),
+    PAYMENT_INVALID_STATUS(HttpStatus.BAD_REQUEST, "현재 상태에서는 결제 처리를 진행할 수 없습니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액이 일치하지 않습니다."),
+    PAYMENT_REFUND_EXCEEDED(HttpStatus.BAD_REQUEST, "환불 금액이 최종 결제 금액을 초과할 수 없습니다."),
 
     // Scheduler - Slack 알림 대상
     STATS_DAILY_AGGREGATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "일별 통계 집계 중 오류가 발생했습니다.", LogLevel.ERROR),

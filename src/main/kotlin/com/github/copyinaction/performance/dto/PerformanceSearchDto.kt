@@ -71,7 +71,13 @@ data class PerformanceSearchResponse(
 
     @Schema(description = "공연 종료일")
     val endDate: LocalDate
-)
+) {
+    companion object {
+        fun from(response: PerformanceSearchResponse, regionName: String?): PerformanceSearchResponse {
+            return response.copy(regionName = regionName)
+        }
+    }
+}
 
 /**
  * 검색창 자동완성 응답 DTO

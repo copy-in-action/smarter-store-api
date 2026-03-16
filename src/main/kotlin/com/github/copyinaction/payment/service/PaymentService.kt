@@ -25,94 +25,36 @@ import java.util.*
 class PaymentService(
     private val paymentRepository: PaymentRepository,
     private val bookingRepository: BookingRepository,
-    private val couponService: CouponService,
-    private val salesStatsService: SalesStatsService,
-    private val eventPublisher: ApplicationEventPublisher
+    private val couponService: CouponService
 ) {
 
+    /**
+     * 결제 준비 (검증 및 엔티티 생성/수정)
+     */
     @Transactional
-    fun createPayment(userId: Long, request: PaymentCreateRequest): PaymentResponse {
-        val booking = bookingRepository.findByIdOrNull(request.bookingId)
-            ?: throw CustomException(ErrorCode.BOOKING_NOT_FOUND)
+    fun preparePayment(userId: Long, request: PaymentCreateRequest, booking: com.github.copyinaction.booking.domain.Booking): Payment {
+        // 1. 사전 검증
+        validatePaymentRequest(userId, request, booking)
 
-        // 0. 사전 검증 (권한 및 약관 동의)
-        if (booking.siteUser.id != userId) {
-            throw CustomException(ErrorCode.FORBIDDEN)
-        }
-        if (!request.isAgreed) {
-            throw CustomException(ErrorCode.INVALID_INPUT_VALUE)
-        }
+        // 2. Payment 엔티티 조회 또는 생성 (재결제 지원)
+        val payment = getOrCreatePayment(userId, request, booking)
 
-        // 0-1. 원가 검증 (클라이언트 요청 vs 서버 좌석 가격)
-        val actualOriginalPrice = booking.bookingSeats.sumOf { it.price }
-        if (actualOriginalPrice != request.originalPrice) {
-            val seatDetails = booking.bookingSeats.joinToString(", ") {
-                "[좌석ID: ${it.id}] ${it.section}구역 ${it.row}행 ${it.col}열: ${it.price}원"
-            }
-            throw CustomException(
-                ErrorCode.INVALID_INPUT_VALUE,
-                "결제 요청 원가가 서버에서 계산된 값과 일치하지 않습니다. (예매ID: ${request.bookingId}, 요청: ${request.originalPrice}원, 서버 합계: ${actualOriginalPrice}원). 상세 내역: $seatDetails"
-            )
-        }
+        // 3. PaymentItem 상세 생성 (스냅샷)
+        createPaymentItems(payment, booking, request.discounts)
 
-        // 1. Payment 엔티티 조회 또는 생성 (재결제 지원)
-        val existingPayment = paymentRepository.findByBookingId(request.bookingId)
-        val payment = if (existingPayment != null) {
-            // 기존 결제 시도가 있는 경우: 쿠폰 복구 및 상태 초기화 후 재사용
-            // (PENDING/FAILED 상태인 경우만 update 메서드 내에서 허용됨)
-            couponService.restoreCoupons(existingPayment.id)
-            existingPayment.update(request.paymentMethod)
-            existingPayment
-        } else {
-            // 신규 결제 생성
-            Payment.create(
-                booking = booking,
-                userId = userId,
-                paymentMethod = request.paymentMethod,
-                originalPrice = request.originalPrice,
-                bookingFee = request.bookingFee
-            )
-        }
+        return payment
+    }
 
-        // 2. PaymentItem 상세 생성 (BookingSeat 기반 스냅샷)
-        booking.bookingSeats.forEach { seat ->
-            val paymentItem = PaymentItem.from(
-                payment = payment,
-                bookingSeat = seat,
-                performance = booking.schedule.performance,
-                schedule = booking.schedule
-            )
-            
-            // 좌석별 할인이 적용된 경우 상세 내역 업데이트
-            val seatDiscount = request.discounts.find { it.bookingSeatId == seat.id }
-            if (seatDiscount != null) {
-                paymentItem.applyDiscount(seatDiscount.amount)
-            }
-            
-            payment.addPaymentItem(paymentItem)
-        }
-
-        // 3. 할인 내역 적용 및 저장 (쿠폰 사용 처리 포함)
+    /**
+     * 할인 및 쿠폰 적용 처리
+     */
+    @Transactional
+    fun processDiscountsWithCoupons(userId: Long, payment: Payment, booking: com.github.copyinaction.booking.domain.Booking, request: PaymentCreateRequest) {
         val couponDiscounts = mutableListOf<SeatCouponRequest>()
         
         request.discounts.forEach { discountDto ->
-            var discountAmount = discountDto.amount
-
-            // 쿠폰인 경우 서버에서 금액 재계산 (클라이언트 값 무시)
-            if (discountDto.type == DiscountType.COUPON && discountDto.couponId != null) {
-                val targetPrice = if (discountDto.bookingSeatId != null) {
-                    booking.bookingSeats.find { it.id == discountDto.bookingSeatId }?.price
-                        ?: throw CustomException(
-                            ErrorCode.INVALID_INPUT_VALUE,
-                            "예매에 해당 좌석이 존재하지 않습니다. (요청된 좌석ID: ${discountDto.bookingSeatId}, 현재 예매 좌석ID 목록: ${booking.bookingSeats.map { it.id }})"
-                        )
-                } else {
-                    // 좌석 지정 없는 쿠폰은 일단 원가 기준 (정책에 따라 다를 수 있음)
-                    request.originalPrice
-                }
-                discountAmount = couponService.calculateDiscount(discountDto.couponId, targetPrice)
-            }
-
+            val discountAmount = calculateFinalDiscountAmount(discountDto, booking, request.originalPrice)
+            
             val discount = PaymentDiscount.create(
                 payment = payment,
                 type = discountDto.type,
@@ -123,31 +65,100 @@ class PaymentService(
             )
             payment.addDiscount(discount)
 
-            // 쿠폰인 경우 수집 (나중에 한꺼번에 처리)
             if (discountDto.type == DiscountType.COUPON && discountDto.couponId != null) {
                 couponDiscounts.add(SeatCouponRequest(
-                    bookingSeatId = discountDto.bookingSeatId ?: 0L, // 좌석 ID (없으면 0)
+                    bookingSeatId = discountDto.bookingSeatId ?: 0L,
                     couponId = discountDto.couponId, 
-                    originalPrice = request.originalPrice // 여기도 개별 좌석 가격이 맞지만, CouponService 내부에서 재계산하므로 무관
+                    originalPrice = request.originalPrice
                 ))
             }
         }
         
-        // 수집된 쿠폰이 있으면 한꺼번에 사용 처리
         if (couponDiscounts.isNotEmpty()) {
             couponService.useCoupons(userId, payment.id, couponDiscounts)
         }
+    }
 
-        // 4. 금액 검증 (서버 계산 vs 클라이언트 요청)
-        payment.validateAmount(request.totalAmount)
+    /**
+     * 최종 저장 및 반환
+     */
+    @Transactional
+    fun savePayment(payment: Payment): Payment {
+        return paymentRepository.save(payment)
+    }
 
-        val savedPayment = paymentRepository.save(payment)
+    private fun validatePaymentRequest(userId: Long, request: PaymentCreateRequest, booking: com.github.copyinaction.booking.domain.Booking) {
+        if (booking.siteUser.id != userId) {
+            throw CustomException(ErrorCode.FORBIDDEN)
+        }
+        if (!request.isAgreed) {
+            throw CustomException(ErrorCode.INVALID_INPUT_VALUE)
+        }
+
+        val actualOriginalPrice = booking.bookingSeats.sumOf { it.price }
+        if (actualOriginalPrice != request.originalPrice) {
+            val seatDetails = booking.bookingSeats.joinToString(", ") {
+                "[좌석ID: ${it.id}] ${it.section}구역 ${it.row}행 ${it.col}열: ${it.price}원"
+            }
+            throw CustomException(
+                ErrorCode.PAYMENT_AMOUNT_MISMATCH,
+                "결제 요청 원가가 서버 데이터와 일치하지 않습니다. (요청: ${request.originalPrice}, 서버: $actualOriginalPrice). 상세: $seatDetails"
+            )
+        }
+    }
+
+    private fun getOrCreatePayment(userId: Long, request: PaymentCreateRequest, booking: com.github.copyinaction.booking.domain.Booking): Payment {
+        val existingPayment = paymentRepository.findByBookingId(request.bookingId)
+        return if (existingPayment != null) {
+            // 기존 결제 시도 시 사용했던 쿠폰 복구 (신규 적용을 위해 초기화)
+            couponService.restoreCoupons(existingPayment.id)
+            existingPayment.update(request.paymentMethod)
+            existingPayment
+        } else {
+            Payment.create(
+                booking = booking,
+                userId = userId,
+                paymentMethod = request.paymentMethod,
+                originalPrice = request.originalPrice,
+                bookingFee = request.bookingFee
+            )
+        }
+    }
+
+    private fun createPaymentItems(payment: Payment, booking: com.github.copyinaction.booking.domain.Booking, discounts: List<PaymentDiscountRequest>) {
+        booking.bookingSeats.forEach { seat ->
+            val paymentItem = PaymentItem.from(
+                payment = payment,
+                bookingSeat = seat,
+                performance = booking.schedule.performance,
+                schedule = booking.schedule
+            )
+            
+            discounts.find { it.bookingSeatId == seat.id }?.let { 
+                paymentItem.applyDiscount(it.amount) 
+            }
+            
+            payment.addPaymentItem(paymentItem)
+        }
+    }
+
+    private fun calculateFinalDiscountAmount(discountDto: PaymentDiscountRequest, booking: com.github.copyinaction.booking.domain.Booking, totalOriginalPrice: Int): Int {
+        if (discountDto.type != DiscountType.COUPON || discountDto.couponId == null) {
+            return discountDto.amount
+        }
+
+        val targetPrice = if (discountDto.bookingSeatId != null) {
+            booking.bookingSeats.find { it.id == discountDto.bookingSeatId }?.price
+                ?: throw CustomException(ErrorCode.BOOKING_SEAT_NOT_FOUND)
+        } else {
+            totalOriginalPrice
+        }
         
-        return PaymentResponse.from(savedPayment)
+        return couponService.calculateDiscount(discountDto.couponId, targetPrice)
     }
 
     @Transactional
-    fun completePayment(paymentId: UUID, request: PaymentCompleteRequest): PaymentResponse {
+    fun completePaymentInternal(paymentId: UUID, request: PaymentCompleteRequest): Payment {
         val payment = paymentRepository.findByIdOrNull(paymentId)
             ?: throw CustomException(ErrorCode.PAYMENT_NOT_FOUND)
 
@@ -157,43 +168,17 @@ class PaymentService(
         payment.cardNumberMasked = request.cardNumberMasked
         payment.installmentMonths = request.installmentMonths
 
-        val response = PaymentResponse.from(payment)
-
-        eventPublisher.publishEvent(
-            PaymentCompletedEvent(
-                paymentId = payment.id,
-                bookingId = payment.booking.id!!,
-                userId = payment.userId,
-                finalPrice = payment.finalPrice,
-                discountAmount = payment.discountAmount,
-                completedAt = payment.completedAt!!
-            )
-        )
-
-        return response
+        return payment
     }
 
     @Transactional
-    fun cancelPaymentInternal(bookingId: UUID, reason: String): PaymentResponse {
+    fun cancelPaymentInternal(bookingId: UUID, reason: String): Payment {
         val payment = paymentRepository.findByBookingId(bookingId)
             ?: throw CustomException(ErrorCode.PAYMENT_NOT_FOUND)
 
         payment.cancel(reason)
 
-        // 쿠폰 복구 처리 (결제 ID 기준 전체 복구)
-        couponService.restoreCoupons(payment.id)
-
-        eventPublisher.publishEvent(
-            PaymentCancelledEvent(
-                paymentId = payment.id,
-                bookingId = payment.booking.id!!,
-                userId = payment.userId,
-                cancelReason = payment.cancelReason!!,
-                cancelledAt = payment.cancelledAt!!
-            )
-        )
-
-        return PaymentResponse.from(payment)
+        return payment
     }
 
     fun getPayment(paymentId: UUID, userId: Long): PaymentDetailResponse {

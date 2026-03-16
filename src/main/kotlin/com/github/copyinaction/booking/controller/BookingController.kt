@@ -5,6 +5,7 @@ import com.github.copyinaction.audit.domain.AuditAction
 import com.github.copyinaction.audit.domain.AuditTargetType
 import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.booking.dto.*
+import com.github.copyinaction.booking.service.BookingFacade
 import com.github.copyinaction.booking.service.BookingService
 import com.github.copyinaction.common.exception.ErrorResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -28,7 +29,8 @@ import java.util.UUID
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('USER')")
 class BookingController(
-    private val bookingService: BookingService
+    private val bookingService: BookingService,
+    private val bookingFacade: BookingFacade
 ) {
 
     @Operation(
@@ -67,7 +69,7 @@ class BookingController(
         @Valid @RequestBody request: StartBookingRequest,
         @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.startBooking(request.scheduleId, request.seats, user.id)
+        val response = bookingFacade.startBooking(request.scheduleId, request.seats, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -136,7 +138,7 @@ class BookingController(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
         @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.confirmBooking(bookingId, user.id)
+        val response = bookingFacade.confirmBooking(bookingId, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -167,7 +169,7 @@ class BookingController(
         @Parameter(description = "예매 ID", required = true) @PathVariable bookingId: UUID,
         @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.cancelBooking(bookingId, user.id)
+        val response = bookingFacade.cancelBooking(bookingId, user.id)
         return ResponseEntity.ok(response)
     }
 
@@ -202,7 +204,7 @@ class BookingController(
         @Valid @RequestBody request: ReleaseBookingRequest,
         @AuthenticationPrincipal user: CustomUserDetails
     ): ResponseEntity<BookingResponse> {
-        val response = bookingService.cancelBooking(request.bookingId, user.id)
+        val response = bookingFacade.cancelBooking(request.bookingId, user.id)
         return ResponseEntity.ok(response)
     }
 }

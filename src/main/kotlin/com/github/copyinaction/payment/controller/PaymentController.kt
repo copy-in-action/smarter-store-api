@@ -3,7 +3,7 @@ package com.github.copyinaction.payment.controller
 import com.github.copyinaction.auth.service.CustomUserDetails
 import com.github.copyinaction.booking.service.BookingService
 import com.github.copyinaction.payment.dto.*
-import com.github.copyinaction.payment.repository.PaymentRepository
+import com.github.copyinaction.payment.service.PaymentFacade
 import com.github.copyinaction.payment.service.PaymentService
 import com.github.copyinaction.common.exception.ErrorResponse
 import com.github.copyinaction.common.exception.CustomException
@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -29,7 +28,8 @@ import java.util.UUID
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('USER')")
 class PaymentController(
-    private val paymentService: PaymentService
+    private val paymentService: PaymentService,
+    private val paymentFacade: PaymentFacade
 ) {
 
     @Operation(summary = "결제 요청 생성", description = "예매 정보를 기반으로 새로운 결제 요청을 생성합니다.\n\n**권한: USER**")
@@ -42,7 +42,7 @@ class PaymentController(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @Valid @RequestBody request: PaymentCreateRequest
     ): ResponseEntity<PaymentResponse> {
-        val response = paymentService.createPayment(userDetails.id, request)
+        val response = paymentFacade.createPayment(userDetails.id, request)
         return ResponseEntity.ok(response)
     }
 
@@ -56,7 +56,7 @@ class PaymentController(
         @PathVariable id: UUID,
         @Valid @RequestBody request: PaymentCompleteRequest
     ): ResponseEntity<PaymentResponse> {
-        val response = paymentService.completePayment(id, request)
+        val response = paymentFacade.completePayment(id, request)
         return ResponseEntity.ok(response)
     }
 
