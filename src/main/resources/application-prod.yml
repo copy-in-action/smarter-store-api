@@ -7,7 +7,7 @@ spring:
 
 logging:
   file:
-    path: /home/cic/logs/smarter-store/
+    path: /app/logs/
   level:
     org.hibernate.orm.jdbc.bind: TRACE
 

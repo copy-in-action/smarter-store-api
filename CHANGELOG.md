@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026년 8월 7일 (금)
+
+*   **배포 파이프라인 및 Docker Compose 환경변수/로그 설정 일치화**:
+    *   **DB 환경변수 주입 보강**: `deploy.yml` 및 `.github/workflows/docker-compose.yml`에 `PROD_DB_URL`, `PROD_DB_USERNAME`, `PROD_DB_PASSWORD` 환경 변수를 추가하여 `application-prod.yml`과의 DB 연동 정합성을 보장했습니다.
+    *   **로그 저장 경로 통일**: `application-prod.yml`의 log path를 `/app/logs/`로 변경하여 docker-compose 로그 볼륨 마운트 경로와 일치시켰습니다.
+
 ## 2026년 3월 17일 (화)
 
 *   **통계 집계 오류 해결 및 관리자용 수동 재집계 API 추가 [CCS-175]**:
