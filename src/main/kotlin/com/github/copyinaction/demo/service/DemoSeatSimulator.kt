@@ -39,21 +39,24 @@ class DemoSeatSimulator(
 
     companion object {
         /** 회차당 동시에 유지할 봇 점유 건수 (이 값 미만이면 새로 점유) */
-        const val TARGET_HOLDS_PER_SCHEDULE = 2
+        const val TARGET_HOLDS_PER_SCHEDULE = 5
+
+        /** 한 틱에 회차당 새로 추가하는 최대 점유 건수 (빈 화면이 서서히 채워지도록 제한) */
+        const val MAX_NEW_HOLDS_PER_SCHEDULE_PER_TICK = 2
 
         /** 점유 후 확정/해제까지의 대기 시간 범위(초) */
-        const val MIN_HOLD_SECONDS = 25L
-        const val MAX_HOLD_SECONDS = 50L
+        const val MIN_HOLD_SECONDS = 12L
+        const val MAX_HOLD_SECONDS = 25L
 
-        /** 이 점유율 미만일 때만 일부(15%)를 확정한다. */
+        /** 이 점유율 미만일 때만 일부(5%)를 확정하고 나머지는 해제한다. */
         const val CONFIRM_OCCUPANCY_LIMIT = 0.80
-        const val CONFIRM_PROBABILITY = 0.15
+        const val CONFIRM_PROBABILITY = 0.05
 
         /** 한 틱에 새로 점유를 시도하는 최대 회차 수 (부하 제한) */
         const val MAX_SCHEDULES_PER_TICK = 5
     }
 
-    @Scheduled(fixedDelayString = "\${demo.seed.simulator-interval-ms:20000}")
+    @Scheduled(fixedDelayString = "\${demo.seed.simulator-interval-ms:5000}")
     fun tick() {
         if (!properties.simulatorEnabled) return
 
@@ -100,30 +103,36 @@ class DemoSeatSimulator(
         val botIds = loadBotIds()
         if (botIds.isEmpty()) return
 
-        val busyBotIds = holds.values.map { it.userId }.toMutableSet()
         val targets = activeScheduleIds.shuffled().take(MAX_SCHEDULES_PER_TICK)
 
         for (scheduleId in targets) {
-            val currentHolds = holds.values.count { it.scheduleId == scheduleId }
-            if (currentHolds >= TARGET_HOLDS_PER_SCHEDULE) continue
+            val activeHoldsForSchedule = holds.values.filter { it.scheduleId == scheduleId }
+            val needed = TARGET_HOLDS_PER_SCHEDULE - activeHoldsForSchedule.size
+            if (needed <= 0) continue
 
-            val idleBotId = botIds.filter { it !in busyBotIds }.randomOrNull() ?: return
-            val seats = seatSupport.pickFreeSeats(scheduleId, Random.nextInt(1, 3)) ?: continue
+            // BookingRepository 의 PENDING 조회가 (userId, scheduleId) 기준이므로 회차별로 봇 중복만 피하면 된다.
+            val busyBotsInSchedule = activeHoldsForSchedule.map { it.userId }.toMutableSet()
+            val toCreate = minOf(needed, MAX_NEW_HOLDS_PER_SCHEDULE_PER_TICK)
 
-            try {
-                val response = bookingFacade.startBooking(scheduleId, seats, idleBotId)
-                busyBotIds.add(idleBotId)
-                holds[response.bookingId] = SimulatedHold(
-                    bookingId = response.bookingId,
-                    userId = idleBotId,
-                    scheduleId = scheduleId,
-                    settleAt = LocalDateTime.now().plus(
-                        Duration.ofSeconds(Random.nextLong(MIN_HOLD_SECONDS, MAX_HOLD_SECONDS + 1))
+            repeat(toCreate) {
+                val idleBotId = botIds.filter { it !in busyBotsInSchedule }.randomOrNull() ?: return@repeat
+                val seats = seatSupport.pickFreeSeats(scheduleId, Random.nextInt(1, 3)) ?: return@repeat
+
+                try {
+                    val response = bookingFacade.startBooking(scheduleId, seats, idleBotId)
+                    busyBotsInSchedule.add(idleBotId)
+                    holds[response.bookingId] = SimulatedHold(
+                        bookingId = response.bookingId,
+                        userId = idleBotId,
+                        scheduleId = scheduleId,
+                        settleAt = LocalDateTime.now().plus(
+                            Duration.ofSeconds(Random.nextLong(MIN_HOLD_SECONDS, MAX_HOLD_SECONDS + 1))
+                        )
                     )
-                )
-            } catch (e: Exception) {
-                // 지난 회차/좌석 경합 등 - 다음 틱에 다시 시도
-                log.debug("[DemoSeed] 시뮬레이터 점유 시작 실패 (scheduleId={}): {}", scheduleId, e.message)
+                } catch (e: Exception) {
+                    // 지난 회차/좌석 경합 등 - 다음 틱에 다시 시도
+                    log.debug("[DemoSeed] 시뮬레이터 점유 시작 실패 (scheduleId={}): {}", scheduleId, e.message)
+                }
             }
         }
     }

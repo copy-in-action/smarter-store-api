@@ -34,7 +34,7 @@ class DemoSeedProperties {
     var simulatorEnabled: Boolean = true
 
     /** 실시간 좌석 시뮬레이터 실행 간격(ms) */
-    var simulatorIntervalMs: Long = 20000
+    var simulatorIntervalMs: Long = 5000
 
     /** 공용 체험 계정 비밀번호 */
     var demoUserPassword: String = "DemoPass1234!"
