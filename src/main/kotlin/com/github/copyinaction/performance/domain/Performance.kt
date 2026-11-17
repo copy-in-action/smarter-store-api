@@ -198,6 +198,22 @@ class Performance(
         validate()
     }
 
+    /**
+     * 종료일 연장. 현재 종료일보다 이전이면 무시한다. (회차 롤링 시 기간을 앞으로만 늘리기 위함)
+     */
+    fun extendEndDate(newEndDate: LocalDate) {
+        if (newEndDate.isAfter(endDate)) {
+            this.endDate = newEndDate
+        }
+    }
+
+    /**
+     * 공연장 지정
+     */
+    fun assignVenue(venue: Venue) {
+        this.venue = venue
+    }
+
     private fun validate() {
         if (endDate.isBefore(startDate)) {
             throw CustomException(ErrorCode.INVALID_PERFORMANCE_PERIOD)

@@ -18,6 +18,8 @@ interface PaymentRepository : JpaRepository<Payment, UUID> {
 
     fun findAllByBookingIdIn(bookingIds: Collection<UUID>): List<Payment>
 
+    fun findAllByUserIdIn(userIds: Collection<Long>): List<Payment>
+
     @Query("""
         SELECT p FROM Payment p
         LEFT JOIN FETCH p.paymentItems

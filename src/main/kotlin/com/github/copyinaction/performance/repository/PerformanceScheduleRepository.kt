@@ -56,6 +56,34 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
     ): List<PerformanceSchedule>
 
     /**
+     * 데모 샘플 예매 시딩 대상 회차 ID 조회
+     * - 노출 중(visible)이고 공연장이 지정된 공연의 [from, to] 구간 회차
+     */
+    @Query("""
+        SELECT ps.id FROM PerformanceSchedule ps
+        WHERE ps.performance.visible = true
+        AND ps.performance.venue IS NOT NULL
+        AND ps.showDateTime >= :from
+        AND ps.showDateTime <= :to
+    """)
+    fun findSeedableScheduleIds(
+        @Param("from") from: LocalDateTime,
+        @Param("to") to: LocalDateTime
+    ): List<Long>
+
+    /**
+     * [from, to] 구간 회차 ID 조회 (데모 점유율 관리용)
+     */
+    @Query("""
+        SELECT ps.id FROM PerformanceSchedule ps
+        WHERE ps.showDateTime >= :from AND ps.showDateTime <= :to
+    """)
+    fun findScheduleIdsBetween(
+        @Param("from") from: LocalDateTime,
+        @Param("to") to: LocalDateTime
+    ): List<Long>
+
+    /**
      * 특정 공연장의 미래 스케줄 조회 (좌석배치도 동기화용)
      * - 공연이 아직 시작하지 않은 회차만 대상
      */

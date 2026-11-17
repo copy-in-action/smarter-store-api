@@ -87,6 +87,28 @@ class ScheduleSeatStatus(
                 heldUntil = LocalDateTime.now().plusMinutes(BookingPolicy.BOOKING_HOLD_MINUTES)
             )
         }
+
+        /**
+         * 예약 완료(RESERVED) 좌석 생성 (데모 시딩 전용)
+         * - 점유 단계를 거치지 않고 바로 확정 상태로 저장한다.
+         */
+        fun reserve(
+            schedule: PerformanceSchedule,
+            rowNum: Int,
+            colNum: Int,
+            seatGrade: SeatGrade,
+            userId: Long
+        ): ScheduleSeatStatus {
+            return ScheduleSeatStatus(
+                schedule = schedule,
+                rowNum = rowNum,
+                colNum = colNum,
+                seatGrade = seatGrade,
+                seatStatus = SeatStatus.RESERVED,
+                heldBy = userId,
+                heldUntil = null
+            )
+        }
     }
 
     /**

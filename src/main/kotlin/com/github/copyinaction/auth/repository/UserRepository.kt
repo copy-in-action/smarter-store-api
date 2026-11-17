@@ -10,6 +10,8 @@ import java.util.Optional
 interface UserRepository : JpaRepository<User, Long> {
     fun findByEmail(email: String): Optional<User>
 
+    fun findAllByEmailIn(emails: Collection<String>): List<User>
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM User u WHERE u.id = :id")
     fun findByIdWithLock(id: Long): Optional<User>

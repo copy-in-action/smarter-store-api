@@ -92,6 +92,40 @@ interface ScheduleSeatStatusRepository : JpaRepository<ScheduleSeatStatus, Long>
     ): Long
 
     /**
+     * 특정 유저들이 점유/예약한 모든 좌석 상태 조회 (데모 계정 초기화용)
+     */
+    fun findByHeldByIn(userIds: Collection<Long>): List<ScheduleSeatStatus>
+
+    /**
+     * 특정 유저들이 점유/예약한 모든 좌석 상태 삭제 (데모 계정 초기화용)
+     */
+    @Modifying
+    @Query("DELETE FROM ScheduleSeatStatus s WHERE s.heldBy IN :userIds")
+    fun deleteAllByHeldByIn(@Param("userIds") userIds: Collection<Long>): Int
+
+    /**
+     * 기준 시각 이전에 열린 회차에서 특정 유저들이 보유한 좌석 상태 삭제 (데모 봇 이력 정리용)
+     */
+    @Modifying
+    @Query("""
+        DELETE FROM ScheduleSeatStatus s
+        WHERE s.heldBy IN :userIds
+        AND s.schedule.id IN (
+            SELECT ps.id FROM PerformanceSchedule ps WHERE ps.showDateTime < :cutoff
+        )
+    """)
+    fun deleteAllByHeldByInAndShowDateTimeBefore(
+        @Param("userIds") userIds: Collection<Long>,
+        @Param("cutoff") cutoff: LocalDateTime
+    ): Int
+
+    /**
+     * 회차별 점유/예약 좌석 총 개수
+     */
+    @Query("SELECT COUNT(s) FROM ScheduleSeatStatus s WHERE s.schedule.id = :scheduleId")
+    fun countByScheduleId(@Param("scheduleId") scheduleId: Long): Long
+
+    /**
      * 유저의 점유 좌석 삭제
      */
     @Modifying

@@ -168,6 +168,17 @@ class SseService(
     }
 
     /**
+     * 현재 SSE 구독자가 1명 이상 존재하는 회차 ID 목록
+     * - 데모 좌석 시뮬레이터가 "누군가 보고 있는 회차"에만 활동하도록 하기 위해 사용
+     */
+    fun getActiveScheduleIds(): Set<Long> {
+        return emitters.entries
+            .filter { it.value.isNotEmpty() }
+            .map { it.key }
+            .toSet()
+    }
+
+    /**
      * 특정 회차의 연결 수 조회 (테스트/모니터링용)
      */
     fun getConnectionCount(scheduleId: Long): Int {

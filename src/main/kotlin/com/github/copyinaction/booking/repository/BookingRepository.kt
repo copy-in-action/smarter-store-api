@@ -33,6 +33,98 @@ interface BookingRepository : JpaRepository<Booking, UUID> {
     fun existsBySchedule_IdAndBookingStatusIn(scheduleId: Long, bookingStatuses: Collection<BookingStatus>): Boolean
 
     /**
+     * 특정 유저들의 모든 예매 조회 (데모 공용 계정 초기화용)
+     */
+    fun findAllBySiteUser_IdIn(userIds: Collection<Long>): List<Booking>
+
+    /**
+     * 특정 유저의 예매 건수 (데모 공용 계정 상한 보호용)
+     */
+    fun countBySiteUser_Id(userId: Long): Long
+
+    /**
+     * 특정 유저의 예매를 오래된 순으로 조회 (데모 공용 계정 상한 보호용)
+     */
+    fun findAllBySiteUser_IdOrderByCreatedAtAsc(userId: Long): List<Booking>
+
+    /**
+     * 특정 회차에서 특정 유저들이 보유한 특정 상태의 예매 조회 (데모 점유율 관리용)
+     */
+    fun findAllBySchedule_IdAndSiteUser_IdInAndBookingStatus(
+        scheduleId: Long,
+        userIds: Collection<Long>,
+        bookingStatus: BookingStatus
+    ): List<Booking>
+
+    /**
+     * 오늘 날짜 접두사를 가진 예매 번호 조회 (시딩 시 예매번호 중복 회피용)
+     */
+    @org.springframework.data.jpa.repository.Query("SELECT b.bookingNumber FROM Booking b WHERE b.bookingNumber LIKE CONCAT(:prefix, '%')")
+    fun findBookingNumbersByPrefix(@org.springframework.data.repository.query.Param("prefix") prefix: String): List<String>
+
+    /**
+     * 특정 유저들의 특정 상태 예매 좌석 일괄 삭제 (데모 봇 이력 정리용)
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("""
+        DELETE FROM BookingSeat bs WHERE bs.booking.id IN (
+            SELECT b.id FROM Booking b
+            WHERE b.siteUser.id IN :userIds AND b.bookingStatus IN :statuses
+        )
+    """)
+    fun deleteSeatsByUserIdsAndStatuses(
+        @org.springframework.data.repository.query.Param("userIds") userIds: Collection<Long>,
+        @org.springframework.data.repository.query.Param("statuses") statuses: Collection<BookingStatus>
+    ): Int
+
+    /**
+     * 특정 유저들의 특정 상태 예매 일괄 삭제 (데모 봇 이력 정리용)
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("""
+        DELETE FROM Booking b
+        WHERE b.siteUser.id IN :userIds AND b.bookingStatus IN :statuses
+    """)
+    fun deleteByUserIdsAndStatuses(
+        @org.springframework.data.repository.query.Param("userIds") userIds: Collection<Long>,
+        @org.springframework.data.repository.query.Param("statuses") statuses: Collection<BookingStatus>
+    ): Int
+
+    /**
+     * 기준 시각 이전 회차의 특정 유저 예매 좌석 일괄 삭제 (데모 봇 이력 정리용)
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("""
+        DELETE FROM BookingSeat bs WHERE bs.booking.id IN (
+            SELECT b.id FROM Booking b
+            WHERE b.siteUser.id IN :userIds
+            AND b.schedule.id IN (
+                SELECT ps.id FROM PerformanceSchedule ps WHERE ps.showDateTime < :cutoff
+            )
+        )
+    """)
+    fun deleteSeatsByUserIdsAndShowDateTimeBefore(
+        @org.springframework.data.repository.query.Param("userIds") userIds: Collection<Long>,
+        @org.springframework.data.repository.query.Param("cutoff") cutoff: LocalDateTime
+    ): Int
+
+    /**
+     * 기준 시각 이전 회차의 특정 유저 예매 일괄 삭제 (데모 봇 이력 정리용)
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("""
+        DELETE FROM Booking b
+        WHERE b.siteUser.id IN :userIds
+        AND b.schedule.id IN (
+            SELECT ps.id FROM PerformanceSchedule ps WHERE ps.showDateTime < :cutoff
+        )
+    """)
+    fun deleteByUserIdsAndShowDateTimeBefore(
+        @org.springframework.data.repository.query.Param("userIds") userIds: Collection<Long>,
+        @org.springframework.data.repository.query.Param("cutoff") cutoff: LocalDateTime
+    ): Int
+
+    /**
      * 사용자의 예매 내역을 조회합니다. (공연 및 회차 정보 포함)
      */
     @org.springframework.data.jpa.repository.Query("""
