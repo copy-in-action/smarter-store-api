@@ -1,0 +1,35 @@
+{
+  "rows": 10,
+  "columns": 10,
+  "seatTypes": {
+    "VIP": {
+      "positions": [
+        "1:",
+        "2:",
+        "3:"
+      ]
+    },
+    "R": {
+      "positions": [
+        "4:",
+        "5:",
+        "6:",
+        "7:"
+      ]
+    },
+    "S": {
+      "positions": [
+        "8:",
+        "9:",
+        "10:"
+      ]
+    }
+  },
+  "disabledSeats": [],
+  "rowSpacers": [
+    3
+  ],
+  "columnSpacers": [
+    5
+  ]
+}
