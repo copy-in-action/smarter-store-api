@@ -21,3 +21,8 @@ cors:
 
 app:
   frontend-url: http://localhost:3000
+
+# 로컬에서 데모 시딩을 확인하려면 .env 또는 환경변수에 DEMO_SEED_ENABLED=true 를 지정하거나 아래 주석을 해제
+# demo:
+#   seed:
+#     enabled: true

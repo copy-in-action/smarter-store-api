@@ -66,3 +66,18 @@ migration:
 
 slack: #SlackServiceTest 를 위해 공통환경변수 설정.
   webhook-url-deploy: ${SLACK_WEBHOOK_URL_DEPLOY:http://localhost}
+
+# 데모 데이터 시딩 (배포 서버는 prod 프로파일이므로 @Profile 대신 프로퍼티로 제어)
+demo:
+  seed:
+    enabled: ${DEMO_SEED_ENABLED:false}
+    rolling-days: ${DEMO_SEED_ROLLING_DAYS:56}
+    rolling-cron: ${DEMO_SEED_ROLLING_CRON:0 0 3 * * MON}
+    cleanup-cron: ${DEMO_SEED_CLEANUP_CRON:0 30 4 * * *}
+    demo-user-reset-cron: ${DEMO_SEED_USER_RESET_CRON:0 0 4 * * *}
+    retention-days: ${DEMO_SEED_RETENTION_DAYS:14}
+    simulator-enabled: ${DEMO_SEED_SIMULATOR_ENABLED:true}
+    simulator-interval-ms: ${DEMO_SEED_SIMULATOR_INTERVAL_MS:20000}
+    demo-user-password: ${DEMO_USER_PASSWORD:DemoPass1234!}
+    bot-user-password: ${DEMO_BOT_PASSWORD:BotInternalPass1234!}
+    max-seats-per-schedule: ${DEMO_SEED_MAX_SEATS_PER_SCHEDULE:220}

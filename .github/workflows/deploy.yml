@@ -143,6 +143,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_URL_DEPLOY: ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
           ENCRYPTION_SECRET_PROD: ${{ secrets.ENCRYPTION_SECRET_PROD }}
+          # 데모 데이터 시딩 활성화 (서버 docker-compose.yml의 ticket-be environment에 동일 변수 전달 필요)
+          DEMO_SEED_ENABLED: 'true'
         run: |
           # 1. 관리 경로로 이동
           cd ${{ vars.DOCKER_COMPOSE_PATH }}
